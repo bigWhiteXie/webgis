@@ -54,7 +54,8 @@ public class UserDetailsServiceImpl implements UserDetailsService
             throw new ServiceException(MessageUtils.message("user.blocked"));
         }
 
-        passwordService.validate(user);
+        // 这一行代码可以没有，因为在SpringSecurity的框架中会使用加密后的密码与UserDetails进行匹配
+//        passwordService.validate(user);
 
         return createLoginUser(user);
     }

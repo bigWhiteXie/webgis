@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.MonitorWellMapper">
+
+	<resultMap type="MonitorWell" id="MonitorWellResult">
+		<id     property="id"                               column="id" />
+		<result property="projectId"                        column="project_id" />
+		<result property="provinceCode"                     column="province_code" />
+		<result property="cityCode"                         column="city_code" />
+		<result property="countyCode"                       column="county_code" />
+		<result property="wellCode"                         column="well_code" />
+		<result property="longitude"                        column="longitude" />
+		<result property="latitude"                         column="latitude" />
+		<result property="isNewWell"                        column="is_new_well" />
+		<result property="isAreaMonitoringPoint"            column="is_area_monitoring_point" />
+		<result property="areaMonitoringPointType"          column="area_monitoring_point_type" />
+		<result property="isWaterSourceMonitoringPoint"     column="is_water_source_monitoring_point" />
+		<result property="waterSourceInfo"                  column="water_source_info" />
+		<result property="isPollutionSourceMonitoringPoint" column="is_pollution_source_monitoring_point" />
+		<result property="pollutionSourceInfo"              column="pollution_source_info" />
+		<result property="completionTime"                   column="completion_time" />
+		<result property="waterLevelDepth"                  column="water_level_depth" />
+		<result property="wellheadElevation"                column="wellhead_elevation" />
+		<result property="wellDepth"                        column="well_depth" />
+		<result property="wellheadInnerDiameter"            column="wellhead_inner_diameter" />
+		<result property="wellPipeMaterial"                 column="well_pipe_material" />
+		<result property="isMultipleScreenPipe"             column="is_multiple_screen_pipe" />
+		<result property="screenPipeDepth"                  column="screen_pipe_depth" />
+		<result property="burialCondition"                  column="burial_condition" />
+		<result property="aquiferMedium"                    column="aquifer_medium" />
+		<result property="wellOwnershipUnit"                column="well_ownership_unit" />
+		<result property="isSuitableForLongTermMonitoring"  column="is_suitable_for_long_term_monitoring" />
+		<result property="isConvertedToLongTermMonitoring"  column="is_converted_to_long_term_monitoring" />
+		<result property="isMaintenanceManagementCarriedOut" column="is_maintenance_management_carried_out" />
+		<result property="actualMaintenanceManagementUnit"  column="actual_maintenance_management_unit" />
+		<result property="isSealedBackfilledForNonLongTerm" column="is_sealed_backfilled_for_non_long_term" />
+		<result property="sealedBackfilledStatus"           column="sealed_backfilled_status" />
+		<result property="geom"                             column="geom" />
+	</resultMap>
+	
+	<sql id="selectMonitorWellVo">
+        SELECT id, project_id, province_code, city_code, county_code, well_code, longitude, latitude, is_new_well, 
+               is_area_monitoring_point, area_monitoring_point_type, is_water_source_monitoring_point, water_source_info,
+               is_pollution_source_monitoring_point, pollution_source_info, completion_time, water_level_depth, 
+               wellhead_elevation, well_depth, wellhead_inner_diameter, well_pipe_material, is_multiple_screen_pipe,
+               screen_pipe_depth, burial_condition, aquifer_medium, well_ownership_unit, is_suitable_for_long_term_monitoring,
+               is_converted_to_long_term_monitoring, is_maintenance_management_carried_out, actual_maintenance_management_unit,
+               is_sealed_backfilled_for_non_long_term, sealed_backfilled_status
+		FROM monitoring_well
+    </sql>
+	
+	<select id="selectMonitorWellById" parameterType="String" resultMap="MonitorWellResult">
+		<include refid="selectMonitorWellVo"/>
+		WHERE well_code = #{wellCode}
+	</select>
+	
+	<select id="importList" resultMap="MonitorWellResult">
+		<include refid="selectMonitorWellVo"/>
+	</select>
+	
+	<select id="selectMonitorWellList" parameterType="MonitorWell" resultMap="MonitorWellResult">
+		<include refid="selectMonitorWellVo"/>
+		<where>
+			<if test="wellCode != null and wellCode != ''">
+				AND well_code LIKE CONCAT('%', #{wellCode}, '%')
+			</if>
+			<if test="projectId != null and projectId != ''">
+				AND project_id LIKE CONCAT('%', #{projectId}, '%')
+			</if>
+			<if test="provinceCode != null and provinceCode != ''">
+				AND province_code = #{provinceCode}
+			</if>
+			<if test="cityCode != null and cityCode != ''">
+				AND city_code = #{cityCode}
+			</if>
+			<if test="countyCode != null and countyCode != ''">
+				AND county_code = #{countyCode}
+			</if>
+			<if test="completionTime != null">
+				AND completion_time = #{completionTime}
+			</if>
+		</where>
+		ORDER BY completion_time DESC
+	</select>
+	
+	<select id="selectMonitorWellCount" parameterType="MonitorWell" resultType="int">
+		SELECT COUNT(*) FROM monitoring_well
+		<where>
+			<if test="wellCode != null and wellCode != ''">
+				AND well_code LIKE CONCAT('%', #{wellCode}, '%')
+			</if>
+			<if test="projectId != null and projectId != ''">
+				AND project_id LIKE CONCAT('%', #{projectId}, '%')
+			</if>
+			<if test="provinceCode != null and provinceCode != ''">
+				AND province_code = #{provinceCode}
+			</if>
+			<if test="cityCode != null and cityCode != ''">
+				AND city_code = #{cityCode}
+			</if>
+			<if test="countyCode != null and countyCode != ''">
+				AND county_code = #{countyCode}
+			</if>
+			<if test="completionTime != null">
+				AND completion_time = #{completionTime}
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateMonitorWell" parameterType="MonitorWell">
+		UPDATE monitoring_well
+		<set>
+			<if test="projectId != null and projectId != ''">project_id = #{projectId},</if>
+			<if test="provinceCode != null and provinceCode != ''">province_code = #{provinceCode},</if>
+			<if test="cityCode != null and cityCode != ''">city_code = #{cityCode},</if>
+			<if test="countyCode != null and countyCode != ''">county_code = #{countyCode},</if>
+			<if test="wellCode != null and wellCode != ''">well_code = #{wellCode},</if>
+			<if test="longitude != null">longitude = #{longitude},</if>
+			<if test="latitude != null">latitude = #{latitude},</if>
+			<if test="isNewWell != null">is_new_well = #{isNewWell},</if>
+			<if test="isAreaMonitoringPoint != null">is_area_monitoring_point = #{isAreaMonitoringPoint},</if>
+			<if test="areaMonitoringPointType != null and areaMonitoringPointType != ''">area_monitoring_point_type = #{areaMonitoringPointType},</if>
+			<if test="isWaterSourceMonitoringPoint != null">is_water_source_monitoring_point = #{isWaterSourceMonitoringPoint},</if>
+			<if test="waterSourceInfo != null and waterSourceInfo != ''">water_source_info = #{waterSourceInfo},</if>
+			<if test="isPollutionSourceMonitoringPoint != null">is_pollution_source_monitoring_point = #{isPollutionSourceMonitoringPoint},</if>
+			<if test="pollutionSourceInfo != null and pollutionSourceInfo != ''">pollution_source_info = #{pollutionSourceInfo},</if>
+			<if test="completionTime != null">completion_time = #{completionTime},</if>
+			<if test="waterLevelDepth != null">water_level_depth = #{waterLevelDepth},</if>
+			<if test="wellheadElevation != null">wellhead_elevation = #{wellheadElevation},</if>
+			<if test="wellDepth != null">well_depth = #{wellDepth},</if>
+			<if test="wellheadInnerDiameter != null">wellhead_inner_diameter = #{wellheadInnerDiameter},</if>
+			<if test="wellPipeMaterial != null and wellPipeMaterial != ''">well_pipe_material = #{wellPipeMaterial},</if>
+			<if test="isMultipleScreenPipe != null">is_multiple_screen_pipe = #{isMultipleScreenPipe},</if>
+			<if test="screenPipeDepth != null and screenPipeDepth != ''">screen_pipe_depth = #{screenPipeDepth},</if>
+			<if test="burialCondition != null and burialCondition != ''">burial_condition = #{burialCondition},</if>
+			<if test="aquiferMedium != null and aquiferMedium != ''">aquifer_medium = #{aquiferMedium},</if>
+			<if test="wellOwnershipUnit != null and wellOwnershipUnit != ''">well_ownership_unit = #{wellOwnershipUnit},</if>
+			<if test="isSuitableForLongTermMonitoring != null">is_suitable_for_long_term_monitoring = #{isSuitableForLongTermMonitoring},</if>
+			<if test="isConvertedToLongTermMonitoring != null">is_converted_to_long_term_monitoring = #{isConvertedToLongTermMonitoring},</if>
+			<if test="isMaintenanceManagementCarriedOut != null">is_maintenance_management_carried_out = #{isMaintenanceManagementCarriedOut},</if>
+			<if test="actualMaintenanceManagementUnit != null and actualMaintenanceManagementUnit != ''">actual_maintenance_management_unit = #{actualMaintenanceManagementUnit},</if>
+			<if test="isSealedBackfilledForNonLongTerm != null">is_sealed_backfilled_for_non_long_term = #{isSealedBackfilledForNonLongTerm},</if>
+			<if test="sealedBackfilledStatus != null and sealedBackfilledStatus != ''">sealed_backfilled_status = #{sealedBackfilledStatus},</if>
+			<if test="geom != null and geom != ''">geom = ST_GeomFromText(#{geom}, 4490),</if>
+		</set>
+		WHERE well_code = #{wellCode}
+	</update>
+	
+	<insert id="batchInsertMonitorWells" parameterType="java.util.List">
+		INSERT INTO monitoring_well(
+			project_id, province_code, city_code, county_code, well_code, longitude, latitude, is_new_well,
+			is_area_monitoring_point, area_monitoring_point_type, is_water_source_monitoring_point, water_source_info,
+			is_pollution_source_monitoring_point, pollution_source_info, completion_time, water_level_depth,
+			wellhead_elevation, well_depth, wellhead_inner_diameter, well_pipe_material, is_multiple_screen_pipe,
+			screen_pipe_depth, burial_condition, aquifer_medium, well_ownership_unit, is_suitable_for_long_term_monitoring,
+			is_converted_to_long_term_monitoring, is_maintenance_management_carried_out, actual_maintenance_management_unit,
+			is_sealed_backfilled_for_non_long_term, sealed_backfilled_status, geom
+		) VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+			#{item.projectId}, #{item.provinceCode}, #{item.cityCode}, #{item.countyCode}, #{item.wellCode}, 
+			#{item.longitude}, #{item.latitude}, #{item.isNewWell},
+			#{item.isAreaMonitoringPoint}, #{item.areaMonitoringPointType}, #{item.isWaterSourceMonitoringPoint}, #{item.waterSourceInfo},
+			#{item.isPollutionSourceMonitoringPoint}, #{item.pollutionSourceInfo}, #{item.completionTime}, #{item.waterLevelDepth},
+			#{item.wellheadElevation}, #{item.wellDepth}, #{item.wellheadInnerDiameter}, #{item.wellPipeMaterial}, #{item.isMultipleScreenPipe},
+			#{item.screenPipeDepth}, #{item.burialCondition}, #{item.aquiferMedium}, #{item.wellOwnershipUnit}, #{item.isSuitableForLongTermMonitoring},
+			#{item.isConvertedToLongTermMonitoring}, #{item.isMaintenanceManagementCarriedOut}, #{item.actualMaintenanceManagementUnit},
+			#{item.isSealedBackfilledForNonLongTerm}, #{item.sealedBackfilledStatus}, ST_GeomFromText(#{item.geom}, 4490)
+		)
+		</foreach>
+		ON CONFLICT (well_code) DO UPDATE SET
+			project_id = EXCLUDED.project_id,
+			province_code = EXCLUDED.province_code,
+			city_code = EXCLUDED.city_code,
+			county_code = EXCLUDED.county_code,
+			longitude = EXCLUDED.longitude,
+			latitude = EXCLUDED.latitude,
+			is_new_well = EXCLUDED.is_new_well,
+			is_area_monitoring_point = EXCLUDED.is_area_monitoring_point,
+			area_monitoring_point_type = EXCLUDED.area_monitoring_point_type,
+			is_water_source_monitoring_point = EXCLUDED.is_water_source_monitoring_point,
+			water_source_info = EXCLUDED.water_source_info,
+			is_pollution_source_monitoring_point = EXCLUDED.is_pollution_source_monitoring_point,
+			pollution_source_info = EXCLUDED.pollution_source_info,
+			completion_time = EXCLUDED.completion_time,
+			water_level_depth = EXCLUDED.water_level_depth,
+			wellhead_elevation = EXCLUDED.wellhead_elevation,
+			well_depth = EXCLUDED.well_depth,
+			wellhead_inner_diameter = EXCLUDED.wellhead_inner_diameter,
+			well_pipe_material = EXCLUDED.well_pipe_material,
+			is_multiple_screen_pipe = EXCLUDED.is_multiple_screen_pipe,
+			screen_pipe_depth = EXCLUDED.screen_pipe_depth,
+			burial_condition = EXCLUDED.burial_condition,
+			aquifer_medium = EXCLUDED.aquifer_medium,
+			well_ownership_unit = EXCLUDED.well_ownership_unit,
+			is_suitable_for_long_term_monitoring = EXCLUDED.is_suitable_for_long_term_monitoring,
+			is_converted_to_long_term_monitoring = EXCLUDED.is_converted_to_long_term_monitoring,
+			is_maintenance_management_carried_out = EXCLUDED.is_maintenance_management_carried_out,
+			actual_maintenance_management_unit = EXCLUDED.actual_maintenance_management_unit,
+			is_sealed_backfilled_for_non_long_term = EXCLUDED.is_sealed_backfilled_for_non_long_term,
+			sealed_backfilled_status = EXCLUDED.sealed_backfilled_status,
+			geom = EXCLUDED.geom
+	</insert>
+
+</mapper>

@@ -23,7 +23,6 @@ import com.ruoyi.framework.interceptor.RepeatSubmitInterceptor;
  * @author ruoyi
  */
 @Component
-@ConditionalOnProperty(name = "spring.redis.enabled", havingValue = "true", matchIfMissing = true)
 public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
 {
     @Autowired

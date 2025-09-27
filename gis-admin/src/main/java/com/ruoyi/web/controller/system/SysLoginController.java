@@ -24,12 +24,17 @@ import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysMenuService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 /**
  * 登录验证
  * 
  * @author ruoyi
  */
 @RestController
+@Api(tags = "登录验证管理")
 public class SysLoginController
 {
     @Autowired
@@ -54,7 +59,8 @@ public class SysLoginController
      * @return 结果
      */
     @PostMapping("/login")
-    public AjaxResult login(@RequestBody LoginBody loginBody)
+    @ApiOperation("用户登录")
+    public AjaxResult login(@ApiParam("登录信息") @RequestBody LoginBody loginBody)
     {
         AjaxResult ajax = AjaxResult.success();
         // 生成令牌
@@ -70,6 +76,7 @@ public class SysLoginController
      * @return 用户信息
      */
     @GetMapping("getInfo")
+    @ApiOperation("获取用户信息")
     public AjaxResult getInfo()
     {
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -98,6 +105,7 @@ public class SysLoginController
      * @return 路由信息
      */
     @GetMapping("getRouters")
+    @ApiOperation("获取路由信息")
     public AjaxResult getRouters()
     {
         Long userId = SecurityUtils.getUserId();

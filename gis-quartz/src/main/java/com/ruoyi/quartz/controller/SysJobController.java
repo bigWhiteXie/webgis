@@ -27,6 +27,10 @@ import com.ruoyi.quartz.service.ISysJobService;
 import com.ruoyi.quartz.util.CronUtils;
 import com.ruoyi.quartz.util.ScheduleUtils;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 /**
  * 调度任务信息操作处理
  * 
@@ -44,7 +48,8 @@ public class SysJobController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SysJob sysJob)
+    @ApiOperation("查询定时任务列表")
+    public TableDataInfo list(@ApiParam("定时任务信息") SysJob sysJob)
     {
         startPage();
         List<SysJob> list = jobService.selectJobList(sysJob);
@@ -57,7 +62,9 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:export')")
     @Log(title = "定时任务", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysJob sysJob)
+    @ApiOperation("导出定时任务列表")
+    public void export(@ApiParam("响应对象") HttpServletResponse response, 
+                       @ApiParam("定时任务信息") SysJob sysJob)
     {
         List<SysJob> list = jobService.selectJobList(sysJob);
         ExcelUtil<SysJob> util = new ExcelUtil<SysJob>(SysJob.class);
@@ -69,7 +76,8 @@ public class SysJobController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('monitor:job:query')")
     @GetMapping(value = "/{jobId}")
-    public AjaxResult getInfo(@PathVariable("jobId") Long jobId)
+    @ApiOperation("获取定时任务详细信息")
+    public AjaxResult getInfo(@ApiParam("任务ID") @PathVariable("jobId") Long jobId)
     {
         return success(jobService.selectJobById(jobId));
     }
@@ -80,7 +88,8 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:add')")
     @Log(title = "定时任务", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody SysJob job) throws SchedulerException, TaskException
+    @ApiOperation("新增定时任务")
+    public AjaxResult add(@ApiParam("定时任务信息") @RequestBody SysJob job) throws SchedulerException, TaskException
     {
         if (!CronUtils.isValid(job.getCronExpression()))
         {
@@ -116,7 +125,8 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:edit')")
     @Log(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody SysJob job) throws SchedulerException, TaskException
+    @ApiOperation("修改定时任务")
+    public AjaxResult edit(@ApiParam("定时任务信息") @RequestBody SysJob job) throws SchedulerException, TaskException
     {
         if (!CronUtils.isValid(job.getCronExpression()))
         {
@@ -152,7 +162,8 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:changeStatus')")
     @Log(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
-    public AjaxResult changeStatus(@RequestBody SysJob job) throws SchedulerException
+    @ApiOperation("修改定时任务状态")
+    public AjaxResult changeStatus(@ApiParam("定时任务信息") @RequestBody SysJob job) throws SchedulerException
     {
         SysJob newJob = jobService.selectJobById(job.getJobId());
         newJob.setStatus(job.getStatus());
@@ -165,7 +176,8 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:changeStatus')")
     @Log(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping("/run")
-    public AjaxResult run(@RequestBody SysJob job) throws SchedulerException
+    @ApiOperation("立即执行定时任务")
+    public AjaxResult run(@ApiParam("定时任务信息") @RequestBody SysJob job) throws SchedulerException
     {
         boolean result = jobService.run(job);
         return result ? success() : error("任务不存在或已过期！");
@@ -177,7 +189,8 @@ public class SysJobController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:job:remove')")
     @Log(title = "定时任务", businessType = BusinessType.DELETE)
     @DeleteMapping("/{jobIds}")
-    public AjaxResult remove(@PathVariable Long[] jobIds) throws SchedulerException
+    @ApiOperation("删除定时任务")
+    public AjaxResult remove(@ApiParam("任务ID数组") @PathVariable Long[] jobIds) throws SchedulerException
     {
         jobService.deleteJobByIds(jobIds);
         return success();

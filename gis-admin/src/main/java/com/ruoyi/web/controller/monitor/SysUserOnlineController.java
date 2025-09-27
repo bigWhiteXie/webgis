@@ -23,6 +23,10 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.SysUserOnline;
 import com.ruoyi.system.service.ISysUserOnlineService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 /**
  * 在线用户监控
  * 
@@ -30,6 +34,7 @@ import com.ruoyi.system.service.ISysUserOnlineService;
  */
 @RestController
 @RequestMapping("/monitor/online")
+@Api(tags = "在线用户管理")
 public class SysUserOnlineController extends BaseController
 {
     @Autowired
@@ -40,7 +45,9 @@ public class SysUserOnlineController extends BaseController
 
     @PreAuthorize("@ss.hasPermi('monitor:online:list')")
     @GetMapping("/list")
-    public TableDataInfo list(String ipaddr, String userName)
+    @ApiOperation("查询在线用户列表")
+    public TableDataInfo list(@ApiParam("IP地址") String ipaddr, 
+                              @ApiParam("用户名") String userName)
     {
         Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
@@ -75,7 +82,8 @@ public class SysUserOnlineController extends BaseController
     @PreAuthorize("@ss.hasPermi('monitor:online:forceLogout')")
     @Log(title = "在线用户", businessType = BusinessType.FORCE)
     @DeleteMapping("/{tokenId}")
-    public AjaxResult forceLogout(@PathVariable String tokenId)
+    @ApiOperation("强退用户")
+    public AjaxResult forceLogout(@ApiParam("令牌ID") @PathVariable String tokenId)
     {
         redisCache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
         return success();

@@ -68,7 +68,7 @@ spring:
   # redis 配置
   redis:
     # 是否启用redis
-    enabled: true
+    enabled: false
     # 地址
     host: localhost
     # 端口，默认为6379

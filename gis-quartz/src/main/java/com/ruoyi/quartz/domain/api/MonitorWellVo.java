@@ -1,4 +1,4 @@
-package com.ruoyi.quartz.domain.vo;
+package com.ruoyi.quartz.domain.api;
 
 import java.util.Date;
 

@@ -37,23 +37,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="actualMaintenanceManagementUnit"  column="actual_maintenance_management_unit" />
 		<result property="isSealedBackfilledForNonLongTerm" column="is_sealed_backfilled_for_non_long_term" />
 		<result property="sealedBackfilledStatus"           column="sealed_backfilled_status" />
+		<result property="imageUrl"                         column="image_url" />
+		<result property="geom"                             column="geom" />
+		<result property="provinceName"                     column="province_name" />
+		<result property="cityName"                         column="city_name" />
+		<result property="countyName"                       column="county_name" />
+	</resultMap>
+	
+	<resultMap type="com.ruoyi.quartz.domain.api.SimpleWellResp" id="SimpleWellRespResult">
+		<result property="wellCode"                         column="well_code" />
+		<result property="longitude"                        column="longitude" />
+		<result property="latitude"                         column="latitude" />
 		<result property="geom"                             column="geom" />
 	</resultMap>
 	
 	<sql id="selectMonitorWellVo">
-        SELECT id, project_id, province_code, city_code, county_code, well_code, longitude, latitude, is_new_well, 
-               is_area_monitoring_point, area_monitoring_point_type, is_water_source_monitoring_point, water_source_info,
-               is_pollution_source_monitoring_point, pollution_source_info, completion_time, water_level_depth, 
-               wellhead_elevation, well_depth, wellhead_inner_diameter, well_pipe_material, is_multiple_screen_pipe,
-               screen_pipe_depth, burial_condition, aquifer_medium, well_ownership_unit, is_suitable_for_long_term_monitoring,
-               is_converted_to_long_term_monitoring, is_maintenance_management_carried_out, actual_maintenance_management_unit,
-               is_sealed_backfilled_for_non_long_term, sealed_backfilled_status
-		FROM monitoring_well
+        SELECT mw.id, mw.project_id, mw.province_code, mw.city_code, mw.county_code, mw.well_code, mw.longitude, mw.latitude, mw.is_new_well, 
+               mw.is_area_monitoring_point, mw.area_monitoring_point_type, mw.is_water_source_monitoring_point, mw.water_source_info,
+               mw.is_pollution_source_monitoring_point, mw.pollution_source_info, mw.completion_time, mw.water_level_depth, 
+               mw.wellhead_elevation, mw.well_depth, mw.wellhead_inner_diameter, mw.well_pipe_material, mw.is_multiple_screen_pipe,
+               mw.screen_pipe_depth, mw.burial_condition, mw.aquifer_medium, mw.well_ownership_unit, mw.is_suitable_for_long_term_monitoring,
+               mw.is_converted_to_long_term_monitoring, mw.is_maintenance_management_carried_out, mw.actual_maintenance_management_unit,
+               mw.is_sealed_backfilled_for_non_long_term, mw.sealed_backfilled_status, mw.image_url, ST_AsText(mw.geom) as geom,
+               l.province_name, l.city_name, l.county_name
+		FROM monitoring_well mw
+		LEFT JOIN location l ON mw.county_code = l.county_code
     </sql>
+	
+	<select id="selectMonitorWellListBySpatialBounds" resultMap="SimpleWellRespResult">
+        SELECT well_code, longitude, latitude, ST_AsText(geom) as geom
+        FROM monitoring_well
+        <where>
+            <if test="minX != null and minY != null and maxX != null and maxY != null">
+                ST_Within(geom, ST_MakeEnvelope(#{minX}, #{minY}, #{maxX}, #{maxY}, 4490))
+            </if>
+        </where>
+    </select>
 	
 	<select id="selectMonitorWellById" parameterType="String" resultMap="MonitorWellResult">
 		<include refid="selectMonitorWellVo"/>
-		WHERE well_code = #{wellCode}
+		WHERE mw.well_code = #{wellCode}
 	</select>
 	
 	<select id="importList" resultMap="MonitorWellResult">
@@ -64,47 +87,47 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<include refid="selectMonitorWellVo"/>
 		<where>
 			<if test="wellCode != null and wellCode != ''">
-				AND well_code LIKE CONCAT('%', #{wellCode}, '%')
+				AND mw.well_code LIKE CONCAT('%', #{wellCode}, '%')
 			</if>
 			<if test="projectId != null and projectId != ''">
-				AND project_id LIKE CONCAT('%', #{projectId}, '%')
+				AND mw.project_id LIKE CONCAT('%', #{projectId}, '%')
 			</if>
 			<if test="provinceCode != null and provinceCode != ''">
-				AND province_code = #{provinceCode}
+				AND mw.province_code = #{provinceCode}
 			</if>
 			<if test="cityCode != null and cityCode != ''">
-				AND city_code = #{cityCode}
+				AND mw.city_code = #{cityCode}
 			</if>
 			<if test="countyCode != null and countyCode != ''">
-				AND county_code = #{countyCode}
+				AND mw.county_code = #{countyCode}
 			</if>
 			<if test="completionTime != null">
-				AND completion_time = #{completionTime}
+				AND mw.completion_time = #{completionTime}
 			</if>
 		</where>
-		ORDER BY completion_time DESC
+		ORDER BY mw.completion_time DESC
 	</select>
 	
 	<select id="selectMonitorWellCount" parameterType="MonitorWell" resultType="int">
-		SELECT COUNT(*) FROM monitoring_well
+		SELECT COUNT(*) FROM monitoring_well mw
 		<where>
 			<if test="wellCode != null and wellCode != ''">
-				AND well_code LIKE CONCAT('%', #{wellCode}, '%')
+				AND mw.well_code LIKE CONCAT('%', #{wellCode}, '%')
 			</if>
 			<if test="projectId != null and projectId != ''">
-				AND project_id LIKE CONCAT('%', #{projectId}, '%')
+				AND mw.project_id LIKE CONCAT('%', #{projectId}, '%')
 			</if>
 			<if test="provinceCode != null and provinceCode != ''">
-				AND province_code = #{provinceCode}
+				AND mw.province_code = #{provinceCode}
 			</if>
 			<if test="cityCode != null and cityCode != ''">
-				AND city_code = #{cityCode}
+				AND mw.city_code = #{cityCode}
 			</if>
 			<if test="countyCode != null and countyCode != ''">
-				AND county_code = #{countyCode}
+				AND mw.county_code = #{countyCode}
 			</if>
 			<if test="completionTime != null">
-				AND completion_time = #{completionTime}
+				AND mw.completion_time = #{completionTime}
 			</if>
 		</where>
 	</select>
@@ -143,6 +166,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="actualMaintenanceManagementUnit != null and actualMaintenanceManagementUnit != ''">actual_maintenance_management_unit = #{actualMaintenanceManagementUnit},</if>
 			<if test="isSealedBackfilledForNonLongTerm != null">is_sealed_backfilled_for_non_long_term = #{isSealedBackfilledForNonLongTerm},</if>
 			<if test="sealedBackfilledStatus != null and sealedBackfilledStatus != ''">sealed_backfilled_status = #{sealedBackfilledStatus},</if>
+			<if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
 			<if test="geom != null and geom != ''">geom = ST_GeomFromText(#{geom}, 4490),</if>
 		</set>
 		WHERE well_code = #{wellCode}

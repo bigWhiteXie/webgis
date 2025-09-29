@@ -2,10 +2,24 @@ package com.ruoyi.quartz.mapper;
 
 import com.ruoyi.quartz.domain.MonitorWell;
 import com.ruoyi.quartz.domain.SysJobLog;
+import com.ruoyi.quartz.domain.api.SimpleWellResp;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface MonitorWellMapper {
+    
+    /**
+     * 根据空间范围查询监测井列表
+     * 
+     * @param minX 最小经度
+     * @param minY 最小纬度
+     * @param maxX 最大经度
+     * @param maxY 最大纬度
+     * @return 监测井列表
+     */
+    List<SimpleWellResp> selectMonitorWellListBySpatialBounds(@Param("minX") Double minX, @Param("minY") Double minY, 
+                                                              @Param("maxX") Double maxX, @Param("maxY") Double maxY);
     
     /**
      * 批量插入监测井数据

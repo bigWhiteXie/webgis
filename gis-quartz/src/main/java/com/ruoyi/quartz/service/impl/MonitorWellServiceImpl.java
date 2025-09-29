@@ -3,7 +3,8 @@ package com.ruoyi.quartz.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.MonitorWell;
-import com.ruoyi.quartz.domain.vo.MonitorWellVo;
+import com.ruoyi.quartz.domain.api.MonitorWellVo;
+import com.ruoyi.quartz.domain.api.SimpleWellResp;
 import com.ruoyi.quartz.mapper.MonitorWellMapper;
 import com.ruoyi.quartz.service.IMonitorWellService;
 import org.slf4j.Logger;
@@ -22,6 +23,10 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
     @Autowired
     private MonitorWellMapper monitorWellMapper;
 
+    @Override
+    public List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY) {
+        return monitorWellMapper.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY);
+    }
     
     @Override
     public int parseAndImportExcelFile(MultipartFile file) throws Exception {

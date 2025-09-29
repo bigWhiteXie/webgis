@@ -10,6 +10,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gis-quartz</artifactId>
+    <repositories>
+        <repository>
+            <id>osgeo</id>
+            <name>OSGeo Release Repository</name>
+            <url>https://repo.osgeo.org/repository/release/</url>
+        </repository>
+    </repositories>
 
     <description>
         quartz定时任务
@@ -47,6 +54,15 @@
 			<artifactId>easyexcel</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
+            <version>25.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>gis-framework</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

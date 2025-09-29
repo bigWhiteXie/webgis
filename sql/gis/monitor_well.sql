@@ -71,8 +71,9 @@ CREATE TABLE monitoring_well (
   sealed_backfilled_status VARCHAR(255),
 -- 若进行了封井回填，记录封井回填的状态
 -- 空间数据，用于支持空间查询，采用 CGCS2000 坐标系（SRID 为 4490）
-  geom geometry(Point, 4490)
+  geom geometry(Point, 4490),
 -- 存储监测井地理位置的几何对象，基于 CGCS2000 坐标系，用于空间查询操作
+  image_url VARCHAR(255)
 );
 
 -- 创建空间索引，提高空间查询性能

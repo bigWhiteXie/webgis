@@ -31,6 +31,8 @@
         <velocity.version>2.3</velocity.version>
         <jwt.version>0.9.1</jwt.version>
         <easyexcel.version>3.3.3</easyexcel.version>
+        <!-- GeoTools version -->
+        <geotools.version>25.3</geotools.version>
         <!-- override dependency version -->
         <tomcat.version>9.0.108</tomcat.version>
         <logback.version>1.2.13</logback.version>
@@ -192,7 +194,24 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 			
+            <!-- GeoTools dependencies -->
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-shapefile</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
 
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-main</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-geometry</artifactId>
+                <version>${geotools.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -205,5 +224,6 @@
         <module>gis-quartz</module>
     </modules>
     <packaging>pom</packaging>
+
 
 </project>

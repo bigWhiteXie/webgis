@@ -2,12 +2,24 @@ package com.ruoyi.quartz.service;
 
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.MonitorWell;
-import com.ruoyi.quartz.domain.vo.MonitorWellVo;
+import com.ruoyi.quartz.domain.api.MonitorWellVo;
+import com.ruoyi.quartz.domain.api.SimpleWellResp;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface IMonitorWellService {
+    
+    /**
+     * 根据空间范围查询监测井列表
+     * 
+     * @param minX 最小经度
+     * @param minY 最小纬度
+     * @param maxX 最大经度
+     * @param maxY 最大纬度
+     * @return 监测井列表
+     */
+    List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY);
     
     /**
      * 分批解析Excel文件并导入数据库

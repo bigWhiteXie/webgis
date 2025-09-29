@@ -27,6 +27,12 @@ CREATE INDEX idx_province_code ON location (province_code);
 -- 按地市查询的索引
 CREATE INDEX idx_city_code ON location (city_code);
 -- 按区县查询的索引
-CREATE INDEX idx_county_code ON location (county_code);
+CREATE unique INDEX unique_county_code ON location (county_code);
 -- 按省市联合查询的索引
-CREATE INDEX idx_province_city ON location (province_code, city_code);
+CREATE INDEX idx_province_city ON location (province_code, city_code, county_code);
+
+select * from location where county_code = '152531.0';
+
+UPDATE location
+SET county_code = LEFT(county_code, LENGTH(county_code) - 2)
+WHERE county_code LIKE '%.0';

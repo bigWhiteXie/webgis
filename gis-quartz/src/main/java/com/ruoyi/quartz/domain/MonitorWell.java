@@ -188,9 +188,29 @@ public class MonitorWell {
     @ApiModelProperty("封井回填状态")
     private String sealedBackfilledStatus;
     
+    // 图片链接
+    @ExcelProperty("图片链接")
+    @ApiModelProperty("图片链接")
+    private String imageUrl;
+    
     // 几何对象(位置信息)
     @ApiModelProperty("几何对象(位置信息)")
     private String geom;
+    
+    // 省份名称
+    @ExcelProperty("省份名称")
+    @ApiModelProperty("省份名称")
+    private String provinceName;
+    
+    // 地市名称
+    @ExcelProperty("地市名称")
+    @ApiModelProperty("地市名称")
+    private String cityName;
+    
+    // 区县名称
+    @ExcelProperty("区县名称")
+    @ApiModelProperty("区县名称")
+    private String countyName;
 
     public Long getId() {
         return id;
@@ -447,6 +467,14 @@ public class MonitorWell {
     public void setSealedBackfilledStatus(String sealedBackfilledStatus) {
         this.sealedBackfilledStatus = sealedBackfilledStatus;
     }
+    
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getGeom() {
         return geom;
@@ -454,6 +482,30 @@ public class MonitorWell {
 
     public void setGeom(String geom) {
         this.geom = geom;
+    }
+    
+    public String getProvinceName() {
+        return provinceName;
+    }
+    
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
+    }
+    
+    public String getCityName() {
+        return cityName;
+    }
+    
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+    
+    public String getCountyName() {
+        return countyName;
+    }
+    
+    public void setCountyName(String countyName) {
+        this.countyName = countyName;
     }
 
     @Override
@@ -492,6 +544,9 @@ public class MonitorWell {
                 ", isSealedBackfilledForNonLongTerm=" + isSealedBackfilledForNonLongTerm +
                 ", sealedBackfilledStatus='" + sealedBackfilledStatus + '\'' +
                 ", geom=" + geom +
+                ", provinceName='" + provinceName + '\'' +
+                ", cityName='" + cityName + '\'' +
+                ", countyName='" + countyName + '\'' +
                 '}';
     }
     

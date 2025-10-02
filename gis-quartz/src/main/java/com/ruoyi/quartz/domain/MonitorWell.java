@@ -12,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import com.ruoyi.common.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -601,7 +603,7 @@ public class MonitorWell {
                         monitorWell.setPollutionSourceInfo(getStringValue(rowMap.get(14)));
 
                         // 成井信息
-                        monitorWell.setCompletionTime(parseCompletionTime(getStringValue(rowMap.get(15))));
+                        monitorWell.setCompletionTime(DateUtils.parseDate(getStringValue(rowMap.get(15))));
                         monitorWell.setWaterLevelDepth(getBigDecimalValue(rowMap.get(16)));
                         monitorWell.setWellheadElevation(getBigDecimalValue(rowMap.get(17)));
                         monitorWell.setWellDepth(getBigDecimalValue(rowMap.get(18)));

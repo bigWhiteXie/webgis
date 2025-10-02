@@ -111,7 +111,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     /**
      * 日期型字符串转化为日期 格式
      */
-    public static Date parseDate(Object str)
+    public static Date parseDate(Object str) throws ParseException
     {
         if (str == null)
         {
@@ -123,7 +123,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         }
         catch (ParseException e)
         {
-            return null;
+            throw e;
         }
     }
 

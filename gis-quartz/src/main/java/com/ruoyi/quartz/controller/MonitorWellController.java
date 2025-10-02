@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.List;
 
 import io.swagger.annotations.Api;
@@ -173,13 +174,19 @@ public class MonitorWellController extends BaseController {
      */
     @PutMapping
     @ApiOperation("更新监测井信息")
-    public AjaxResult edit(MonitorWell monitorWell, @ApiParam("附件") @RequestParam(value = "file", required = false) MultipartFile file) {
+    public AjaxResult edit(@ApiParam("监测井信息") @ModelAttribute MonitorWell monitorWell, @ApiParam("附件") @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             // 检查wellCode是否为空
             if (monitorWell.getWellCode() == null || monitorWell.getWellCode().trim().isEmpty()) {
                 return AjaxResult.error("监测井编码不能为空");
             }
-            
+
+            BigDecimal longitude = monitorWell.getLongitude();
+            BigDecimal latitude = monitorWell.getLatitude();
+            if (longitude != null && latitude != null) {
+                monitorWell.setGeom("POINT(" + longitude + " " + latitude + ")");
+            }
+
             if (file != null && !file.isEmpty()) {
                 // 上传文件路径
                 String filePath = RuoYiConfig.getUploadPath();

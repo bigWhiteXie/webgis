@@ -36,13 +36,18 @@ public class BaseController
     @InitBinder
     public void initBinder(WebDataBinder binder)
     {
+
         // Date 类型转换
         binder.registerCustomEditor(Date.class, new PropertyEditorSupport()
         {
             @Override
             public void setAsText(String text)
             {
-                setValue(DateUtils.parseDate(text));
+                try {
+                    setValue(DateUtils.parseDate(text));
+                } catch (Exception e) {
+                    setValue(null);
+                }
             }
         });
     }

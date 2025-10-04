@@ -35,7 +35,7 @@ public interface MonitorWellMapper {
      * @param monitorWell 查询条件
      * @return 监测井列表
      */
-    public List<MonitorWell> selectMonitorWellList(MonitorWell monitorWell);
+    public List<MonitorWell> selectMonitorWellList(@Param("monitorWell") MonitorWell monitorWell, @Param("offset") int offset, @Param("pageSize") int pageSize);
     
     /**
      * 查询监测井数据总记录数
@@ -60,4 +60,11 @@ public interface MonitorWellMapper {
      * @return 更新结果
      */
     public int updateMonitorWell(MonitorWell monitorWell);
+    
+    /**
+     * 查询所有监测井编号
+     * 
+     * @return 监测井编号列表
+     */
+    public List<String> selectAllWellCodes();
 }

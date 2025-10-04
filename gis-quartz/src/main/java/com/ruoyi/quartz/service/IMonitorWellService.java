@@ -8,6 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/**
+ * 监测井信息Service接口
+ * 
+ * @author ruoyi
+ */
 public interface IMonitorWellService {
     
     /**
@@ -55,4 +60,11 @@ public interface IMonitorWellService {
      * @return 更新结果
      */
     public int updateMonitorWell(MonitorWell monitorWell);
+    
+    /**
+     * 查询所有监测井编号
+     * 
+     * @return 监测井编号列表
+     */
+    public List<String> selectAllWellCodes();
 }

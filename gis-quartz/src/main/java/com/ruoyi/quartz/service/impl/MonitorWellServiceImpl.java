@@ -7,6 +7,7 @@ import com.ruoyi.quartz.domain.api.MonitorWellVo;
 import com.ruoyi.quartz.domain.api.SimpleWellResp;
 import com.ruoyi.quartz.mapper.MonitorWellMapper;
 import com.ruoyi.quartz.service.IMonitorWellService;
+import com.ruoyi.quartz.service.IProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MonitorWellServiceImpl implements IMonitorWellService {
@@ -22,6 +24,9 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
     
     @Autowired
     private MonitorWellMapper monitorWellMapper;
+    
+    @Autowired
+    private IProjectService projectService;
 
     @Override
     public List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY) {
@@ -55,6 +60,18 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
                         // 批量导入到数据库
                         if (!monitorWells.isEmpty()) {
                             int imported = monitorWellMapper.batchInsertMonitorWells(monitorWells);
+                            
+                            // 将当前的MonitorWell的projectID去重后插入project表
+                            List<String> projectIds = monitorWells.stream()
+                                    .map(MonitorWell::getProjectId)
+                                    .filter(projectId -> projectId != null && !projectId.isEmpty())
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                            
+                            if (!projectIds.isEmpty()) {
+                                projectService.insertProjectBatch(projectIds);
+                            }
+                            
                             totalImported += imported;
                             log.info("成功导入{}条监测井数据，处理进度：{}/{}", 
                                     imported, endIndex, sheetData.size());
@@ -94,7 +111,7 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
         int total = monitorWellMapper.selectMonitorWellCount(monitorWell);
         
         // 查询分页数据
-        List<MonitorWell> list = monitorWellMapper.selectMonitorWellList(monitorWell);
+        List<MonitorWell> list = monitorWellMapper.selectMonitorWellList(monitorWell, offset, pageSize);
         
         // 返回分页结果
         return new TableDataInfo(list, total);
@@ -112,5 +129,10 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
             monitorWell.setGeom("POINT(" + monitorWell.getLongitude() + " " + monitorWell.getLatitude() + ")");
         }
         return monitorWellMapper.updateMonitorWell(monitorWell);
+    }
+    
+    @Override
+    public List<String> selectAllWellCodes() {
+        return monitorWellMapper.selectAllWellCodes();
     }
 }

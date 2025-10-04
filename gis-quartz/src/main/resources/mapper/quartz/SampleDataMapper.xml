@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.SampleDataMapper">
+
+    <resultMap type="SampleData" id="SampleDataResult">
+        <result property="id" column="id"/>
+        <result property="monitoringWellCode" column="monitoring_well_code"/>
+        <result property="sampleCode" column="sample_code"/>
+        <result property="samplingTime" column="sampling_time"/>
+        <result property="testingLaboratory" column="testing_laboratory"/>
+        <result property="metricCode" column="metric_code"/>
+        <result property="detectionLimit" column="detection_limit"/>
+        <result property="actualTestValue" column="actual_test_value"/>
+    </resultMap>
+    
+    <resultMap type="MetricValItem" id="MetricValItemResult">
+        <result property="metricCode" column="metric_code"/>
+        <result property="metricName" column="metric_name"/>
+        <result property="value" column="value"/>
+        <result property="SamplingTime" column="sampling_time"/>
+        <result property="unit" column="unit"/>
+    </resultMap>
+    
+    <resultMap type="MetricPair" id="MetricPairResult">
+        <result property="metricCode" column="metric_code"/>
+        <result property="metricName" column="metric_name"/>
+    </resultMap>
+    
+    <resultMap type="SampleDataResp" id="SampleDataRespResult">
+        <result property="monitoringWellCode" column="monitoring_well_code"/>
+        <result property="samplingTime" column="sampling_time"/>
+        <collection property="metricValues" ofType="MetricValItem" resultMap="MetricValItemResult"/>
+    </resultMap>
+    
+    <resultMap type="SampleDataResp" id="SampleDataRespBaseResult">
+        <result property="monitoringWellCode" column="monitoring_well_code"/>
+        <result property="samplingTime" column="sampling_time"/>
+    </resultMap>
+
+    <insert id="batchInsertSampleData" parameterType="java.util.List">
+        INSERT INTO sample_data (
+            monitoring_well_code,
+            sample_code,
+            sampling_time,
+            testing_laboratory,
+            metric_code,
+            detection_limit,
+            actual_test_value
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.monitoringWellCode},
+                #{item.sampleCode},
+                #{item.samplingTime},
+                #{item.testingLaboratory},
+                #{item.metricCode},
+                #{item.detectionLimit},
+                #{item.actualTestValue}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findLatestSamplingTimeByMonitoringWellCodeAndTime" resultType="java.util.Date">
+        SELECT sampling_time
+        FROM sample_data
+        WHERE monitoring_well_code = #{monitoringWellCode}
+          AND sampling_time &lt;= #{specifiedTime}
+        ORDER BY sampling_time DESC
+        LIMIT 1
+    </select>
+    
+    <select id="selectSampleDataWithMetrics" resultMap="SampleDataRespResult">
+        SELECT 
+            sd.monitoring_well_code,
+            sd.sampling_time,
+            sd.metric_code,
+            pm.metric_name,
+            sd.actual_test_value as value,
+            pm.unit
+        FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
+        WHERE sd.monitoring_well_code = #{monitoringWellCode}
+          AND sd.sampling_time = #{samplingTime}
+        <if test="metricNames != null">
+            AND pm.metric_name IN
+            <foreach collection="metricNames" item="name" open="(" separator="," close=")">
+                #{name}
+            </foreach>
+        </if>
+        ORDER BY sd.metric_code
+    </select>
+    
+    <select id="selectSampleDataByTimeRange" resultMap="MetricValItemResult">
+        SELECT 
+            sd.metric_code,
+            pm.metric_name,
+            sd.actual_test_value as value,
+            pm.unit,
+            sd.sampling_time
+        FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
+        WHERE sd.monitoring_well_code = #{monitoringWellCode}
+          AND pm.metric_name = #{metricName}
+          AND sd.sampling_time BETWEEN #{startTime} AND #{endTime}
+        ORDER BY sd.sampling_time ASC
+    </select>
+    
+    <select id="selectAllWaterQualityMetrics" resultMap="MetricPairResult">
+        SELECT 
+            metric_code,
+            metric_name
+        FROM pollution_metric
+        WHERE category = 'groundwater_pollution'
+        ORDER BY metric_code
+    </select>
+    
+    <select id="selectSampleDataRespList" resultMap="SampleDataRespResult">
+        SELECT 
+            sd.monitoring_well_code,
+            sd.sampling_time,
+            sd.metric_code,
+            pm.metric_name,
+            sd.actual_test_value as value,
+            pm.unit
+        FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
+        LEFT JOIN monitoring_well mw ON sd.monitoring_well_code = mw.well_code
+        <where>
+            <if test="monitoringWellCode != null and monitoringWellCode != ''">
+                AND sd.monitoring_well_code = #{monitoringWellCode}
+            </if>
+            <if test="startTime != null">
+                AND sd.sampling_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND sd.sampling_time &lt;= #{endTime}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND mw.project_id = #{projectId}
+            </if>
+        </where>
+        ORDER BY sd.sampling_time DESC, sd.monitoring_well_code
+    </select>
+    
+    <select id="selectSampleDataRespByGroup" resultMap="SampleDataRespBaseResult">
+        SELECT DISTINCT
+            sd.monitoring_well_code,
+            sd.sampling_time
+        FROM sample_data sd
+        LEFT JOIN monitoring_well mw ON sd.monitoring_well_code = mw.well_code
+        <where>
+            <if test="monitoringWellCode != null and monitoringWellCode != ''">
+                AND sd.monitoring_well_code = #{monitoringWellCode}
+            </if>
+            <if test="startTime != null">
+                AND sd.sampling_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND sd.sampling_time &lt;= #{endTime}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND mw.project_id = #{projectId}
+            </if>
+        </where>
+        ORDER BY sd.sampling_time DESC, sd.monitoring_well_code
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    
+    <select id="selectSampleDataRespByGroupWithMetrics" resultMap="SampleDataRespResult">
+        SELECT 
+            sd.monitoring_well_code,
+            sd.sampling_time,
+            sd.metric_code,
+            pm.metric_name,
+            sd.actual_test_value as value,
+            pm.unit
+        FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
+        WHERE sd.monitoring_well_code = #{monitoringWellCode}
+          AND sd.sampling_time = #{samplingTime}
+        ORDER BY sd.metric_code
+    </select>
+    
+    <select id="selectSampleDataRespCount" resultType="int">
+        SELECT COUNT(*) FROM (
+            SELECT DISTINCT
+                sd.monitoring_well_code,
+                sd.sampling_time
+            FROM sample_data sd
+            LEFT JOIN monitoring_well mw ON sd.monitoring_well_code = mw.well_code
+            <where>
+                <if test="monitoringWellCode != null and monitoringWellCode != ''">
+                    AND sd.monitoring_well_code = #{monitoringWellCode}
+                </if>
+                <if test="startTime != null">
+                    AND sd.sampling_time &gt;= #{startTime}
+                </if>
+                <if test="endTime != null">
+                    AND sd.sampling_time &lt;= #{endTime}
+                </if>
+                <if test="projectId != null and projectId != ''">
+                    AND mw.project_id = #{projectId}
+                </if>
+            </where>
+        ) t
+    </select>
+
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.MetricStandardMapper">
+
+	<resultMap type="MetricStandard" id="MetricStandardResult">
+		<id     property="id"               column="id" />
+		<result property="metricCode"       column="metric_code" />
+		<result property="thresholdValue"   column="threshold_value" />
+		<result property="qualityLevel"     column="quality_level" />
+	</resultMap>
+	
+	<sql id="selectMetricStandardVo">
+        SELECT id, metric_code, threshold_value, quality_level
+		FROM metric_standard
+    </sql>
+    
+    <sql id="selectMetricStandardCondition">
+        <where>
+            <if test="metricStandard != null and metricStandard.metricCode != null and metricStandard.metricCode != ''">
+                AND metric_code = #{metricStandard.metricCode}
+            </if>
+            <if test="metricStandard != null and metricStandard.qualityLevel != null and metricStandard.qualityLevel != ''">
+                AND quality_level = #{metricStandard.qualityLevel}
+            </if>
+        </where>
+    </sql>
+	
+	<insert id="insertMetricStandard" parameterType="MetricStandard">
+		INSERT INTO metric_standard(metric_code, threshold_value, quality_level)
+		VALUES (#{metricCode}, #{thresholdValue}, #{qualityLevel})
+		ON CONFLICT (metric_code, quality_level) 
+		DO UPDATE SET threshold_value = EXCLUDED.threshold_value
+	</insert>
+	
+	<update id="updateMetricStandard" parameterType="MetricStandard">
+		UPDATE metric_standard
+		<set>
+			threshold_value = #{thresholdValue},
+			quality_level = #{qualityLevel}
+		</set>
+		WHERE id = #{id}
+		AND NOT EXISTS (
+			SELECT 1 FROM metric_standard ms 
+			WHERE ms.metric_code = #{metricCode} 
+			AND ms.quality_level = #{qualityLevel} 
+			AND ms.id != #{id}
+		)
+	</update>
+	
+	<select id="selectMetricStandardList" resultMap="MetricStandardResult">
+		<include refid="selectMetricStandardVo"/>
+		ORDER BY metric_code, quality_level
+	</select>
+	
+	<select id="selectMetricStandardListByMetricCode" parameterType="String" resultMap="MetricStandardResult">
+		<include refid="selectMetricStandardVo"/>
+		WHERE metric_code = #{metricCode}
+		ORDER BY quality_level
+	</select>
+	
+	<select id="selectMetricStandardListByMetricCodes" parameterType="java.util.List" resultMap="MetricStandardResult">
+		<include refid="selectMetricStandardVo"/>
+		WHERE metric_code IN
+		<foreach collection="list" item="metricCode" open="(" separator="," close=")">
+			#{metricCode}
+		</foreach>
+		ORDER BY metric_code, quality_level DESC
+	</select>
+	
+	<select id="selectMetricStandardListByCondition" parameterType="MetricStandard" resultMap="MetricStandardResult">
+        <include refid="selectMetricStandardVo"/>
+        <include refid="selectMetricStandardCondition"/>
+        ORDER BY metric_code, quality_level
+    </select>
+    
+    <select id="selectMetricStandardListByConditionPager" resultMap="MetricStandardResult">
+        <include refid="selectMetricStandardVo"/>
+        <include refid="selectMetricStandardCondition"/>
+        ORDER BY metric_code, quality_level
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <select id="selectMetricStandardCount" parameterType="MetricStandard" resultType="int">
+        SELECT COUNT(*) FROM metric_standard
+        <include refid="selectMetricStandardCondition"/>
+    </select>
+	
+	<delete id="deleteMetricStandardById" parameterType="Long">
+		DELETE FROM metric_standard WHERE id = #{id}
+	</delete>
+
+</mapper>

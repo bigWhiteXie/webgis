@@ -86,26 +86,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectMonitorWellList" parameterType="MonitorWell" resultMap="MonitorWellResult">
 		<include refid="selectMonitorWellVo"/>
 		<where>
-			<if test="wellCode != null and wellCode != ''">
-				AND mw.well_code LIKE CONCAT('%', #{wellCode}, '%')
+			<if test="monitorWell.wellCode != null and monitorWell.wellCode != ''">
+				AND mw.well_code LIKE CONCAT('%', #{monitorWell.wellCode}, '%')
 			</if>
-			<if test="projectId != null and projectId != ''">
-				AND mw.project_id LIKE CONCAT('%', #{projectId}, '%')
+			<if test="monitorWell.projectId != null and monitorWell.projectId != ''">
+				AND mw.project_id LIKE CONCAT('%', #{monitorWell.projectId}, '%')
 			</if>
-			<if test="provinceCode != null and provinceCode != ''">
-				AND mw.province_code = #{provinceCode}
+			<if test="monitorWell.provinceCode != null and monitorWell.provinceCode != ''">
+				AND mw.province_code = #{monitorWell.provinceCode}
 			</if>
-			<if test="cityCode != null and cityCode != ''">
-				AND mw.city_code = #{cityCode}
+			<if test="monitorWell.cityCode != null and monitorWell.cityCode != ''">
+				AND mw.city_code = #{monitorWell.cityCode}
 			</if>
-			<if test="countyCode != null and countyCode != ''">
-				AND mw.county_code = #{countyCode}
+			<if test="monitorWell.countyCode != null and monitorWell.countyCode != ''">
+				AND mw.county_code = #{monitorWell.countyCode}
 			</if>
-			<if test="completionTime != null">
-				AND mw.completion_time = #{completionTime}
+			<if test="monitorWell.completionTime != null">
+				AND mw.completion_time = #{monitorWell.completionTime}
 			</if>
 		</where>
 		ORDER BY mw.completion_time DESC
+		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
 	
 	<select id="selectMonitorWellCount" parameterType="MonitorWell" resultType="int">
@@ -227,5 +228,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			sealed_backfilled_status = EXCLUDED.sealed_backfilled_status,
 			geom = EXCLUDED.geom
 	</insert>
+	
+	<select id="selectAllWellCodes" resultType="string">
+	    SELECT well_code FROM monitoring_well ORDER BY well_code
+	</select>
 
 </mapper>

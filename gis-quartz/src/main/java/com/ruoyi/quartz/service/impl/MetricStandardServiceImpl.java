@@ -1,6 +1,7 @@
 package com.ruoyi.quartz.service.impl;
 
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.enums.WaterQualityLevel;
 import com.ruoyi.quartz.domain.MetricStandard;
 import com.ruoyi.quartz.mapper.MetricStandardMapper;
 import com.ruoyi.quartz.service.IMetricStandardService;
@@ -154,8 +155,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService {
 
         // 质量等级列表，用于存储有效的质量等级（忽略"无质量等级"的指标）
         List<String> qualityLevels = new ArrayList<>();
-        int maxIteration = 0;
-        String worstQualityLevel = "无质量等级";
+        String worstQualityLevel = WaterQualityLevel.CLASS_I.getLabel();
 
         // 计算每个指标的质量等级
         for (int i = 0; i < metricCodes.size(); i++) {
@@ -164,24 +164,15 @@ public class MetricStandardServiceImpl implements IMetricStandardService {
             try {
                 BigDecimal value = new BigDecimal(valueStr);
                 List<MetricStandard> standards = metricStandardMap.get(metricCode);
-                int curIteration = 0;
-
-                if (standards == null || standards.isEmpty()) {
-                    // 如果该指标对应的标准不存在则忽略
-                    continue;
-                } else {
-                    // 遍历标准信息判断当前是否大于等于该标准
-                    String qualityLevel = standards.get(standards.size() - 1).getQualityLevel(); // 默认为优
+                if (standards != null && !standards.isEmpty()) {
                     for (MetricStandard standard : standards) {
-                        if (value.compareTo(standard.getThresholdValue()) <= 0) {
-                            qualityLevel = standard.getQualityLevel();
-                            break;
+                        // 检测值是否在当前区间内
+                        if (standard.compute(value)) {
+                            // 判断是否比当前最差等级还差
+                            if (standard.compareLevel(worstQualityLevel) > 0) {
+                                worstQualityLevel = standard.getQualityLevel();
+                            }
                         }
-                        curIteration++;
-                    }
-                    if (curIteration > maxIteration) {
-                        maxIteration = curIteration;
-                        worstQualityLevel = qualityLevel;
                     }
                 }
             } catch (NumberFormatException e) {
@@ -206,7 +197,6 @@ public class MetricStandardServiceImpl implements IMetricStandardService {
                 .collect(Collectors.groupingBy(MetricStandard::getMetricCode,
                         Collectors.collectingAndThen(Collectors.toList(),
                                 list -> list.stream()
-                                        .sorted(Comparator.comparing(MetricStandard::getThresholdValue))
                                         .collect(Collectors.toList()))));
         return metricStandardMap;
     }

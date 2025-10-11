@@ -7,12 +7,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<resultMap type="MetricStandard" id="MetricStandardResult">
 		<id     property="id"               column="id" />
 		<result property="metricCode"       column="metric_code" />
-		<result property="thresholdValue"   column="threshold_value" />
 		<result property="qualityLevel"     column="quality_level" />
+		<result property="relation"         column="relation" />
+		<result property="upperBound"       column="upper_bound" />
+		<result property="lowerBound"       column="lower_bound" />
 	</resultMap>
 	
 	<sql id="selectMetricStandardVo">
-        SELECT id, metric_code, threshold_value, quality_level
+        SELECT id, metric_code, quality_level, relation, upper_bound, lower_bound
 		FROM metric_standard
     </sql>
     
@@ -28,25 +30,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 	
 	<insert id="insertMetricStandard" parameterType="MetricStandard">
-		INSERT INTO metric_standard(metric_code, threshold_value, quality_level)
-		VALUES (#{metricCode}, #{thresholdValue}, #{qualityLevel})
-		ON CONFLICT (metric_code, quality_level) 
-		DO UPDATE SET threshold_value = EXCLUDED.threshold_value
+		INSERT INTO metric_standard(metric_code, quality_level, relation, upper_bound, lower_bound)
+		VALUES (#{metricCode}, #{qualityLevel}, #{relation}, #{upperBound}, #{lowerBound})
 	</insert>
 	
 	<update id="updateMetricStandard" parameterType="MetricStandard">
 		UPDATE metric_standard
 		<set>
-			threshold_value = #{thresholdValue},
-			quality_level = #{qualityLevel}
+			quality_level = #{qualityLevel},
+			relation = #{relation},
+			upper_bound = #{upperBound},
+			lower_bound = #{lowerBound}
 		</set>
 		WHERE id = #{id}
-		AND NOT EXISTS (
-			SELECT 1 FROM metric_standard ms 
-			WHERE ms.metric_code = #{metricCode} 
-			AND ms.quality_level = #{qualityLevel} 
-			AND ms.id != #{id}
-		)
 	</update>
 	
 	<select id="selectMetricStandardList" resultMap="MetricStandardResult">

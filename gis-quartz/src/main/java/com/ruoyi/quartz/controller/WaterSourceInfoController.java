@@ -14,14 +14,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 地下水型饮用水水源基础信息Controller
  */
 @RestController
 @RequestMapping("/waterSourceInfo")
-@Api(tags = "水源信息管理")
+@Api(tags = "水源地信息管理")
 public class WaterSourceInfoController extends BaseController {
 
     @Autowired
@@ -68,6 +71,35 @@ public class WaterSourceInfoController extends BaseController {
         } catch (Exception e) {
             logger.error("解析SHP文件失败", e);
             return AjaxResult.error("解析SHP文件失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 导入Excel文件
+     *
+     * @param file Excel文件
+     * @return 导入结果
+     */
+    @PostMapping("/importExcel")
+    @ApiOperation("导入Excel文件")
+    public AjaxResult importExcelData(@ApiParam("Excel文件") @RequestParam("file") MultipartFile file) {
+        try {
+            // 检查文件是否为空
+            if (file == null || file.isEmpty()) {
+                return AjaxResult.error("上传文件为空");
+            }
+
+            // 检查文件扩展名
+            String fileName = file.getOriginalFilename();
+            if (fileName == null || (!fileName.endsWith(".xls") && !fileName.endsWith(".xlsx"))) {
+                return AjaxResult.error("请上传.xls或.xlsx格式的Excel文件");
+            }
+
+            // 调用Service层方法解析并导入Excel数据
+            return waterSourceInfoService.parseAndImportExcelFile(file);
+        } catch (Exception e) {
+            logger.error("导入Excel文件失败", e);
+            return AjaxResult.error("导入Excel文件失败: " + e.getMessage());
         }
     }
 
@@ -143,5 +175,83 @@ public class WaterSourceInfoController extends BaseController {
         }
     }
 
-}
+    // 在类的其他方法之后添加
+    /**
+     * 查询指定空间范围内的所有水源地信息
+     *
+     * @param minX 最小经度
+     * @param minY 最小纬度
+     * @param maxX 最大经度
+     * @param maxY 最大纬度
+     * @return 水源地列表（只包含sourceId、geom和waterQualityCategory）
+     */
+    @GetMapping("/spatial")
+    @ApiOperation("查询指定空间范围内的所有水源地信息")
+    public AjaxResult listBySpatialBounds(
+            @ApiParam("最小经度") @RequestParam(required = false) Double minX,
+            @ApiParam("最小纬度") @RequestParam(required = false) Double minY,
+            @ApiParam("最大经度") @RequestParam(required = false) Double maxX,
+            @ApiParam("最大纬度") @RequestParam(required = false) Double maxY) {
+        try {
+            // 调用service层方法查询水源地信息
+            List<WaterSourceInfo> list = waterSourceInfoService.selectWaterSourceInfoSimpleListBySpatialBounds(minX, minY, maxX, maxY);
+            
+            // 由于无法创建新的响应对象类，这里使用一个简单的方式返回所需字段
+            List<Map<String, Object>> resultList = list.stream().map(source -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("sourceId", source.getSourceId());
+                map.put("geom", source.getGeom());
+                map.put("waterQualityCategory", source.getWaterQualityCategory());
+                return map;
+            }).collect(Collectors.toList());
+            
+            return AjaxResult.success(resultList);
+        } catch (Exception e) {
+            logger.error("查询空间范围内水源地信息失败", e);
+            return AjaxResult.error("查询空间范围内水源地信息失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据空间范围查询水源地信息（仅返回id、geom和waterQualityCategory字段）
+     */
+    @GetMapping("/listBySpatialBoundsSimple")
+    public AjaxResult listBySpatialBoundsSimple(
+        @RequestParam(value = "minX", required = false) Double minX,
+        @RequestParam(value = "minY", required = false) Double minY,
+        @RequestParam(value = "maxX", required = false) Double maxX,
+        @RequestParam(value = "maxY", required = false) Double maxY
+    ) {
+        List<WaterSourceInfo> list = waterSourceInfoService.selectWaterSourceInfoSimpleListBySpatialBounds(minX, minY, maxX, maxY);
+        // 只返回需要的字段
+        List<Map<String, Object>> resultList = list.stream().map(source -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("sourceId", source.getSourceId());
+            map.put("geom", source.getGeom());
+            map.put("waterQualityCategory", source.getWaterQualityCategory());
+            return map;
+        }).collect(Collectors.toList());
+        return AjaxResult.success(resultList);
+    }
 
+    /**
+     * 根据水源ID查询水源详细信息（关联location表查询省市区名称）
+     *
+     * @param sourceId 水源ID
+     * @return 水源详细信息
+     */
+    @GetMapping("/{sourceId}")
+    @ApiOperation("根据水源ID查询水源详细信息")
+    public AjaxResult getWaterSourceInfoById(@ApiParam("水源ID") @PathVariable Long sourceId) {
+        try {
+            WaterSourceInfo waterSourceInfo = waterSourceInfoService.selectWaterSourceInfoById(sourceId);
+            if (waterSourceInfo == null) {
+                return AjaxResult.error("未找到对应的水源信息");
+            }
+            return AjaxResult.success("查询成功", waterSourceInfo);
+        } catch (Exception e) {
+            logger.error("查询水源详细信息失败", e);
+            return AjaxResult.error("查询水源详细信息失败: " + e.getMessage());
+        }
+    }
+}

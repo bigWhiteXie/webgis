@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<resultMap type="MetricStandard" id="MetricStandardResult">
 		<id     property="id"               column="id" />
 		<result property="metricCode"       column="metric_code" />
+		<result property="metricName"       column="metric_name" />
 		<result property="qualityLevel"     column="quality_level" />
 		<result property="relation"         column="relation" />
 		<result property="upperBound"       column="upper_bound" />
@@ -14,8 +15,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectMetricStandardVo">
-        SELECT id, metric_code, quality_level, relation, upper_bound, lower_bound
-		FROM metric_standard
+        SELECT ms.id, ms.metric_code, pm.metric_name, ms.quality_level, ms.relation, ms.upper_bound, ms.lower_bound
+		FROM metric_standard ms
+		LEFT JOIN pollution_metric pm ON ms.metric_code = pm.metric_code
     </sql>
     
     <sql id="selectMetricStandardCondition">
@@ -79,7 +81,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     
     <select id="selectMetricStandardCount" parameterType="MetricStandard" resultType="int">
-        SELECT COUNT(*) FROM metric_standard
+        SELECT COUNT(*) FROM metric_standard ms
+        LEFT JOIN pollution_metric pm ON ms.metric_code = pm.metric_code
         <include refid="selectMetricStandardCondition"/>
     </select>
 	

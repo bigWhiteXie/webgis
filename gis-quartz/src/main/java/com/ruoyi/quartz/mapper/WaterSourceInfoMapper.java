@@ -60,4 +60,34 @@ public interface WaterSourceInfoMapper {
      */
     public List<String> selectAllSourceNames();
 
+    /**
+     * 根据空间范围查询水源地信息（仅返回id、geom和waterQualityCategory字段）
+     * @param minX 最小经度
+     * @param minY 最小纬度
+     * @param maxX 最大经度
+     * @param maxY 最大纬度
+     * @return 水源地信息列表
+     */
+    List<WaterSourceInfo> selectWaterSourceInfoSimpleListBySpatialBounds(
+        @Param("minX") Double minX, 
+        @Param("minY") Double minY, 
+        @Param("maxX") Double maxX, 
+        @Param("maxY") Double maxY
+    );
+
+    /**
+     * 根据水源ID查询水源详细信息（关联location表查询省市区名称）
+     *
+     * @param sourceId 水源ID
+     * @return 水源详细信息
+     */
+    WaterSourceInfo selectWaterSourceInfoById(Long sourceId);
+
+    /**
+     * 批量插入水源地信息
+     *
+     * @param waterSourceInfos 水源地信息列表
+     * @return 结果
+     */
+    int batchInsert(@Param("waterSourceInfos") List<WaterSourceInfo> waterSourceInfos);
 }

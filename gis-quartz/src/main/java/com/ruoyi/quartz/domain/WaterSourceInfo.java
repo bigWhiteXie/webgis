@@ -1,16 +1,25 @@
 package com.ruoyi.quartz.domain;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import com.alibaba.excel.util.ListUtils;
+import io.swagger.annotations.ApiModelProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 地下水型饮用水水源基础信息对象 water_source_info
  */
 public class WaterSourceInfo {
-    /** 水源ID */
-    private Long sourceId;
+    private static final Logger log = LoggerFactory.getLogger(WaterSourceInfo.class);
 
-    /** 序号 */
-    private Integer serialNumber;
+    /** 水源ID */
+    private Integer sourceId;
 
     /** 项目编号 */
     private String projectId;
@@ -129,20 +138,12 @@ public class WaterSourceInfo {
     /** 空间数据 */
     private String geom;
 
-    public Long getSourceId() {
+    public Integer getSourceId() {
         return sourceId;
     }
 
-    public void setSourceId(Long sourceId) {
+    public void setSourceId(Integer sourceId) {
         this.sourceId = sourceId;
-    }
-
-    public Integer getSerialNumber() {
-        return serialNumber;
-    }
-
-    public void setSerialNumber(Integer serialNumber) {
-        this.serialNumber = serialNumber;
     }
 
     public String getProjectId() {
@@ -455,5 +456,277 @@ public class WaterSourceInfo {
 
     public void setGeom(String geom) {
         this.geom = geom;
+    }
+
+    @ApiModelProperty("省名称")
+    private String provinceName;
+
+    @ApiModelProperty("市名称")
+    private String cityName;
+
+    @ApiModelProperty("县名称")
+    private String countyName;
+
+    public String getProvinceName() {
+        return provinceName;
+    }
+
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
+    }
+
+    public String getCityName() {
+        return cityName;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public String getCountyName() {
+        return countyName;
+    }
+
+    public void setCountyName(String countyName) {
+        this.countyName = countyName;
+    }
+
+    /**
+     * 解析Excel数据为WaterSourceInfo对象列表
+     *
+     * @param data Excel数据列表
+     * @return WaterSourceInfo对象列表
+     */
+    public static List<WaterSourceInfo> parseExcelData(List<Object> data) throws RuntimeException {
+        List<WaterSourceInfo> waterSourceInfos = ListUtils.newArrayList();
+
+        // 遍历所有行数据
+        for (Object rowData : data) {
+            try {
+                // 检查是否至少有40列（根据Mapper中的字段数量估算）
+                if (rowData instanceof LinkedHashMap) {
+                    LinkedHashMap<Integer, Object> rowMap = (LinkedHashMap<Integer, Object>) rowData;
+                    WaterSourceInfo waterSourceInfo = new WaterSourceInfo();
+
+                    // 按照WaterSourceInfo的属性顺序设置值（跳过id字段，由数据库自增）
+                    // 根据列索引获取值，而不是根据属性名
+                    waterSourceInfo.setSourceId(getIntegerValue(rowMap.get(0)));
+                    waterSourceInfo.setProjectId(getStringValue(rowMap.get(1)));
+                    waterSourceInfo.setProvinceCode(getStringValue(rowMap.get(2)));
+                    waterSourceInfo.setCityCode(getStringValue(rowMap.get(3)));
+                    waterSourceInfo.setCountyCode(getStringValue(rowMap.get(4)));
+                    waterSourceInfo.setSourceName(getStringValue(rowMap.get(5)));
+                    waterSourceInfo.setSourceCode(getStringValue(rowMap.get(6)));
+
+                    // 处理经纬度，将BigDecimal转换为Double
+                    BigDecimal longitudeValue = getBigDecimalValue(rowMap.get(7));
+                    BigDecimal latitudeValue = getBigDecimalValue(rowMap.get(8));
+                    if (longitudeValue != null) {
+                        waterSourceInfo.setCenterLongitude(longitudeValue.doubleValue());
+                    }
+                    if (latitudeValue != null) {
+                        waterSourceInfo.setCenterLatitude(latitudeValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setSourceLevel(getStringValue(rowMap.get(9)));
+
+                    // 处理BigDecimal类型字段
+                    BigDecimal waterSupplyScaleValue = getBigDecimalValue(rowMap.get(10));
+                    if (waterSupplyScaleValue != null) {
+                        waterSourceInfo.setWaterSupplyScale(waterSupplyScaleValue.doubleValue());
+                    }
+
+                    BigDecimal servicePopulationValue = getBigDecimalValue(rowMap.get(11));
+                    if (servicePopulationValue != null) {
+                        waterSourceInfo.setServicePopulation(servicePopulationValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setWaterQualityCategory(getIntegerValue(rowMap.get(12)));
+                    waterSourceInfo.setWaterQualityCategoryTime(parseDate(getStringValue(rowMap.get(13))));
+                    waterSourceInfo.setBurialCondition(getStringValue(rowMap.get(14)));
+                    waterSourceInfo.setAquiferMediumType(getStringValue(rowMap.get(16)));
+                    waterSourceInfo.setIsProtectionZoneDelineated(getBooleanValue(rowMap.get(17)));
+
+                    // 处理BigDecimal类型字段
+                    BigDecimal firstLevelProtectionZoneAreaValue = getBigDecimalValue(rowMap.get(18));
+                    if (firstLevelProtectionZoneAreaValue != null) {
+                        waterSourceInfo.setFirstLevelProtectionZoneArea(firstLevelProtectionZoneAreaValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setFirstLevelProtectionZonePollutionSourceCount(getIntegerValue(rowMap.get(19)));
+
+                    BigDecimal secondLevelProtectionZoneAreaValue = getBigDecimalValue(rowMap.get(20));
+                    if (secondLevelProtectionZoneAreaValue != null) {
+                        waterSourceInfo.setSecondLevelProtectionZoneArea(secondLevelProtectionZoneAreaValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setSecondLevelProtectionZonePollutionSourceCount(getIntegerValue(rowMap.get(21)));
+
+                    BigDecimal quasiProtectionZoneAreaValue = getBigDecimalValue(rowMap.get(22));
+                    if (quasiProtectionZoneAreaValue != null) {
+                        waterSourceInfo.setQuasiProtectionZoneArea(quasiProtectionZoneAreaValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setQuasiProtectionZonePollutionSourceCount(getIntegerValue(rowMap.get(23)));
+                    waterSourceInfo.setIsRechargeAreaDelineated(getBooleanValue(rowMap.get(24)));
+
+                    BigDecimal rechargeAreaAreaValue = getBigDecimalValue(rowMap.get(25));
+                    if (rechargeAreaAreaValue != null) {
+                        waterSourceInfo.setRechargeAreaArea(rechargeAreaAreaValue.doubleValue());
+                    }
+
+                    waterSourceInfo.setRechargeAreaPollutionSourceCount(getIntegerValue(rowMap.get(26)));
+                    waterSourceInfo.setIsGroundwaterPollutionSourceNearby(getBooleanValue(rowMap.get(27)));
+                    waterSourceInfo.setGroundwaterPollutionSourceCountNearby(getIntegerValue(rowMap.get(28)));
+                    waterSourceInfo.setIsPriorityControlled(getBooleanValue(rowMap.get(29)));
+                    waterSourceInfo.setPriorityControlReason(getStringValue(rowMap.get(30)));
+                    waterSourceInfo.setIsExceedingStandard(getBooleanValue(rowMap.get(31)));
+                    waterSourceInfo.setExceedingStandardReason(getStringValue(rowMap.get(32)));
+                    waterSourceInfo.setHumanFactorExceedingStandardIndex(getStringValue(rowMap.get(33)));
+                    waterSourceInfo.setHumanFactorExceedingStandardReason(getStringValue(rowMap.get(34)));
+                    waterSourceInfo.setImplementedControlMeasures(getStringValue(rowMap.get(35)));
+                    waterSourceInfo.setCurrentWaterQualityStatus(getStringValue(rowMap.get(36)));
+                    waterSourceInfo.setPlannedControlMeasures(getStringValue(rowMap.get(37)));
+                    waterSourceInfo.setExpectedStandardReachingTime(parseDate(getStringValue(rowMap.get(38))));
+                    waterSourceInfo.setIsWaterSupplyUpToStandard(getBooleanValue(rowMap.get(39)));
+
+                    // 设置geom字段为WKT格式
+                    if (waterSourceInfo.getCenterLongitude() != null && waterSourceInfo.getCenterLatitude() != null) {
+                        waterSourceInfo.setGeom("POINT(" + waterSourceInfo.getCenterLongitude() + " " + waterSourceInfo.getCenterLatitude() + ")");
+                    } else {
+                        log.warn("无法获取水源的经纬度信息，数据：" + rowData);
+                        continue;
+                    }
+
+                    waterSourceInfos.add(waterSourceInfo);
+                }
+            } catch (Exception e) {
+                log.warn("解析Excel行数据失败: " + e.getMessage() + "，数据：" + rowData);
+            }
+        }
+
+        return waterSourceInfos;
+    }
+
+    /**
+     * 获取字符串值
+     *
+     * @param value 原始值
+     * @return 字符串值
+     */
+    private static String getStringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toString().trim();
+    }
+
+    /**
+     * 获取Integer值
+     *
+     * @param value 原始值
+     * @return Integer值
+     */
+    private static Integer getIntegerValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else {
+            String strValue = value.toString().trim();
+            if ("是".equals(strValue) || "Y".equalsIgnoreCase(strValue) || "true".equalsIgnoreCase(strValue)) {
+                return 1;
+            } else if ("否".equals(strValue) || "N".equalsIgnoreCase(strValue) || "false".equalsIgnoreCase(strValue)) {
+                return 0;
+            } else if (strValue.isEmpty()) {
+                return null;
+            } else {
+                try {
+                    return Integer.parseInt(strValue);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取BigDecimal值
+     *
+     * @param value 原始值
+     * @return BigDecimal值
+     * @throws NumberFormatException 当值无法转换为BigDecimal时
+     */
+    private static BigDecimal getBigDecimalValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        } else if (value instanceof Number) {
+            return BigDecimal.valueOf(((Number) value).doubleValue());
+        } else if (value instanceof String) {
+            String strValue = ((String) value).trim();
+            if (strValue.isEmpty()) {
+                return null;
+            }
+            return new BigDecimal(strValue);
+        }
+        throw new NumberFormatException("无法将值转换为BigDecimal: " + value);
+    }
+
+    /**
+     * 解析日期字符串为Date对象
+     * 支持多种格式: yyyy-MM-dd, yyyy/MM/dd, yyyy.MM.dd
+     *
+     * @param value 日期字符串
+     * @return Date对象
+     */
+    private static Date parseDate(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmedValue = value.trim();
+        // 尝试不同的日期格式
+        String[] datePatterns = {"yyyy-MM-dd", "yyyy/MM/dd", "yyyy.MM.dd"};
+        
+        for (String pattern : datePatterns) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+                return sdf.parse(trimmedValue);
+            } catch (ParseException e) {
+                // 继续尝试下一个格式
+            }
+        }
+        
+        System.err.println("无法解析日期: " + value);
+        return null;
+    }
+
+    /**
+     * 获取Boolean值
+     *
+     * @param value 原始值
+     * @return Boolean值
+     */
+    private static Boolean getBooleanValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof Number) {
+            return ((Number) value).doubleValue() != 0;
+        } else {
+            String strValue = value.toString().toLowerCase();
+            return "是".equals(strValue) || "y".equals(strValue) || "true".equals(strValue);
+        }
     }
 }

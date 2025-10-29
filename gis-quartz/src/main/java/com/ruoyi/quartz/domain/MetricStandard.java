@@ -22,6 +22,8 @@ public class MetricStandard
     /** 指标编码 */
     private String metricCode;
 
+    /** 指标名称 */
+    private String metricName;
 
     /** 质量等级 */
     private String qualityLevel;
@@ -56,6 +58,15 @@ public class MetricStandard
         this.metricCode = metricCode;
     }
 
+    public String getMetricName()
+    {
+        return metricName;
+    }
+
+    public void setMetricName(String metricName)
+    {
+        this.metricName = metricName;
+    }
 
     public String getQualityLevel()
     {

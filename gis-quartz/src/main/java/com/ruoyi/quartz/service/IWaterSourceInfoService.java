@@ -1,7 +1,9 @@
 package com.ruoyi.quartz.service;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.WaterSourceInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,5 +53,26 @@ public interface IWaterSourceInfoService {
      */
     public List<String> selectAllSourceNames();
 
+    /**
+     * 根据空间范围查询水源信息简单列表
+     *
+     * @return 水源信息列表
+     */
+    List<WaterSourceInfo> selectWaterSourceInfoSimpleListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY);
 
+    /**
+     * 根据水源ID查询水源详细信息（关联location表查询省市区名称）
+     *
+     * @param sourceId 水源ID
+     * @return 水源详细信息
+     */
+    WaterSourceInfo selectWaterSourceInfoById(Long sourceId);
+
+    /**
+     * 解析并导入Excel文件
+     *
+     * @param file Excel文件
+     * @return 导入结果
+     */
+    AjaxResult parseAndImportExcelFile(MultipartFile file);
 }

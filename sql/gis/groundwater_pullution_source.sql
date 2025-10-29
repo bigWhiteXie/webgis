@@ -101,11 +101,3 @@ CREATE INDEX idx_is_soil_pollution_key_unit ON groundwater_pollution_source (is_
 CREATE INDEX idx_is_groundwater_pollution_key_unit ON groundwater_pollution_source (is_groundwater_pollution_key_unit);
 CREATE INDEX idx_is_high_risk_source ON groundwater_pollution_source (is_high_risk_source);
 
--- 插入数据示例，使用 ST_SetSRID 和 ST_MakePoint 函数将经纬度转换为几何对象
-INSERT INTO groundwater_pollution_source (
-    serial_number, project_id, province_code, city_code, county_code, source_name, source_type, source_code, center_longitude, center_latitude, production_status, start_year, close_year, reference_water_quality_category, actual_water_quality_category, characteristic_index_code, has_sensitive_receptor, groundwater_drinking_water_source_count, surface_water_drinking_water_source_count, rural_scattered_water_source_count, irrigation_well_count, nature_reserve_count, surface_water_body_count, national_groundwater_quality_checkpoint_count, is_soil_pollution_key_unit, is_groundwater_pollution_key_unit, groundwater_vulnerability_level, is_leakage_inspection, is_leakage_prevention, is_groundwater_monitoring, groundwater_monitoring_situation, management_classification, is_high_risk_source, implemented_solutions, pollution_trend, planned_solutions, expected_control_time,
-    geom
-) VALUES (
-             1, '2020152599S1-40001', '150000', '152500', '152526', '内蒙古兴安铜锌冶炼有限公司', '除化学品生产企业外的工业企业', '91152526670683162Y', 118.424334, 44.764911, '在产（在运行）', 2009, NULL, 4, 5, 'G0013；G0033；G0031；G0012', false, NULL, NULL, NULL, NULL, NULL, NULL, NULL, true, true, '低脆弱性区', true, '采取防渗漏措施', true, '开展地下水自行监测', '二类', false, NULL, NULL, NULL, NULL,
-             ST_SetSRID(ST_MakePoint(118.424334, 44.764911), 4490)
-         );

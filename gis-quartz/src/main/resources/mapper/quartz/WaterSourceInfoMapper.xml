@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.quartz.mapper.WaterSourceInfoMapper">
-
+    
     <resultMap type="WaterSourceInfo" id="WaterSourceInfoResult">
         <result property="sourceId" column="source_id"/>
-        <result property="serialNumber" column="serial_number"/>
         <result property="projectId" column="project_id"/>
         <result property="provinceCode" column="province_code"/>
         <result property="cityCode" column="city_code"/>
@@ -46,130 +45,254 @@
         <result property="expectedStandardReachingTime" column="expected_standard_reaching_time"/>
         <result property="isWaterSupplyUpToStandard" column="is_water_supply_up_to_standard"/>
         <result property="geom" column="geom"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="cityName" column="city_name"/>
+        <result property="countyName" column="county_name"/>
     </resultMap>
-
+    
+    <resultMap type="WaterSourceInfo" id="WaterSourceInfoSimpleResult">
+        <result property="sourceId" column="source_id"/>
+        <result property="geom" column="geom"/>
+        <result property="waterQualityCategory" column="water_quality_category"/>
+    </resultMap>
+    
     <sql id="selectWaterSourceInfoVo">
-        SELECT
-            source_id, serial_number, project_id, province_code, city_code, county_code, source_name, source_code,
-            center_longitude, center_latitude, source_level, water_supply_scale, service_population,
-            water_quality_category, water_quality_category_time, burial_condition, aquifer_medium_type,
-            is_protection_zone_delineated, first_level_protection_zone_area, first_level_protection_zone_pollution_source_count,
-            second_level_protection_zone_area, second_level_protection_zone_pollution_source_count,
-            quasi_protection_zone_area, quasi_protection_zone_pollution_source_count,
-            is_recharge_area_delineated, recharge_area_area, recharge_area_pollution_source_count,
-            is_groundwater_pollution_source_nearby, groundwater_pollution_source_count_nearby,
-            is_priority_controlled, priority_control_reason, is_exceeding_standard, exceeding_standard_reason,
-            human_factor_exceeding_standard_index, human_factor_exceeding_standard_reason,
-            implemented_control_measures, current_water_quality_status, planned_control_measures,
-            expected_standard_reaching_time, is_water_supply_up_to_standard, geom
-        FROM groundwater_source_info
+        SELECT 
+            wsi.source_id, 
+            wsi.project_id,
+            wsi.province_code, 
+            wsi.city_code, 
+            wsi.county_code, 
+            wsi.source_name, 
+            wsi.source_code, 
+            wsi.center_longitude, 
+            wsi.center_latitude, 
+            wsi.source_level, 
+            wsi.water_supply_scale, 
+            wsi.service_population, 
+            wsi.water_quality_category, 
+            wsi.water_quality_category_time, 
+            wsi.burial_condition, 
+            wsi.aquifer_medium_type, 
+            wsi.is_protection_zone_delineated, 
+            wsi.first_level_protection_zone_area, 
+            wsi.first_level_protection_zone_pollution_source_count, 
+            wsi.second_level_protection_zone_area, 
+            wsi.second_level_protection_zone_pollution_source_count, 
+            wsi.quasi_protection_zone_area, 
+            wsi.quasi_protection_zone_pollution_source_count, 
+            wsi.is_recharge_area_delineated, 
+            wsi.recharge_area_area, 
+            wsi.recharge_area_pollution_source_count, 
+            wsi.is_groundwater_pollution_source_nearby, 
+            wsi.groundwater_pollution_source_count_nearby, 
+            wsi.is_priority_controlled, 
+            wsi.priority_control_reason, 
+            wsi.is_exceeding_standard, 
+            wsi.exceeding_standard_reason, 
+            wsi.human_factor_exceeding_standard_index, 
+            wsi.human_factor_exceeding_standard_reason, 
+            wsi.implemented_control_measures, 
+            wsi.current_water_quality_status, 
+            wsi.planned_control_measures, 
+            wsi.expected_standard_reaching_time, 
+            wsi.is_water_supply_up_to_standard,
+            ST_AsText(wsi.geom) as geom,
+            l.province_name,
+            l.city_name,
+            l.county_name
+        FROM groundwater_source_info wsi
+        LEFT JOIN location l ON wsi.province_code = l.province_code 
+                             AND wsi.city_code = l.city_code 
+                             AND wsi.county_code = l.county_code
     </sql>
-
-    <select id="selectWaterSourceInfoListByConditionPager" parameterType="map" resultMap="WaterSourceInfoResult">
+    
+    <select id="selectWaterSourceInfoListByConditionPager" parameterType="WaterSourceInfo" resultMap="WaterSourceInfoResult">
         <include refid="selectWaterSourceInfoVo"/>
         <where>
-            <if test="waterSourceInfo.sourceId != null">
-                AND source_id = #{waterSourceInfo.sourceId}
-            </if>
-            <if test="waterSourceInfo.serialNumber != null">
-                AND serial_number = #{waterSourceInfo.serialNumber}
-            </if>
-            <if test="waterSourceInfo.projectId != null and waterSourceInfo.projectId != ''">
-                AND project_id = #{waterSourceInfo.projectId}
-            </if>
-            <if test="waterSourceInfo.provinceCode != null and waterSourceInfo.provinceCode != ''">
-                AND province_code = #{waterSourceInfo.provinceCode}
-            </if>
-            <if test="waterSourceInfo.cityCode != null and waterSourceInfo.cityCode != ''">
-                AND city_code = #{waterSourceInfo.cityCode}
-            </if>
-            <if test="waterSourceInfo.countyCode != null and waterSourceInfo.countyCode != ''">
-                AND county_code = #{waterSourceInfo.countyCode}
-            </if>
             <if test="waterSourceInfo.sourceName != null and waterSourceInfo.sourceName != ''">
-                AND source_name LIKE CONCAT('%', #{waterSourceInfo.sourceName}, '%')
-            </if>
-            <if test="waterSourceInfo.sourceCode != null and waterSourceInfo.sourceCode != ''">
-                AND source_code = #{waterSourceInfo.sourceCode}
+                AND wsi.source_name LIKE CONCAT('%', #{waterSourceInfo.sourceName}, '%')
             </if>
             <if test="waterSourceInfo.sourceLevel != null and waterSourceInfo.sourceLevel != ''">
-                AND source_level = #{waterSourceInfo.sourceLevel}
+                AND wsi.source_level = #{waterSourceInfo.sourceLevel}
+            </if>
+            <if test="waterSourceInfo.waterQualityCategory != null">
+                AND wsi.water_quality_category = #{waterSourceInfo.waterQualityCategory}
+            </if>
+            <if test="waterSourceInfo.isExceedingStandard != null">
+                AND wsi.is_exceeding_standard = #{waterSourceInfo.isExceedingStandard}
             </if>
         </where>
-        ORDER BY water_quality_category_time DESC
+        ORDER BY wsi.source_id DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-
-    <select id="selectWaterSourceInfoCount" parameterType="map" resultType="int">
-        SELECT COUNT(*) FROM groundwater_source_info
+    
+    <select id="selectWaterSourceInfoCount" parameterType="WaterSourceInfo" resultType="int">
+        SELECT COUNT(*) FROM groundwater_source_info wsi
         <where>
-            <if test="waterSourceInfo.sourceId != null">
-                AND source_id = #{waterSourceInfo.sourceId}
-            </if>
-            <if test="waterSourceInfo.serialNumber != null">
-                AND serial_number = #{waterSourceInfo.serialNumber}
-            </if>
-            <if test="waterSourceInfo.projectId != null and waterSourceInfo.projectId != ''">
-                AND project_id = #{waterSourceInfo.projectId}
-            </if>
-            <if test="waterSourceInfo.provinceCode != null and waterSourceInfo.provinceCode != ''">
-                AND province_code = #{waterSourceInfo.provinceCode}
-            </if>
-            <if test="waterSourceInfo.cityCode != null and waterSourceInfo.cityCode != ''">
-                AND city_code = #{waterSourceInfo.cityCode}
-            </if>
-            <if test="waterSourceInfo.countyCode != null and waterSourceInfo.countyCode != ''">
-                AND county_code = #{waterSourceInfo.countyCode}
-            </if>
             <if test="waterSourceInfo.sourceName != null and waterSourceInfo.sourceName != ''">
-                AND source_name LIKE CONCAT('%', #{waterSourceInfo.sourceName}, '%')
-            </if>
-            <if test="waterSourceInfo.sourceCode != null and waterSourceInfo.sourceCode != ''">
-                AND source_code = #{waterSourceInfo.sourceCode}
+                AND wsi.source_name LIKE CONCAT('%', #{waterSourceInfo.sourceName}, '%')
             </if>
             <if test="waterSourceInfo.sourceLevel != null and waterSourceInfo.sourceLevel != ''">
-                AND source_level = #{waterSourceInfo.sourceLevel}
+                AND wsi.source_level = #{waterSourceInfo.sourceLevel}
+            </if>
+            <if test="waterSourceInfo.waterQualityCategory != null">
+                AND wsi.water_quality_category = #{waterSourceInfo.waterQualityCategory}
+            </if>
+            <if test="waterSourceInfo.isExceedingStandard != null">
+                AND wsi.is_exceeding_standard = #{waterSourceInfo.isExceedingStandard}
             </if>
         </where>
     </select>
-
+    
     <insert id="insertWaterSourceInfo" parameterType="WaterSourceInfo">
-        INSERT INTO groundwater_source_info (
-            serial_number, project_id, province_code, city_code, county_code, source_name, source_code,
-            center_longitude, center_latitude, source_level, water_supply_scale, service_population,
-            water_quality_category, water_quality_category_time, burial_condition, aquifer_medium_type,
-            is_protection_zone_delineated, first_level_protection_zone_area, first_level_protection_zone_pollution_source_count,
-            second_level_protection_zone_area, second_level_protection_zone_pollution_source_count,
-            quasi_protection_zone_area, quasi_protection_zone_pollution_source_count,
-            is_recharge_area_delineated, recharge_area_area, recharge_area_pollution_source_count,
-            is_groundwater_pollution_source_nearby, groundwater_pollution_source_count_nearby,
-            is_priority_controlled, priority_control_reason, is_exceeding_standard, exceeding_standard_reason,
-            human_factor_exceeding_standard_index, human_factor_exceeding_standard_reason,
-            implemented_control_measures, current_water_quality_status, planned_control_measures,
-            expected_standard_reaching_time, is_water_supply_up_to_standard, geom
+        INSERT INTO groundwater_source_info(
+            project_id,
+            province_code,
+            city_code,
+            county_code,
+            source_name,
+            source_code,
+            center_longitude,
+            center_latitude,
+            source_level,
+            water_supply_scale,
+            service_population,
+            water_quality_category,
+            water_quality_category_time,
+            burial_condition,
+            aquifer_medium_type,
+            is_protection_zone_delineated,
+            first_level_protection_zone_area,
+            first_level_protection_zone_pollution_source_count,
+            second_level_protection_zone_area,
+            second_level_protection_zone_pollution_source_count,
+            quasi_protection_zone_area,
+            quasi_protection_zone_pollution_source_count,
+            is_recharge_area_delineated,
+            recharge_area_area,
+            recharge_area_pollution_source_count,
+            is_groundwater_pollution_source_nearby,
+            groundwater_pollution_source_count_nearby,
+            is_priority_controlled,
+            priority_control_reason,
+            is_exceeding_standard,
+            exceeding_standard_reason,
+            human_factor_exceeding_standard_index,
+            human_factor_exceeding_standard_reason,
+            implemented_control_measures,
+            current_water_quality_status,
+            planned_control_measures,
+            expected_standard_reaching_time,
+            is_water_supply_up_to_standard,
+            geom
         ) VALUES (
-                     #{serialNumber}, #{projectId}, #{provinceCode}, #{cityCode}, #{countyCode}, #{sourceName}, #{sourceCode},
-                     #{centerLongitude}, #{centerLatitude}, #{sourceLevel}, #{waterSupplyScale}, #{servicePopulation},
-                     #{waterQualityCategory}, #{waterQualityCategoryTime}, #{burialCondition}, #{aquiferMediumType},
-                     #{isProtectionZoneDelineated}, #{firstLevelProtectionZoneArea}, #{firstLevelProtectionZonePollutionSourceCount},
-                     #{secondLevelProtectionZoneArea}, #{secondLevelProtectionZonePollutionSourceCount},
-                     #{quasiProtectionZoneArea}, #{quasiProtectionZonePollutionSourceCount},
-                     #{isRechargeAreaDelineated}, #{rechargeAreaArea}, #{rechargeAreaPollutionSourceCount},
-                     #{isGroundwaterPollutionSourceNearby}, #{groundwaterPollutionSourceCountNearby},
-                     #{isPriorityControlled}, #{priorityControlReason}, #{isExceedingStandard}, #{exceedingStandardReason},
-                     #{humanFactorExceedingStandardIndex}, #{humanFactorExceedingStandardReason},
-                     #{implementedControlMeasures}, #{currentWaterQualityStatus}, #{plannedControlMeasures},
-                     #{expectedStandardReachingTime}, #{isWaterSupplyUpToStandard}, ST_GeomFromText(#{geom}, 4490)
-                 )
+            #{projectId},
+            #{provinceCode},
+            #{cityCode},
+            #{countyCode},
+            #{sourceName},
+            #{sourceCode},
+            #{centerLongitude},
+            #{centerLatitude},
+            #{sourceLevel},
+            #{waterSupplyScale},
+            #{servicePopulation},
+            #{waterQualityCategory},
+            #{waterQualityCategoryTime},
+            #{burialCondition},
+            #{aquiferMediumType},
+            #{isProtectionZoneDelineated},
+            #{firstLevelProtectionZoneArea},
+            #{firstLevelProtectionZonePollutionSourceCount},
+            #{secondLevelProtectionZoneArea},
+            #{secondLevelProtectionZonePollutionSourceCount},
+            #{quasiProtectionZoneArea},
+            #{quasiProtectionZonePollutionSourceCount},
+            #{isRechargeAreaDelineated},
+            #{rechargeAreaArea},
+            #{rechargeAreaPollutionSourceCount},
+            #{isGroundwaterPollutionSourceNearby},
+            #{groundwaterPollutionSourceCountNearby},
+            #{isPriorityControlled},
+            #{priorityControlReason},
+            #{isExceedingStandard},
+            #{exceedingStandardReason},
+            #{humanFactorExceedingStandardIndex},
+            #{humanFactorExceedingStandardReason},
+            #{implementedControlMeasures},
+            #{currentWaterQualityStatus},
+            #{plannedControlMeasures},
+            #{expectedStandardReachingTime},
+            #{isWaterSupplyUpToStandard},
+            ST_GeomFromText(#{geom}, 4490)
+        )
     </insert>
-
-    <insert id="insertWaterSourceInfoBatch" parameterType="java.util.List">
+    
+    <insert id="insertWaterSourceInfoBatch">
+        INSERT INTO groundwater_source_info (source_code, create_time) 
+        VALUES 
+        <foreach collection="sourceCodes" item="sourceCode" separator=","> 
+            (#{sourceCode}, NOW()) 
+        </foreach> 
+        ON CONFLICT (source_code) DO UPDATE SET
+        project_id = EXCLUDED.project_id,
+        province_code = EXCLUDED.province_code,
+        city_code = EXCLUDED.city_code,
+        county_code = EXCLUDED.county_code,
+        source_name = EXCLUDED.source_name,
+        center_longitude = EXCLUDED.center_longitude,
+        center_latitude = EXCLUDED.center_latitude,
+        source_level = EXCLUDED.source_level,
+        water_supply_scale = EXCLUDED.water_supply_scale,
+        service_population = EXCLUDED.service_population,
+        water_quality_category = EXCLUDED.water_quality_category,
+        water_quality_category_time = EXCLUDED.water_quality_category_time,
+        burial_condition = EXCLUDED.burial_condition,
+        aquifer_medium_type = EXCLUDED.aquifer_medium_type,
+        is_protection_zone_delineated = EXCLUDED.is_protection_zone_delineated,
+        first_level_protection_zone_area = EXCLUDED.first_level_protection_zone_area,
+        first_level_protection_zone_pollution_source_count = EXCLUDED.first_level_protection_zone_pollution_source_count,
+        second_level_protection_zone_area = EXCLUDED.second_level_protection_zone_area,
+        second_level_protection_zone_pollution_source_count = EXCLUDED.second_level_protection_zone_pollution_source_count,
+        quasi_protection_zone_area = EXCLUDED.quasi_protection_zone_area,
+        quasi_protection_zone_pollution_source_count = EXCLUDED.quasi_protection_zone_pollution_source_count,
+        is_recharge_area_delineated = EXCLUDED.is_recharge_area_delineated,
+        recharge_area_area = EXCLUDED.recharge_area_area,
+        recharge_area_pollution_source_count = EXCLUDED.recharge_area_pollution_source_count,
+        is_groundwater_pollution_source_nearby = EXCLUDED.is_groundwater_pollution_source_nearby,
+        groundwater_pollution_source_count_nearby = EXCLUDED.groundwater_pollution_source_count_nearby,
+        is_priority_controlled = EXCLUDED.is_priority_controlled,
+        priority_control_reason = EXCLUDED.priority_control_reason,
+        is_exceeding_standard = EXCLUDED.is_exceeding_standard,
+        exceeding_standard_reason = EXCLUDED.exceeding_standard_reason,
+        human_factor_exceeding_standard_index = EXCLUDED.human_factor_exceeding_standard_index,
+        human_factor_exceeding_standard_reason = EXCLUDED.human_factor_exceeding_standard_reason,
+        implemented_control_measures = EXCLUDED.implemented_control_measures,
+        current_water_quality_status = EXCLUDED.current_water_quality_status,
+        planned_control_measures = EXCLUDED.planned_control_measures,
+        expected_standard_reaching_time = EXCLUDED.expected_standard_reaching_time,
+        is_water_supply_up_to_standard = EXCLUDED.is_water_supply_up_to_standard,
+        geom = EXCLUDED.geom
+    </insert>
+    
+    <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO groundwater_source_info (
-        serial_number, project_id, province_code, city_code, county_code,
-        source_name, source_code, center_longitude, center_latitude,
-        source_level, water_supply_scale, service_population,
-        water_quality_category, water_quality_category_time,
-        burial_condition, aquifer_medium_type,
+        project_id,
+        province_code,
+        city_code,
+        county_code,
+        source_name,
+        source_code,
+        center_longitude,
+        center_latitude,
+        source_level,
+        water_supply_scale,
+        service_population,
+        water_quality_category,
+        water_quality_category_time,
+        burial_condition,
+        aquifer_medium_type,
         is_protection_zone_delineated,
         first_level_protection_zone_area,
         first_level_protection_zone_pollution_source_count,
@@ -192,11 +315,11 @@
         current_water_quality_status,
         planned_control_measures,
         expected_standard_reaching_time,
-        is_water_supply_up_to_standard
+        is_water_supply_up_to_standard,
+        geom
         ) VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="waterSourceInfos" item="item" separator=",">
             (
-            #{item.serialNumber},
             #{item.projectId},
             #{item.provinceCode},
             #{item.cityCode},
@@ -234,18 +357,54 @@
             #{item.currentWaterQualityStatus},
             #{item.plannedControlMeasures},
             #{item.expectedStandardReachingTime},
-            #{item.isWaterSupplyUpToStandard}
+            #{item.isWaterSupplyUpToStandard},
+            ST_GeomFromText(#{item.geom}, 4490)
             )
         </foreach>
-        ON CONFLICT (source_code) DO NOTHING
+        ON CONFLICT (source_code) DO UPDATE SET
+        project_id = EXCLUDED.project_id,
+        province_code = EXCLUDED.province_code,
+        city_code = EXCLUDED.city_code,
+        county_code = EXCLUDED.county_code,
+        source_name = EXCLUDED.source_name,
+        center_longitude = EXCLUDED.center_longitude,
+        center_latitude = EXCLUDED.center_latitude,
+        source_level = EXCLUDED.source_level,
+        water_supply_scale = EXCLUDED.water_supply_scale,
+        service_population = EXCLUDED.service_population,
+        water_quality_category = EXCLUDED.water_quality_category,
+        water_quality_category_time = EXCLUDED.water_quality_category_time,
+        burial_condition = EXCLUDED.burial_condition,
+        aquifer_medium_type = EXCLUDED.aquifer_medium_type,
+        is_protection_zone_delineated = EXCLUDED.is_protection_zone_delineated,
+        first_level_protection_zone_area = EXCLUDED.first_level_protection_zone_area,
+        first_level_protection_zone_pollution_source_count = EXCLUDED.first_level_protection_zone_pollution_source_count,
+        second_level_protection_zone_area = EXCLUDED.second_level_protection_zone_area,
+        second_level_protection_zone_pollution_source_count = EXCLUDED.second_level_protection_zone_pollution_source_count,
+        quasi_protection_zone_area = EXCLUDED.quasi_protection_zone_area,
+        quasi_protection_zone_pollution_source_count = EXCLUDED.quasi_protection_zone_pollution_source_count,
+        is_recharge_area_delineated = EXCLUDED.is_recharge_area_delineated,
+        recharge_area_area = EXCLUDED.recharge_area_area,
+        recharge_area_pollution_source_count = EXCLUDED.recharge_area_pollution_source_count,
+        is_groundwater_pollution_source_nearby = EXCLUDED.is_groundwater_pollution_source_nearby,
+        groundwater_pollution_source_count_nearby = EXCLUDED.groundwater_pollution_source_count_nearby,
+        is_priority_controlled = EXCLUDED.is_priority_controlled,
+        priority_control_reason = EXCLUDED.priority_control_reason,
+        is_exceeding_standard = EXCLUDED.is_exceeding_standard,
+        exceeding_standard_reason = EXCLUDED.exceeding_standard_reason,
+        human_factor_exceeding_standard_index = EXCLUDED.human_factor_exceeding_standard_index,
+        human_factor_exceeding_standard_reason = EXCLUDED.human_factor_exceeding_standard_reason,
+        implemented_control_measures = EXCLUDED.implemented_control_measures,
+        current_water_quality_status = EXCLUDED.current_water_quality_status,
+        planned_control_measures = EXCLUDED.planned_control_measures,
+        expected_standard_reaching_time = EXCLUDED.expected_standard_reaching_time,
+        is_water_supply_up_to_standard = EXCLUDED.is_water_supply_up_to_standard,
+        geom = EXCLUDED.geom
     </insert>
 
     <update id="updateWaterSourceInfo" parameterType="WaterSourceInfo">
         UPDATE groundwater_source_info
         <set>
-            <if test="serialNumber != null">
-                serial_number = #{serialNumber},
-            </if>
             <if test="projectId != null and projectId != ''">
                 project_id = #{projectId},
             </if>
@@ -362,5 +521,19 @@
         SELECT DISTINCT source_name FROM groundwater_source_info WHERE source_name IS NOT NULL
     </select>
 
+    <select id="selectWaterSourceInfoSimpleListBySpatialBounds" resultMap="WaterSourceInfoSimpleResult">
+        SELECT wsi.source_id, ST_AsText(wsi.geom) as geom, wsi.water_quality_category
+        FROM groundwater_source_info wsi
+        <where>
+            <if test="minX != null and minY != null and maxX != null and maxY != null">
+                AND ST_Intersects(wsi.geom, ST_MakeEnvelope(#{minX}, #{minY}, #{maxX}, #{maxY}, 4490))
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWaterSourceInfoById" parameterType="java.lang.Long" resultMap="WaterSourceInfoResult">
+        <include refid="selectWaterSourceInfoVo"/>
+        WHERE wsi.source_id = #{sourceId}
+    </select>
 
 </mapper>

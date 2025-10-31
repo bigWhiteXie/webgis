@@ -29,8 +29,8 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
     private IProjectService projectService;
 
     @Override
-    public List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY) {
-        return monitorWellMapper.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY);
+    public List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY, String metricName) {
+        return monitorWellMapper.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY, metricName);
     }
     
     @Override

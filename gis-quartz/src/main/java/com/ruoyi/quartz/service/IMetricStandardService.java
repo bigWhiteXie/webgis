@@ -55,6 +55,14 @@ public interface IMetricStandardService {
      * @return 指标标准列表
      */
     public List<MetricStandard> selectMetricStandardListByMetricCode(String metricCode);
+    
+    /**
+     * 根据ID查询指标标准记录
+     *
+     * @param id 指标标准ID
+     * @return 指标标准对象
+     */
+    public MetricStandard selectMetricStandardById(Long id);
 
 
     /**

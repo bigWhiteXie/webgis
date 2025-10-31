@@ -5,13 +5,16 @@ import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.quartz.domain.MonitorWell;
 import com.ruoyi.quartz.domain.api.MonitorWellVo;
+import com.ruoyi.quartz.domain.api.SampleDataResp;
 import com.ruoyi.quartz.domain.api.SimpleWellResp;
 import com.ruoyi.quartz.service.IMonitorWellService;
+import com.ruoyi.quartz.service.impl.SampleDataServiceImpl;
 import com.ruoyi.quartz.util.GisUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +24,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +49,9 @@ public class MonitorWellController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(MonitorWellController.class);
     @Autowired
     private IMonitorWellService monitorWellService;
+
+    @Autowired
+    private SampleDataServiceImpl sampleDataService;
 
     @Autowired
     private ServerConfig serverConfig;
@@ -71,8 +83,37 @@ public class MonitorWellController extends BaseController {
             @ApiParam("最小经度") @RequestParam(required = false) Double minX,
             @ApiParam("最小纬度") @RequestParam(required = false) Double minY,
             @ApiParam("最大经度") @RequestParam(required = false) Double maxX,
-            @ApiParam("最大纬度") @RequestParam(required = false) Double maxY) {
-        List<SimpleWellResp> list = monitorWellService.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY);
+            @ApiParam("最大纬度") @RequestParam(required = false) Double maxY,
+            @ApiParam("指标名称") @RequestParam(required = false) String metricName) {
+        List<SimpleWellResp> list = monitorWellService.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY, metricName);
+        if (!StringUtils.isEmpty(metricName)) {
+            List<String> metricNames;
+            if (metricName.equals("summary")){
+                metricNames = null;
+            } else {
+                metricNames = Arrays.asList(metricName);
+            }
+            
+            // 使用大小为10的线程池并发计算水质等级
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            
+            for (int i = 0; i < list.size(); i++) {
+                final int index = i;
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    SampleDataResp sampleDataResp = sampleDataService.getSampleDataByMonitoringWellAndMetrics(
+                            list.get(index).getWellCode(), new Date(), metricNames);
+                    if (sampleDataResp != null) {
+                        list.get(index).setWaterQualityLevel(sampleDataResp.getQualityLevel());
+                    }
+                }, executorService);
+                futures.add(future);
+            }
+            
+            // 等待所有任务完成
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            executorService.shutdown();
+        }
         return AjaxResult.success(list);
     }
 

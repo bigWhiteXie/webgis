@@ -29,6 +29,10 @@ public class SimpleWellResp {
     @ApiModelProperty("几何对象(位置信息)")
     private String geom;
     
+    /** 水质等级 */
+    @ApiModelProperty("水质等级")
+    private String waterQualityLevel;
+    
     public String getWellCode() {
         return wellCode;
     }
@@ -59,5 +63,13 @@ public class SimpleWellResp {
     
     public void setGeom(String geom) {
         this.geom = geom;
+    }
+    
+    public String getWaterQualityLevel() {
+        return waterQualityLevel;
+    }
+    
+    public void setWaterQualityLevel(String waterQualityLevel) {
+        this.waterQualityLevel = waterQualityLevel;
     }
 }

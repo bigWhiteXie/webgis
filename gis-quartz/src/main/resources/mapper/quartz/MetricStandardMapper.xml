@@ -23,10 +23,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectMetricStandardCondition">
         <where>
             <if test="metricStandard != null and metricStandard.metricCode != null and metricStandard.metricCode != ''">
-                AND metric_code = #{metricStandard.metricCode}
+                AND ms.metric_code = #{metricStandard.metricCode}
             </if>
             <if test="metricStandard != null and metricStandard.qualityLevel != null and metricStandard.qualityLevel != ''">
-                AND quality_level = #{metricStandard.qualityLevel}
+                AND ms.quality_level = #{metricStandard.qualityLevel}
             </if>
         </where>
     </sql>
@@ -47,36 +47,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		WHERE id = #{id}
 	</update>
 	
+	<select id="selectMetricStandardById" parameterType="Long" resultMap="MetricStandardResult">
+		<include refid="selectMetricStandardVo"/>
+		WHERE ms.id = #{id}
+	</select>
+	
 	<select id="selectMetricStandardList" resultMap="MetricStandardResult">
 		<include refid="selectMetricStandardVo"/>
-		ORDER BY metric_code, quality_level
+		ORDER BY ms.metric_code, ms.quality_level
 	</select>
 	
 	<select id="selectMetricStandardListByMetricCode" parameterType="String" resultMap="MetricStandardResult">
 		<include refid="selectMetricStandardVo"/>
-		WHERE metric_code = #{metricCode}
-		ORDER BY quality_level
+		WHERE ms.metric_code = #{metricCode}
+		ORDER BY ms.quality_level
 	</select>
 	
 	<select id="selectMetricStandardListByMetricCodes" parameterType="java.util.List" resultMap="MetricStandardResult">
 		<include refid="selectMetricStandardVo"/>
-		WHERE metric_code IN
+		WHERE ms.metric_code IN
 		<foreach collection="list" item="metricCode" open="(" separator="," close=")">
 			#{metricCode}
 		</foreach>
-		ORDER BY metric_code, quality_level DESC
+		ORDER BY ms.metric_code, ms.quality_level DESC
 	</select>
 	
 	<select id="selectMetricStandardListByCondition" parameterType="MetricStandard" resultMap="MetricStandardResult">
         <include refid="selectMetricStandardVo"/>
         <include refid="selectMetricStandardCondition"/>
-        ORDER BY metric_code, quality_level
+        ORDER BY ms.metric_code, ms.quality_level
     </select>
     
     <select id="selectMetricStandardListByConditionPager" resultMap="MetricStandardResult">
         <include refid="selectMetricStandardVo"/>
         <include refid="selectMetricStandardCondition"/>
-        ORDER BY metric_code, quality_level
+        ORDER BY ms.metric_code, ms.quality_level
         LIMIT #{limit} OFFSET #{offset}
     </select>
     

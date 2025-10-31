@@ -61,6 +61,14 @@ public interface MetricStandardMapper
     public int deleteMetricStandardById(Long id);
     
     /**
+     * 根据ID查询指标标准记录
+     *
+     * @param id 指标标准ID
+     * @return 指标标准对象
+     */
+    public MetricStandard selectMetricStandardById(Long id);
+    
+    /**
      * 根据条件查询指标标准记录
      *
      * @param metricStandard 指标标准对象

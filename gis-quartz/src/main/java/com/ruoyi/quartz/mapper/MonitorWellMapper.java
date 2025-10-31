@@ -16,10 +16,12 @@ public interface MonitorWellMapper {
      * @param minY 最小纬度
      * @param maxX 最大经度
      * @param maxY 最大纬度
+     * @param metricName 指标名称
      * @return 监测井列表
      */
     List<SimpleWellResp> selectMonitorWellListBySpatialBounds(@Param("minX") Double minX, @Param("minY") Double minY, 
-                                                              @Param("maxX") Double maxX, @Param("maxY") Double maxY);
+                                                              @Param("maxX") Double maxX, @Param("maxY") Double maxY, 
+                                                              @Param("metricName") String metricName);
     
     /**
      * 批量插入监测井数据

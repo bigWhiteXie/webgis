@@ -4,7 +4,6 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.MonitorWell;
 import com.ruoyi.quartz.domain.api.MonitorWellVo;
 import com.ruoyi.quartz.domain.api.SimpleWellResp;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,8 +12,8 @@ import java.util.List;
  * 
  * @author ruoyi
  */
-public interface IMonitorWellService {
-    
+public interface IMonitorWellService 
+{
     /**
      * 根据空间范围查询监测井列表
      * 
@@ -22,49 +21,50 @@ public interface IMonitorWellService {
      * @param minY 最小纬度
      * @param maxX 最大经度
      * @param maxY 最大纬度
+     * @param metricName 指标名称
      * @return 监测井列表
      */
-    List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY);
+    List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY, String metricName);
     
     /**
-     * 分批解析Excel文件并导入数据库
-     *
+     * 解析并导入Excel文件
+     * 
      * @param file Excel文件
-     * @return 导入的记录总数
-     * @throws Exception 解析或导入异常
+     * @return 导入记录数
+     * @throws Exception 异常
      */
-    public int parseAndImportExcelFile(MultipartFile file) throws Exception;
+    int parseAndImportExcelFile(org.springframework.web.multipart.MultipartFile file) throws Exception;
     
     /**
-     * 分页查询监测井数据
+     * 分页查询监测井列表
      * 
      * @param monitorWellVo 查询条件
      * @param pageNum 页码
      * @param pageSize 每页记录数
-     * @return 分页结果
+     * @return 监测井分页数据
      */
-    public TableDataInfo selectMonitorWellList(MonitorWellVo monitorWellVo, int pageNum, int pageSize);
+    TableDataInfo selectMonitorWellList(MonitorWellVo monitorWellVo, int pageNum, int pageSize);
     
     /**
      * 根据ID查询监测井信息
      * 
-     * @param id 监测井ID
+     * @param wellCode 监测井编码
      * @return 监测井信息
      */
-    public MonitorWell selectMonitorWellById(String id);
+    MonitorWell selectMonitorWellById(String wellCode);
     
     /**
      * 更新监测井信息
      * 
      * @param monitorWell 监测井信息
-     * @return 更新结果
+     * @return 结果
      */
-    public int updateMonitorWell(MonitorWell monitorWell);
+    int updateMonitorWell(MonitorWell monitorWell);
     
     /**
      * 查询所有监测井编号
      * 
      * @return 监测井编号列表
      */
-    public List<String> selectAllWellCodes();
+    List<String> selectAllWellCodes();
 }

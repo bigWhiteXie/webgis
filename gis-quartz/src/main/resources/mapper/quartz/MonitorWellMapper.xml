@@ -232,5 +232,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectAllWellCodes" resultType="string">
 	    SELECT well_code FROM monitoring_well ORDER BY well_code
 	</select>
-
+	
+	<delete id="deleteMonitorWellByWellCodes" parameterType="java.util.List">
+	    DELETE FROM monitoring_well WHERE well_code IN
+	    <foreach collection="list" item="wellCode" open="(" separator="," close=")">
+	        #{wellCode}
+	    </foreach>
+	</delete>
 </mapper>

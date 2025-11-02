@@ -236,7 +236,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
 
 
     /**
-     * 等级计算方法
+     * 等级计算方法,计算每个metricCode的质量等级，返回最差的那个
      *
      * @param metricCodes 指标编码列表
      * @param values      检测值列表
@@ -250,7 +250,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         }
 
         // 质量等级列表，用于存储有效的质量等级（忽略"无质量等级"的指标）
-        List<String> qualityLevels = new ArrayList<>();
+        boolean hasValidQualityLevel = false;
         String worstQualityLevel = WaterQualityLevel.CLASS_I.getLabel();
 
         // 计算每个指标的质量等级
@@ -261,6 +261,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
                 BigDecimal value = new BigDecimal(valueStr);
                 List<MetricStandard> standards = metricStandardMap.get(metricCode);
                 if (standards != null && !standards.isEmpty()) {
+                    hasValidQualityLevel = true;
                     for (MetricStandard standard : standards) {
                         // 检测值是否在当前区间内
                         if (standard.compute(value)) {
@@ -276,60 +277,64 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
                 continue;
             }
         }
-        
+
+        if (!hasValidQualityLevel) {
+            return "无质量等级";
+        }
+
         return worstQualityLevel;
     }
 
     @Override
     public Map<String, List<MetricStandard>> getMetricStandardMap(List<String> metricCodes) {
         // 去重后的指标编码列表
-        Set<String> uniqueMetricCodes = new HashSet<>(metricCodes);
-
         Map<String, List<MetricStandard>> metricStandardMap = new HashMap<>();
 
-        // 先尝试从缓存获取
-        // 创建一个待删除列表，避免在遍历时修改集合
-        Set<String> cachedMetricCodes = new HashSet<>();
-        for (String metricCode : uniqueMetricCodes) {
+        for (String metricCode : metricCodes) {
             List<MetricStandard> cachedList = metricStandardCache.get(metricCode);
             if (cachedList != null) {
                 metricStandardMap.put(metricCode, cachedList);
-                cachedMetricCodes.add(metricCode); // 记录已缓存的metricCode
-            }
-        }
-        // 从待查询列表中移除已缓存的元素
-        uniqueMetricCodes.removeAll(cachedMetricCodes);
-
-        // 剩余未在缓存中找到的，批量从数据库查询
-        if (!uniqueMetricCodes.isEmpty()) {
-            List<MetricStandard> dbStandards = metricStandardMapper.selectMetricStandardListByMetricCodes(new ArrayList<>(uniqueMetricCodes));
-
-            // 按指标编码分组
-            Map<String, List<MetricStandard>> dbGrouped = dbStandards.stream()
-                    .collect(Collectors.groupingBy(MetricStandard::getMetricCode));
-
-            // 放入缓存并加入最终结果
-            for (Map.Entry<String, List<MetricStandard>> entry : dbGrouped.entrySet()) {
-                String metricCode = entry.getKey();
-                List<MetricStandard> standards = entry.getValue();
-                metricStandardMap.put(metricCode, standards);
-
-                // 放入缓存
-                metricStandardCache.put(metricCode, standards);
             }
         }
 
-        // 按指标编码分组，并按阈值从大到小排序
-        Map<String, List<MetricStandard>> sortedMetricStandardMap = metricStandardMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().stream()
-                                .sorted((s1, s2) -> {
-                                    // 排序逻辑可以根据实际需求调整
-                                    return s1.getId().compareTo(s2.getId());
-                                })
-                                .collect(Collectors.toList())
-                ));
-        return sortedMetricStandardMap;
+        return metricStandardMap;
+    }
+
+    /**
+     * 计算单个指标的质量等级
+     *
+     * @param metricCode 指标编码
+     * @param value      检测值
+     * @return 质量等级
+     */
+    public String calculateSingleQualityLevel(String metricCode, String value) {
+        // 参数校验
+        if (metricCode == null || value == null) {
+            throw new IllegalArgumentException("指标编码和检测值不能为空");
+        }
+
+        String worstQualityLevel = WaterQualityLevel.CLASS_I.getLabel();
+        try {
+            List<MetricStandard> standards = metricStandardCache.get(metricCode);
+            if (standards != null && !standards.isEmpty()) {
+                BigDecimal valueDecimal = new BigDecimal(value);
+                for (MetricStandard standard : standards) {
+                    // 检测值是否在当前区间内
+                    if (standard.compute(valueDecimal)) {
+                        // 判断是否比当前最差等级还差
+                        if (standard.compareLevel(worstQualityLevel) > 0) {
+                            worstQualityLevel = standard.getQualityLevel();
+                        }
+                    }
+                }
+            } else {
+                return "无质量等级";
+            }
+        } catch (NumberFormatException e) {
+            // 如果检测值不是有效数字，则抛出异常
+            throw new IllegalArgumentException("检测值必须是有效数字");
+        }
+
+        return worstQualityLevel;
     }
 }

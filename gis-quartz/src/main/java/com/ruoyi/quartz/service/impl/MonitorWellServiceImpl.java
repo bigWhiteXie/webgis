@@ -157,4 +157,12 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
     public List<String> selectAllWellCodes() {
         return monitorWellMapper.selectAllWellCodes();
     }
+    
+    @Override
+    public int deleteMonitorWellByWellCodes(List<String> wellCodes) {
+        if (wellCodes == null || wellCodes.isEmpty()) {
+            return 0;
+        }
+        return monitorWellMapper.deleteMonitorWellByWellCodes(wellCodes);
+    }
 }

@@ -69,4 +69,12 @@ public interface MonitorWellMapper {
      * @return 监测井编号列表
      */
     public List<String> selectAllWellCodes();
+    
+    /**
+     * 根据监测井编号列表删除监测井
+     * 
+     * @param wellCodes 监测井编号列表
+     * @return 删除记录数
+     */
+    public int deleteMonitorWellByWellCodes(List<String> wellCodes);
 }

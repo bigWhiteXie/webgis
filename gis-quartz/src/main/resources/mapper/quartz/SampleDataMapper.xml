@@ -16,6 +16,7 @@
     </resultMap>
     
     <resultMap type="MetricValItem" id="MetricValItemResult">
+        <result property="id" column="id"/>
         <result property="metricCode" column="metric_code"/>
         <result property="metricName" column="metric_name"/>
         <result property="value" column="value"/>
@@ -67,6 +68,49 @@
             detection_limit = EXCLUDED.detection_limit,
             actual_test_value = EXCLUDED.actual_test_value
     </insert>
+    
+    <insert id="batchInsertSampleDataOnly" parameterType="java.util.List">
+        INSERT INTO sample_data (
+            monitoring_well_code,
+            sample_code,
+            sampling_time,
+            testing_laboratory,
+            metric_code,
+            detection_limit,
+            actual_test_value
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.monitoringWellCode},
+                #{item.sampleCode},
+                #{item.samplingTime},
+                #{item.testingLaboratory},
+                #{item.metricCode},
+                #{item.detectionLimit},
+                #{item.actualTestValue}
+            )
+        </foreach>
+        ON CONFLICT (sampling_time,monitoring_well_code, metric_code)
+        DO NOTHING
+    </insert>
+    
+    <update id="batchUpdateSampleData" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE sample_data
+            SET 
+                sample_code = #{item.sampleCode},
+                testing_laboratory = #{item.testingLaboratory},
+                detection_limit = #{item.detectionLimit},
+                actual_test_value = #{item.actualTestValue}
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+    
+    <delete id="deleteByMonitoringWellCodeAndSamplingTime">
+        DELETE FROM sample_data
+        WHERE monitoring_well_code = #{monitoringWellCode}
+          AND sampling_time = #{samplingTime}
+    </delete>
 
     <select id="findLatestSamplingTimeByMonitoringWellCodeAndTime" resultType="java.util.Date">
         SELECT sampling_time
@@ -79,6 +123,7 @@
     
     <select id="selectSampleDataWithMetrics" resultMap="SampleDataRespResult">
         SELECT 
+            sd.id,
             sd.monitoring_well_code,
             sd.sampling_time,
             sd.metric_code,
@@ -100,6 +145,7 @@
     
     <select id="selectSampleDataByTimeRange" resultMap="MetricValItemResult">
         SELECT 
+            sd.id,
             sd.metric_code,
             pm.metric_name,
             sd.actual_test_value as value,
@@ -124,6 +170,7 @@
     
     <select id="selectSampleDataRespList" resultMap="SampleDataRespResult">
         SELECT 
+            sd.id,
             sd.monitoring_well_code,
             sd.sampling_time,
             sd.metric_code,
@@ -176,6 +223,7 @@
     
     <select id="selectSampleDataRespByGroupWithMetrics" resultMap="SampleDataRespResult">
         SELECT 
+            sd.id,
             sd.monitoring_well_code,
             sd.sampling_time,
             sd.metric_code,
@@ -251,4 +299,11 @@
             </if>
         </where>
     </select>
+    
+    <delete id="deleteSampleDataByIds">
+        DELETE FROM sample_data WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

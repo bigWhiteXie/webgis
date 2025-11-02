@@ -239,6 +239,19 @@ public class MonitorWellController extends BaseController {
             return AjaxResult.error(e.getMessage());
         }
     }
-
-
+    
+    /**
+     * 删除监测井
+     * 
+     * @param wellCodes 监测井编号列表
+     * @return 结果
+     */
+    @DeleteMapping
+    @ApiOperation("删除监测井")
+    public AjaxResult deleteMonitorWells(@ApiParam("监测井编号列表") @RequestBody List<String> wellCodes) {
+        if (wellCodes == null || wellCodes.isEmpty()) {
+            return AjaxResult.error("监测井编号列表不能为空");
+        }
+        return toAjax(monitorWellService.deleteMonitorWellByWellCodes(wellCodes));
+    }
 }

@@ -86,4 +86,13 @@ public interface IMetricStandardService {
     public String calculateQualityLevel(List<String> metricCodes, List<String> values, Map<String, List<MetricStandard>> metricStandardMap);
 
     public Map<String, List<MetricStandard>> getMetricStandardMap(List<String> metricCodes);
+    
+    /**
+     * 计算单个指标的质量等级
+     *
+     * @param metricCode 指标编码
+     * @param value      检测值
+     * @return 质量等级
+     */
+    public String calculateSingleQualityLevel(String metricCode, String value);
 }

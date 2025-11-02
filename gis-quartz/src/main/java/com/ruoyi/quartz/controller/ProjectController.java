@@ -29,6 +29,27 @@ public class ProjectController extends BaseController {
     private IProjectService projectService;
 
     /**
+     * 查询项目详细信息
+     *
+     * @param id 项目ID
+     * @return 项目详细信息
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("查询项目详细信息")
+    public AjaxResult getProjectDetail(@ApiParam("项目ID") @PathVariable Long id) {
+        try {
+            Project project = projectService.selectProjectById(id);
+            if (project == null) {
+                return AjaxResult.error("未找到指定项目");
+            }
+            return AjaxResult.success(project);
+        } catch (Exception e) {
+            logger.error("查询项目详细信息失败", e);
+            return AjaxResult.error("查询项目详细信息失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 上传项目边界信息
      *
      * @param file SHP文件

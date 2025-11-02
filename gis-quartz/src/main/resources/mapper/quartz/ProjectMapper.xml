@@ -16,8 +16,13 @@
     </resultMap>
 
     <sql id="selectProjectVo">
-        select id, project_code, project_type, storage_time, manager, geom, company_code, company_name from project
+        select id, project_code, project_type, storage_time, manager, ST_AsText(geom) as geom, company_code, company_name from project
     </sql>
+    
+    <select id="selectProjectById" parameterType="Long" resultMap="ProjectResult">
+        <include refid="selectProjectVo"/>
+        where id = #{id}
+    </select>
 
     <insert id="insertProjectBatch">
         INSERT INTO project (project_code, storage_time)

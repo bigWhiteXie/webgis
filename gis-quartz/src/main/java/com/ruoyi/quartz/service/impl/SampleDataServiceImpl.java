@@ -2,15 +2,12 @@ package com.ruoyi.quartz.service.impl;
 
 import com.alibaba.excel.EasyExcel;
 import com.ruoyi.common.constant.HttpStatus;
-import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.core.page.TableSupport;
-import com.ruoyi.common.utils.MessageUtils;
-import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
+import com.ruoyi.quartz.domain.api.SampleDataVo;
 import com.ruoyi.quartz.mapper.SampleDataMapper;
 import com.ruoyi.quartz.service.ISampleDataService;
 import com.ruoyi.quartz.service.IMetricStandardService;
@@ -104,19 +101,7 @@ public class SampleDataServiceImpl implements ISampleDataService {
         // 如果resp不为null且包含指标值，则计算质量等级
         if (resp != null && resp.getMetricValues() != null && !resp.getMetricValues().isEmpty()) {
             // 提取指标编码和检测值列表
-            List<String> metricCodes = resp.getMetricValues().stream()
-                .map(MetricValItem::getMetricCode)
-                .collect(Collectors.toList());
-                
-            List<String> values = resp.getMetricValues().stream()
-                .map(MetricValItem::getValue)
-                .collect(Collectors.toList());
-                
-            // 获取指标标准映射
-            var metricStandardMap = metricStandardService.getMetricStandardMap(metricCodes);
-            
-            // 计算质量等级
-            String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
+            String qualityLevel = getQualityLevel(resp);
             resp.setQualityLevel(qualityLevel);
         }
         
@@ -158,20 +143,7 @@ public class SampleDataServiceImpl implements ISampleDataService {
             SampleDataResp item = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
                 baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
             if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
-                // 提取指标编码和检测值列表
-                List<String> metricCodes = item.getMetricValues().stream()
-                        .map(MetricValItem::getMetricCode)
-                        .collect(Collectors.toList());
-
-                List<String> values = item.getMetricValues().stream()
-                        .map(MetricValItem::getValue)
-                        .collect(Collectors.toList());
-
-                // 获取指标标准映射
-                var metricStandardMap = metricStandardService.getMetricStandardMap(metricCodes);
-
-                // 计算质量等级
-                String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
+                String qualityLevel = getQualityLevel(item);
                 item.setQualityLevel(qualityLevel);
             }
             result.add(item);
@@ -184,9 +156,112 @@ public class SampleDataServiceImpl implements ISampleDataService {
         rspData.setTotal(total);
         return rspData;
     }
-    
+
+    private String getQualityLevel(SampleDataResp item) {
+        // 提取指标编码和检测值列表
+        List<String> metricCodes = item.getMetricValues().stream()
+                .map(MetricValItem::getMetricCode)
+                .collect(Collectors.toList());
+
+        List<String> values = item.getMetricValues().stream()
+                .map(MetricValItem::getValue)
+                .collect(Collectors.toList());
+
+        // 获取指标标准映射
+        var metricStandardMap = metricStandardService.getMetricStandardMap(metricCodes);
+
+        // 计算质量等级
+        String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
+        return qualityLevel;
+    }
+
     @Override
     public List<SampleData> selectSampleDataList(SampleData sampleData, Date startTime, Date endTime) {
         return sampleDataMapper.selectSampleDataList(sampleData, startTime, endTime);
+    }
+    
+    @Override
+    public int updateSampleData(SampleDataVo sampleDataVo) {
+        String monitoringWellCode = sampleDataVo.getMonitoringWellCode();
+        Date samplingTime = sampleDataVo.getSamplingTime();
+        List<MetricValItem> metricValues = sampleDataVo.getMetricValues();
+        
+        // 将metricValItem分为两组：一组有id，一组无id
+        // 有id的执行批量修改操作，无id的执行批量插入操作
+        List<SampleData> updateList = new ArrayList<>();
+        List<SampleData> insertList = new ArrayList<>();
+        
+        for (MetricValItem item : metricValues) {
+            SampleData data = new SampleData();
+            data.setMonitoringWellCode(monitoringWellCode);
+            data.setSamplingTime(samplingTime);
+            data.setMetricCode(item.getMetricCode());
+            // 设置其他字段
+            data.setActualTestValue(item.getValue());
+            
+            if (item.getId() != null && item.getId() > 0) {
+                // 有ID的加入更新列表
+                data.setId(item.getId());
+                updateList.add(data);
+            } else {
+                // 无ID的加入插入列表
+                insertList.add(data);
+            }
+        }
+        
+        int result = 0;
+        // 执行批量更新操作
+        if (!updateList.isEmpty()) {
+            result += sampleDataMapper.batchUpdateSampleData(updateList);
+        }
+        
+        // 执行批量插入操作
+        if (!insertList.isEmpty()) {
+            result += sampleDataMapper.batchInsertSampleDataOnly(insertList);
+        }
+        
+        return result;
+    }
+    
+    @Override
+    public int deleteSampleDataByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        return sampleDataMapper.deleteSampleDataByIds(ids);
+    }
+    
+    @Override
+    public List<SampleDataResp> getSampleDataWithQualityLevels(String monitoringWellCode, Date startTime, Date endTime) {
+        // 查询基本的监测井和采样时间信息
+        List<SampleDataResp> baseList = sampleDataMapper.selectSampleDataRespByGroup(
+            monitoringWellCode, startTime, endTime, null, 0, Integer.MAX_VALUE);
+        
+        // 为每个基本项查询详细的指标数据，并添加质量等级
+        List<SampleDataResp> result = new ArrayList<>();
+        for (SampleDataResp baseItem : baseList) {
+            SampleDataResp item = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
+                baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
+            
+            if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
+                // 为每个指标计算质量等级
+                for (MetricValItem valItem : item.getMetricValues()) {
+                    // 计算单个指标的质量等级
+                    try {
+                        String qualityLevel = metricStandardService.calculateSingleQualityLevel(
+                            valItem.getMetricCode(), valItem.getValue());
+                        valItem.setLevel(qualityLevel);
+                    } catch (Exception e) {
+                        log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
+                        valItem.setLevel("未知");
+                    }
+                }
+                item.setQualityLevel(getQualityLevel(item));
+            }
+            
+            result.add(item);
+        }
+        
+        return result;
     }
 }

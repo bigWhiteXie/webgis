@@ -26,6 +26,17 @@ public interface SampleDataMapper {
     int batchInsertSampleData(List<SampleData> sampleDataList);
     
     /**
+     * 根据监测井编码和采样时间删除地下水样品检测信息
+     * 
+     * @param monitoringWellCode 监测井编码
+     * @param samplingTime 采样时间
+     * @return 删除的记录数
+     */
+    int deleteByMonitoringWellCodeAndSamplingTime(
+        @Param("monitoringWellCode") String monitoringWellCode,
+        @Param("samplingTime") Date samplingTime);
+    
+    /**
      * 查找指定监测井的小于等于指定时间的最近采样时间
      * 
      * @param monitoringWellCode 监测井编号
@@ -143,4 +154,29 @@ public interface SampleDataMapper {
         @Param("sampleData") SampleData sampleData,
         @Param("startTime") Date startTime,
         @Param("endTime") Date endTime);
+
+        
+    /**
+     * 批量更新地下水样品检测信息
+     * 
+     * @param sampleDataList 地下水样品检测信息列表
+     * @return 结果
+     */
+    int batchUpdateSampleData(List<SampleData> sampleDataList);
+    
+    /**
+     * 批量插入地下水样品检测信息（仅插入）
+     * 
+     * @param sampleDataList 地下水样品检测信息列表
+     * @return 结果
+     */
+    int batchInsertSampleDataOnly(List<SampleData> sampleDataList);
+    
+    /**
+     * 根据ID列表批量删除地下水样品检测信息
+     * 
+     * @param ids 需要删除的ID列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByIds(@Param("ids") List<Long> ids);
 }

@@ -5,6 +5,7 @@ import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
+import com.ruoyi.quartz.domain.api.SampleDataVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -85,4 +86,30 @@ public interface ISampleDataService {
      * @return SampleData列表
      */
     List<SampleData> selectSampleDataList(SampleData sampleData, Date startTime, Date endTime);
+    
+    /**
+     * 更新监测井的相关指标检测数据
+     * 
+     * @param sampleDataVo 监测井指标检测数据
+     * @return 更新结果
+     */
+    int updateSampleData(SampleDataVo sampleDataVo);
+    
+    /**
+     * 批量删除地下水样品检测信息
+     * 
+     * @param ids 需要删除的ID列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByIds(List<Long> ids);
+    
+    /**
+     * 根据监测井编号和时间范围查询带有质量等级的监测数据
+     * 
+     * @param monitoringWellCode 监测井编号
+     * @param startTime 开始时间（可选）
+     * @param endTime 结束时间（可选）
+     * @return 带有质量等级的监测数据列表
+     */
+    List<SampleDataResp> getSampleDataWithQualityLevels(String monitoringWellCode, Date startTime, Date endTime);
 }

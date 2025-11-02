@@ -8,17 +8,14 @@ import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
+import com.ruoyi.quartz.domain.api.SampleDataVo;
 import com.ruoyi.quartz.service.ISampleDataService;
 import com.ruoyi.quartz.service.impl.SampleDataServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -188,5 +185,93 @@ public class SampleDataController extends BaseController {
             @ApiParam(value = "每页大小", required = false, defaultValue = "10")
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         return sampleDataService.getSampleDataRespList(monitoringWellCode, startTime, endTime, projectId, pageNum, pageSize);
+    }
+    
+    /**
+     * 修改监测井的相关指标检测数据
+     *
+     * @param sampleDataVo 监测井指标检测数据
+     * @return 操作结果
+     */
+    @PutMapping("/update")
+    @ApiOperation("修改监测井的相关指标检测数据")
+    public AjaxResult updateSampleData(@RequestBody SampleDataVo sampleDataVo) {
+        try {
+            // 检查必要参数
+            if (sampleDataVo == null) {
+                return AjaxResult.error("参数不能为空");
+            }
+            
+            if (sampleDataVo.getMonitoringWellCode() == null || sampleDataVo.getMonitoringWellCode().trim().isEmpty()) {
+                return AjaxResult.error("监测井编码不能为空");
+            }
+            
+            if (sampleDataVo.getSamplingTime() == null) {
+                return AjaxResult.error("采样时间不能为空");
+            }
+            
+            if (sampleDataVo.getMetricValues() == null || sampleDataVo.getMetricValues().isEmpty()) {
+                return AjaxResult.error("指标值列表不能为空");
+            }
+            
+
+             sampleDataService.updateSampleData(sampleDataVo);
+            
+            return AjaxResult.success("数据更新成功");
+        } catch (Exception e) {
+            logger.error("更新监测井指标检测数据失败", e);
+            return AjaxResult.error("数据更新失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 批量删除地下水样品检测信息
+     * 
+     * @param ids 需要删除的ID列表
+     * @return 操作结果
+     */
+    @ApiOperation("批量删除地下水样品检测信息")
+    @DeleteMapping("/delete")
+    public AjaxResult deleteSampleDataByIds(
+            @ApiParam("ID列表")
+            @RequestBody List<Long> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                return AjaxResult.error("请选择需要删除的数据");
+            }
+            
+            int result = sampleDataService.deleteSampleDataByIds(ids);
+            return AjaxResult.success("删除成功，共删除" + result + "条记录");
+        } catch (Exception e) {
+            logger.error("删除地下水样品检测信息失败", e);
+            return AjaxResult.error("删除失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 获取监测井的水质数据及各指标的质量等级
+     * 
+     * @param monitoringWellCode 监测井编号
+     * @param startTime 开始时间（可选）
+     * @param endTime 结束时间（可选）
+     * @return 监测井的水质数据列表，包含各指标的质量等级
+     */
+    @GetMapping("/quality-levels")
+    @ApiOperation("获取监测井的水质数据及各指标的质量等级")
+    public AjaxResult getSampleDataWithQualityLevels(
+            @ApiParam(value = "监测井编号", required = true)
+            @RequestParam("monitoringWellCode") String monitoringWellCode,
+            @ApiParam(value = "开始时间", required = false)
+            @RequestParam(value = "startTime", required = false) Date startTime,
+            @ApiParam(value = "结束时间", required = false)
+            @RequestParam(value = "endTime", required = false) Date endTime) {
+        try {
+            List<SampleDataResp> dataList = sampleDataService.getSampleDataWithQualityLevels(
+                    monitoringWellCode, startTime, endTime);
+            return AjaxResult.success(dataList);
+        } catch (Exception e) {
+            logger.error("获取监测井的水质数据及质量等级失败", e);
+            return AjaxResult.error("获取数据失败: " + e.getMessage());
+        }
     }
 }

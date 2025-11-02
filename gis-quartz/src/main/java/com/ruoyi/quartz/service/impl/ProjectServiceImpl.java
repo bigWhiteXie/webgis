@@ -92,4 +92,16 @@ public class ProjectServiceImpl implements IProjectService
     {
         return projectMapper.selectAllCompanyNames();
     }
+    
+    /**
+     * 根据主键查询项目详情
+     *
+     * @param id 项目主键
+     * @return 项目信息
+     */
+    @Override
+    public Project selectProjectById(Long id)
+    {
+        return projectMapper.selectProjectById(id);
+    }
 }

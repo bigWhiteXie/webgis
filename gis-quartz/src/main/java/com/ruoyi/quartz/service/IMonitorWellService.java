@@ -76,4 +76,12 @@ public interface IMonitorWellService
      * @return 监测井编号列表
      */
     List<String> selectAllWellCodes();
+    
+    /**
+     * 根据监测井编号列表删除监测井
+     * 
+     * @param wellCodes 监测井编号列表
+     * @return 结果
+     */
+    int deleteMonitorWellByWellCodes(List<String> wellCodes);
 }

@@ -54,4 +54,12 @@ public interface IProjectService
      * @return 企业名称列表
      */
     public List<String> selectAllCompanyNames();
+    
+    /**
+     * 根据主键查询项目详情
+     *
+     * @param id 项目主键
+     * @return 项目信息
+     */
+    public Project selectProjectById(Long id);
 }

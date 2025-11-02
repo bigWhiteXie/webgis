@@ -55,7 +55,7 @@ public interface SampleDataMapper {
      * @param monitoringWellCode 监测井编号
      * @param startTime 开始时间
      * @param endTime 结束时间
-     * @param metricName 指标编号
+     * @param metricName 指标名称
      * @return 指定时间范围内监测井的单项指标数据列表
      */
     List<MetricValItem> selectSampleDataByTimeRange(
@@ -65,15 +65,15 @@ public interface SampleDataMapper {
         @Param("metricName") String metricName);
     
     /**
-     * 查询所有水质指标
+     * 获取所有水质指标
      * 
      * @return 水质指标列表
      */
     List<MetricPair> selectAllWaterQualityMetrics();
-    
+
     /**
      * 分页查询SampleDataResp列表
-     * 
+     *
      * @param monitoringWellCode 监测井编号（可选）
      * @param startTime 开始时间（可选）
      * @param endTime 结束时间（可选）
@@ -81,13 +81,13 @@ public interface SampleDataMapper {
      * @return SampleDataResp列表
      */
     List<SampleDataResp> selectSampleDataRespList(
-        @Param("monitoringWellCode") String monitoringWellCode,
-        @Param("startTime") Date startTime,
-        @Param("endTime") Date endTime,
-        @Param("projectId") String projectId);
-        
+            @Param("monitoringWellCode") String monitoringWellCode,
+            @Param("startTime") Date startTime,
+            @Param("endTime") Date endTime,
+            @Param("projectId") String projectId);
+    
     /**
-     * 查询SampleDataResp列表总数
+     * 查询SampleDataResp总数
      * 
      * @param monitoringWellCode 监测井编号（可选）
      * @param startTime 开始时间（可选）
@@ -100,9 +100,9 @@ public interface SampleDataMapper {
         @Param("startTime") Date startTime,
         @Param("endTime") Date endTime,
         @Param("projectId") String projectId);
-        
+    
     /**
-     * 按分组查询SampleDataResp基本信息（用于分页）
+     * 分页查询SampleDataResp基本列表（监测井编码和采样时间）
      * 
      * @param monitoringWellCode 监测井编号（可选）
      * @param startTime 开始时间（可选）
@@ -119,9 +119,9 @@ public interface SampleDataMapper {
         @Param("projectId") String projectId,
         @Param("offset") int offset,
         @Param("pageSize") int pageSize);
-        
+    
     /**
-     * 根据监测井编码和采样时间查询带指标的SampleDataResp
+     * 查询指定监测井和采样时间的SampleDataResp（包含详细指标数据）
      * 
      * @param monitoringWellCode 监测井编码
      * @param samplingTime 采样时间
@@ -130,4 +130,17 @@ public interface SampleDataMapper {
     SampleDataResp selectSampleDataRespByGroupWithMetrics(
         @Param("monitoringWellCode") String monitoringWellCode,
         @Param("samplingTime") Date samplingTime);
+    
+    /**
+     * 查询SampleData列表（用于Excel导出）
+     * 
+     * @param sampleData 条件查询对象
+     * @param startTime 开始时间（可选）
+     * @param endTime 结束时间（可选）
+     * @return SampleData列表
+     */
+    List<SampleData> selectSampleDataList(
+        @Param("sampleData") SampleData sampleData,
+        @Param("startTime") Date startTime,
+        @Param("endTime") Date endTime);
 }

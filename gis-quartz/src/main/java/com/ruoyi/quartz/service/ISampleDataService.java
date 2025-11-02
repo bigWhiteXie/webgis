@@ -1,6 +1,7 @@
 package com.ruoyi.quartz.service;
 
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
@@ -74,4 +75,14 @@ public interface ISampleDataService {
         String projectId,
         Integer pageNum,
         Integer pageSize);
+    
+    /**
+     * 查询SampleData列表（用于Excel导出）
+     * 
+     * @param sampleData 条件查询对象
+     * @param startTime 开始时间（可选）
+     * @param endTime 结束时间（可选）
+     * @return SampleData列表
+     */
+    List<SampleData> selectSampleDataList(SampleData sampleData, Date startTime, Date endTime);
 }

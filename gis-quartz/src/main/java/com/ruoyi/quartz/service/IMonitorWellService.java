@@ -4,6 +4,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.MonitorWell;
 import com.ruoyi.quartz.domain.api.MonitorWellVo;
 import com.ruoyi.quartz.domain.api.SimpleWellResp;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface IMonitorWellService
      * @return 导入记录数
      * @throws Exception 异常
      */
-    int parseAndImportExcelFile(org.springframework.web.multipart.MultipartFile file) throws Exception;
+    int parseAndImportExcelFile(MultipartFile file) throws Exception;
     
     /**
      * 分页查询监测井列表
@@ -44,7 +45,15 @@ public interface IMonitorWellService
      * @return 监测井分页数据
      */
     TableDataInfo selectMonitorWellList(MonitorWellVo monitorWellVo, int pageNum, int pageSize);
-    
+
+    /**
+     * 全量查询监测井列表
+     *
+     * @param monitorWellVo 查询条件
+     * @return 监测井分页数据
+     */
+    List<MonitorWell> selectMonitorWellList(MonitorWellVo monitorWellVo);
+
     /**
      * 根据ID查询监测井信息
      * 

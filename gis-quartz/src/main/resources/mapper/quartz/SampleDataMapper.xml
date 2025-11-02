@@ -60,6 +60,12 @@
                 #{item.actualTestValue}
             )
         </foreach>
+        ON CONFLICT (sampling_time,monitoring_well_code, metric_code)
+        DO UPDATE SET
+            sample_code = EXCLUDED.sample_code,
+            testing_laboratory = EXCLUDED.testing_laboratory,
+            detection_limit = EXCLUDED.detection_limit,
+            actual_test_value = EXCLUDED.actual_test_value
     </insert>
 
     <select id="findLatestSamplingTimeByMonitoringWellCodeAndTime" resultType="java.util.Date">
@@ -204,7 +210,45 @@
                     AND mw.project_id = #{projectId}
                 </if>
             </where>
-        ) t
+        ) AS subquery
     </select>
 
+    <select id="selectSampleDataList" parameterType="com.ruoyi.quartz.domain.SampleData" resultMap="SampleDataResult">
+        SELECT 
+            id,
+            monitoring_well_code,
+            sample_code,
+            sampling_time,
+            testing_laboratory,
+            metric_code,
+            detection_limit,
+            actual_test_value
+        FROM sample_data
+        <where>
+            <if test="sampleData.monitoringWellCode != null and sampleData.monitoringWellCode != ''">
+                AND monitoring_well_code = #{sampleData.monitoringWellCode}
+            </if>
+            <if test="sampleData.sampleCode != null and sampleData.sampleCode != ''">
+                AND sample_code = #{sampleData.sampleCode}
+            </if>
+            <if test="sampleData.testingLaboratory != null and sampleData.testingLaboratory != ''">
+                AND testing_laboratory = #{sampleData.testingLaboratory}
+            </if>
+            <if test="sampleData.metricCode != null and sampleData.metricCode != ''">
+                AND metric_code = #{sampleData.metricCode}
+            </if>
+            <if test="sampleData.detectionLimit != null and sampleData.detectionLimit != ''">
+                AND detection_limit = #{sampleData.detectionLimit}
+            </if>
+            <if test="sampleData.actualTestValue != null and sampleData.actualTestValue != ''">
+                AND actual_test_value = #{sampleData.actualTestValue}
+            </if>
+            <if test="startTime != null">
+                AND sampling_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND sampling_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
 </mapper>

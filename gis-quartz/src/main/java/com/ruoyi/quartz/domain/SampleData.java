@@ -2,6 +2,7 @@ package com.ruoyi.quartz.domain;
 
 import com.alibaba.excel.util.ListUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import io.swagger.annotations.ApiModel;
@@ -23,31 +24,38 @@ public class SampleData {
 
     // 监测井编码
     @ApiModelProperty("监测井编码")
+    @Excel(name = "监测井编码")
     private String monitoringWellCode;
 
     // 样品编码
     @ApiModelProperty("样品编码")
+    @Excel(name = "样品编码")
     private String sampleCode;
 
     // 采样时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty("采样时间")
+    @Excel(name = "采样时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date samplingTime;
 
     // 检测实验室
     @ApiModelProperty("检测实验室")
+    @Excel(name = "检测实验室")
     private String testingLaboratory;
 
     // 检测指标代码
     @ApiModelProperty("检测指标代码")
+    @Excel(name = "检测指标代码")
     private String metricCode;
 
     // 检出限
     @ApiModelProperty("检出限")
+    @Excel(name = "检出限")
     private String detectionLimit;
 
     // 实际检测值
     @ApiModelProperty("实际检测值")
+    @Excel(name = "实际检测值")
     private String actualTestValue;
 
     public Long getId() {

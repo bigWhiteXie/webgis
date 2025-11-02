@@ -184,4 +184,9 @@ public class SampleDataServiceImpl implements ISampleDataService {
         rspData.setTotal(total);
         return rspData;
     }
+    
+    @Override
+    public List<SampleData> selectSampleDataList(SampleData sampleData, Date startTime, Date endTime) {
+        return sampleDataMapper.selectSampleDataList(sampleData, startTime, endTime);
+    }
 }

@@ -3,10 +3,13 @@ package com.ruoyi.quartz.controller;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
 import com.ruoyi.quartz.service.ISampleDataService;
+import com.ruoyi.quartz.service.impl.SampleDataServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -21,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 地下水样品检测信息Controller
@@ -93,6 +98,25 @@ public class SampleDataController extends BaseController {
             logger.error("导入地下水样品检测信息失败", e);
             return AjaxResult.error("导入地下水样品检测信息失败: " + e.getMessage());
         }
+    }
+    
+    /**
+     * 导出原始地下水样品检测数据为Excel
+     *
+     * @param sampleData 条件查询对象
+     * @param startTime 开始时间（可选）
+     * @param endTime 结束时间（可选）
+     * @return excel 文件
+     */
+    @PostMapping("/export/raw")
+    @ApiOperation("导出原始地下水样品检测数据为Excel")
+    public void exportRaw(SampleData sampleData,
+                          @ApiParam("开始时间") @RequestParam(value = "startTime", required = false) Date startTime,
+                          @ApiParam("结束时间") @RequestParam(value = "endTime", required = false) Date endTime,
+                          HttpServletResponse response) {
+        List<SampleData> list = sampleDataService.selectSampleDataList(sampleData, startTime, endTime);
+        ExcelUtil<SampleData> util = new ExcelUtil<SampleData>(SampleData.class);
+        util.exportExcel(response, list, "原始地下水样品检测数据");
     }
     
     /**

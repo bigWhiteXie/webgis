@@ -39,3 +39,6 @@ CREATE INDEX idx_test_item_code ON sample_data (metric_code);
 CREATE INDEX idx_sampling_time ON sample_data (sampling_time);
 
 CREATE INDEX idx_union_wellcode_time ON sample_data (monitoring_well_code,sampling_time);
+
+-- 创建唯一索引，防止monitoring_well_code, sampling_time, metric_code组合重复
+CREATE UNIQUE INDEX uk_sample_data_well_time_metric ON sample_data (sampling_time,monitoring_well_code, metric_code);

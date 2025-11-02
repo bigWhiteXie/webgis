@@ -13,6 +13,7 @@ import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,169 +31,199 @@ public class MonitorWell {
     
     // 项目ID
     @ExcelProperty("项目ID")
+    @Excel(name = "项目ID")
     @ApiModelProperty("项目ID")
     private String projectId;
     
     // 省代码
     @ExcelProperty("省代码")
+    @Excel(name = "省代码")
     @ApiModelProperty("省代码")
     private String provinceCode;
     
     // 市代码
     @ExcelProperty("市代码")
+    @Excel(name = "市代码")
     @ApiModelProperty("市代码")
     private String cityCode;
     
     // 县代码
     @ExcelProperty("县代码")
+    @Excel(name = "县代码")
     @ApiModelProperty("县代码")
     private String countyCode;
     
     // 监测井编码
     @ExcelProperty("监测井编码")
+    @Excel(name = "监测井编码")
     @ApiModelProperty("监测井编码")
     private String wellCode;
     
     // 经度
     @ExcelProperty("经度")
     @NumberFormat("#.######")
+    @Excel(name = "经度")
     @ApiModelProperty("经度")
     private BigDecimal longitude;
     
     // 纬度
     @ExcelProperty("纬度")
     @NumberFormat("#.######")
+    @Excel(name = "纬度")
     @ApiModelProperty("纬度")
     private BigDecimal latitude;
     
     // 是否为调查评估项目新建井
     @ExcelProperty("是否为调查评估项目新建井")
+    @Excel(name = "是否为调查评估项目新建井")
     @ApiModelProperty("是否为调查评估项目新建井")
     private Boolean isNewWell;
     
     // 是否为区域监测点
     @ExcelProperty("是否为区域监测点")
+    @Excel(name = "是否为区域监测点")
     @ApiModelProperty("是否为区域监测点")
     private Boolean isAreaMonitoringPoint;
     
     // 区域监测点类型
     @ExcelProperty("区域监测点类型")
+    @Excel(name = "区域监测点类型")
     @ApiModelProperty("区域监测点类型")
     private String areaMonitoringPointType;
     
     // 是否为水源监测点
     @ExcelProperty("是否为水源监测点")
+    @Excel(name = "是否为水源监测点")
     @ApiModelProperty("是否为水源监测点")
     private Boolean isWaterSourceMonitoringPoint;
     
     // 水源信息
     @ExcelProperty("水源信息")
+    @Excel(name = "水源信息")
     @ApiModelProperty("水源信息")
     private String waterSourceInfo;
     
     // 是否为污染源监测点
     @ExcelProperty("是否为污染源监测点")
+    @Excel(name = "是否为污染源监测点")
     @ApiModelProperty("是否为污染源监测点")
     private Boolean isPollutionSourceMonitoringPoint;
     
     // 污染源信息
     @ExcelProperty("污染源信息")
+    @Excel(name = "污染源信息")
     @ApiModelProperty("污染源信息")
     private String pollutionSourceInfo;
     
     // 成井时间
     @ExcelProperty("成井时间")
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "成井时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty("成井时间")
     private Date completionTime;
     
     // 水位埋深
     @ExcelProperty("水位埋深")
     @NumberFormat("#.##")
+    @Excel(name = "水位埋深")
     @ApiModelProperty("水位埋深")
     private BigDecimal waterLevelDepth;
     
     // 井口高程
     @ExcelProperty("井口高程")
     @NumberFormat("#.##")
+    @Excel(name = "井口高程")
     @ApiModelProperty("井口高程")
     private BigDecimal wellheadElevation;
     
     // 井深度
     @ExcelProperty("井深度")
     @NumberFormat("#.##")
+    @Excel(name = "井深度")
     @ApiModelProperty("井深度")
     private BigDecimal wellDepth;
     
     // 井口内径
     @ExcelProperty("井口内径")
     @NumberFormat("#.##")
+    @Excel(name = "井口内径")
     @ApiModelProperty("井口内径")
     private BigDecimal wellheadInnerDiameter;
     
     // 井管材质
     @ExcelProperty("井管材质")
+    @Excel(name = "井管材质")
     @ApiModelProperty("井管材质")
     private String wellPipeMaterial;
     
     // 是否为多段筛管
     @ExcelProperty("是否为多段筛管")
+    @Excel(name = "是否为多段筛管")
     @ApiModelProperty("是否为多段筛管")
     private Boolean isMultipleScreenPipe;
     
     // 筛管深度
     @ExcelProperty("筛管深度")
+    @Excel(name = "筛管深度")
     @ApiModelProperty("筛管深度")
     private String screenPipeDepth;
     
     // 埋藏条件
     @ExcelProperty("埋藏条件")
+    @Excel(name = "埋藏条件")
     @ApiModelProperty("埋藏条件")
     private String burialCondition;
     
     // 含水介质
     @ExcelProperty("含水介质")
+    @Excel(name = "含水介质")
     @ApiModelProperty("含水介质")
     private String aquiferMedium;
     
     // 井权属单位
     @ExcelProperty("井权属单位")
+    @Excel(name = "井权属单位")
     @ApiModelProperty("井权属单位")
     private String wellOwnershipUnit;
     
     // 是否符合长期监测井要求
     @ExcelProperty("是否符合长期监测井要求")
+    @Excel(name = "是否符合长期监测井要求")
     @ApiModelProperty("是否符合长期监测井要求")
     private Boolean isSuitableForLongTermMonitoring;
     
     // 是否已转为长期监测井
     @ExcelProperty("是否已转为长期监测井")
+    @Excel(name = "是否已转为长期监测井")
     @ApiModelProperty("是否已转为长期监测井")
     private Boolean isConvertedToLongTermMonitoring;
     
     // 是否开展了监测井维护管理工作
     @ExcelProperty("是否开展了监测井维护管理工作")
+    @Excel(name = "是否开展了监测井维护管理工作")
     @ApiModelProperty("是否开展了监测井维护管理工作")
     private Boolean isMaintenanceManagementCarriedOut;
     
     // 实际维护管理单位
     @ExcelProperty("实际维护管理单位")
+    @Excel(name = "实际维护管理单位")
     @ApiModelProperty("实际维护管理单位")
     private String actualMaintenanceManagementUnit;
     
     // 对于非长期监测井是否已进行封井回填
     @ExcelProperty("对于非长期监测井是否已进行封井回填")
+    @Excel(name = "对于非长期监测井是否已进行封井回填")
     @ApiModelProperty("对于非长期监测井是否已进行封井回填")
     private Boolean isSealedBackfilledForNonLongTerm;
     
     // 封井回填状态
     @ExcelProperty("封井回填状态")
+    @Excel(name = "封井回填状态")
     @ApiModelProperty("封井回填状态")
     private String sealedBackfilledStatus;
     
     // 图片链接
-    @ExcelProperty("图片链接")
-    @ApiModelProperty("图片链接")
+
     private String imageUrl;
     
     // 几何对象(位置信息)

@@ -8,11 +8,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.config.ServerConfig;
 import com.ruoyi.quartz.domain.MonitorWell;
 import com.ruoyi.quartz.domain.api.MonitorWellVo;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
 import com.ruoyi.quartz.domain.api.SimpleWellResp;
+import com.ruoyi.quartz.service.IMetricStandardService;
 import com.ruoyi.quartz.service.IMonitorWellService;
 import com.ruoyi.quartz.service.impl.SampleDataServiceImpl;
 import com.ruoyi.quartz.util.GisUtil;
@@ -36,6 +38,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 监测井信息Controller
  * 
@@ -52,6 +56,9 @@ public class MonitorWellController extends BaseController {
 
     @Autowired
     private SampleDataServiceImpl sampleDataService;
+
+    @Autowired
+    private IMetricStandardService metricStandardService;
 
     @Autowired
     private ServerConfig serverConfig;
@@ -86,7 +93,7 @@ public class MonitorWellController extends BaseController {
             @ApiParam("最大纬度") @RequestParam(required = false) Double maxY,
             @ApiParam("指标名称") @RequestParam(required = false) String metricName) {
         List<SimpleWellResp> list = monitorWellService.selectMonitorWellListBySpatialBounds(minX, minY, maxX, maxY, metricName);
-        if (!StringUtils.isEmpty(metricName)) {
+        if (!StringUtils.isEmpty(metricName) ) {
             List<String> metricNames;
             if (metricName.equals("summary")){
                 metricNames = null;
@@ -154,7 +161,19 @@ public class MonitorWellController extends BaseController {
         }
     }
 
-
+    /**
+     * 导出监测井数据为Excel
+     *
+     * @param monitorWellVo 查询条件
+     * @return excel 文件
+     */
+    @PostMapping("/export")
+    @ApiOperation("导出监测井数据为Excel")
+    public void export(@ApiParam("监测井信息") MonitorWellVo monitorWellVo, HttpServletResponse response) {
+        List<MonitorWell> list =  monitorWellService.selectMonitorWellList(monitorWellVo);
+        ExcelUtil<MonitorWell> util = new ExcelUtil<MonitorWell>(MonitorWell.class);
+        util.exportExcel(response, list, "监测井数据");
+    }
 
     /**
      * 分页查询监测井列表

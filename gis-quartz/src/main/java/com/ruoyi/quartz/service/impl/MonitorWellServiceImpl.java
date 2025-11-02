@@ -117,6 +117,28 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
         return new TableDataInfo(list, total);
     }
     
+    /**
+     * 查询监测井列表（用于导出所有数据）
+     * 
+     * @param monitorWellVo 查询条件
+     * @return 监测井列表
+     */
+    public List<MonitorWell> selectMonitorWellList(MonitorWellVo monitorWellVo) {
+        // 将VO转换为实体对象用于查询
+        MonitorWell monitorWell = new MonitorWell();
+        monitorWell.setWellCode(monitorWellVo.getWellCode());
+        monitorWell.setProjectId(monitorWellVo.getProjectId());
+        monitorWell.setProvinceCode(monitorWellVo.getProvinceCode());
+        monitorWell.setCityCode(monitorWellVo.getCityCode());
+        monitorWell.setCountyCode(monitorWellVo.getCountyCode());
+        if (monitorWellVo.getCompletionTime() != null) {
+            monitorWell.setCompletionTime(monitorWellVo.getCompletionTime());
+        }
+        
+        // 查询所有数据
+        return monitorWellMapper.selectMonitorWellList(monitorWell, 0, Integer.MAX_VALUE);
+    }
+    
     @Override
     public MonitorWell selectMonitorWellById(String wellCode) {
         return monitorWellMapper.selectMonitorWellById(wellCode);

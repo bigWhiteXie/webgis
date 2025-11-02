@@ -27,6 +27,8 @@ public class MonitorWell {
     
     // 主键ID
     @ApiModelProperty("主键ID")
+    @ExcelProperty("序号")
+    @Excel(name = "序号")
     private Long id;
     
     // 项目ID

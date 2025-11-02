@@ -20,6 +20,7 @@ public class SampleData {
 
     // 主键ID
     @ApiModelProperty("主键ID")
+    @Excel(name = "序号")
     private Long id;
 
     // 监测井编码

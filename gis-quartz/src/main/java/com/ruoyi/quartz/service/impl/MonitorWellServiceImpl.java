@@ -56,7 +56,7 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
                         
                         // 解析当前批次的数据
                         List<MonitorWell> monitorWells = MonitorWell.parseExcelData(batchData);
-                        log.info("第{}张sheet解析出{}条数据",i, monitorWells.size());
+                        log.info("第{}张sheet解析出{}条数据",i+1, monitorWells.size());
                         // 批量导入到数据库
                         if (!monitorWells.isEmpty()) {
                             int imported = monitorWellMapper.batchInsertMonitorWells(monitorWells);

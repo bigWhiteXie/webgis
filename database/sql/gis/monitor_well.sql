@@ -1,5 +1,5 @@
 -- 创建监测井信息表
-CREATE EXTENSION postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE TABLE monitoring_well (
 -- 基本信息
   id SERIAL PRIMARY KEY,
@@ -77,11 +77,11 @@ CREATE TABLE monitoring_well (
 );
 
 -- 创建空间索引，提高空间查询性能
-CREATE INDEX idx_monitoring_well_geom ON monitoring_well USING GIST (geom);
+CREATE INDEX IF NOT EXISTS idx_monitoring_well_geom ON monitoring_well USING GIST (geom);
 -- 为well_code创建唯一索引
 -- 为成井时间创建索引
-CREATE INDEX idx_completion_time ON monitoring_well (completion_time);
-CREATE UNIQUE INDEX unique_index_well_code ON monitoring_well (well_code);
+CREATE INDEX IF NOT EXISTS idx_completion_time ON monitoring_well (completion_time);
+CREATE UNIQUE INDEX IF NOT EXISTS unique_index_well_code ON monitoring_well (well_code);
 -- 插入数据时，使用 ST_SetSRID 和 ST_MakePoint 函数将经纬度转换为几何对象，采用 CGCS2000 坐标系（SRID 为 4490）
 -- 示例插入语句
 

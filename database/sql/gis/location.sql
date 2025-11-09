@@ -20,8 +20,9 @@
 -- Table structure for location
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."location";
+CREATE SEQUENCE IF NOT EXISTS location_id_seq;
 CREATE TABLE "public"."location" (
-  "id" int4 NOT NULL DEFAULT nextval('location_id_seq'::regclass),
+  id int4 NOT NULL DEFAULT nextval('location_id_seq'::regclass),
   "province_code" varchar(20) COLLATE "pg_catalog"."default",
   "province_name" varchar(100) COLLATE "pg_catalog"."default",
   "city_code" varchar(20) COLLATE "pg_catalog"."default",
@@ -3203,17 +3204,17 @@ INSERT INTO "public"."location" VALUES (3157, '410000', '河南省', '410500', '
 -- ----------------------------
 -- Indexes structure for table location
 -- ----------------------------
-CREATE INDEX "idx_city_code" ON "public"."location" USING btree (
+CREATE INDEX IF NOT EXISTS "idx_city_code" ON "public"."location" USING btree (
   "city_code" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
-CREATE INDEX "idx_county_code" ON "public"."location" USING btree (
+CREATE INDEX IF NOT EXISTS "idx_county_code" ON "public"."location" USING btree (
   "county_code" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
-CREATE INDEX "idx_province_city" ON "public"."location" USING btree (
+CREATE INDEX IF NOT EXISTS "idx_province_city" ON "public"."location" USING btree (
   "province_code" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST,
   "city_code" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
-CREATE INDEX "idx_province_code" ON "public"."location" USING btree (
+CREATE INDEX IF NOT EXISTS "idx_province_code" ON "public"."location" USING btree (
   "province_code" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
 );
 

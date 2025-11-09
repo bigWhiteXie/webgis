@@ -20,6 +20,7 @@
 -- Table structure for pollution_metric
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."pollution_metric";
+CREATE SEQUENCE IF NOT EXISTS pollution_metric_id_seq;
 CREATE TABLE "public"."pollution_metric" (
   "id" int4 NOT NULL DEFAULT nextval('pollution_metric_id_seq'::regclass),
   "metric_code" varchar(50) COLLATE "pg_catalog"."default",

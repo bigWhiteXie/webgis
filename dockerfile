@@ -1,7 +1,7 @@
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre
 
 WORKDIR /app
-COPY gis-admin/target/gis-admin.jar app.jar
+COPY webgis.jar app.jar
 
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

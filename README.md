@@ -38,3 +38,18 @@ docker build -t my-postgis:latest .
 ```
 docker run -d  --name my-postgis  -e POSTGRES_PASSWORD=j3391111  -p 54321:5432  my-postgis:latest
 ```
+
+## 后端应用部署
+**重要:**
+
+**目录切换到项目根目录**
+
+构建镜像:
+```
+docker build -t webgis:latest .
+```
+运行镜像
+```
+docker run -d -p 8081:8081  webgis webgis
+
+```

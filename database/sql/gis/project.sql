@@ -9,8 +9,8 @@ CREATE TABLE project (
     manager VARCHAR(64),                      -- 负责人
     geom GEOMETRY(POLYGON, 4490),             -- 项目边界，使用POLYGON类型
     
-    company_code VARCHAR(64) UNIQUE,          -- 企业编号，唯一
-    company_name VARCHAR(128) UNIQUE          -- 企业名称，唯一
+    company_code VARCHAR(64) ,          -- 企业编号，唯一
+    company_name VARCHAR(128)          -- 企业名称，唯一
 );
 
 COMMENT ON TABLE project IS '项目表';

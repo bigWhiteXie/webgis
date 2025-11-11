@@ -6,10 +6,9 @@ import com.ruoyi.quartz.domain.Project;
 import java.util.List;
 
 /**
- * 项目Service接口
+ * 项目信息Service接口
  * 
  * @author ruoyi
- * @date 2025-10-03
  */
 public interface IProjectService 
 {
@@ -62,4 +61,12 @@ public interface IProjectService
      * @return 项目信息
      */
     public Project selectProjectById(Long id);
+    
+    /**
+     * 根据项目编号列表删除项目
+     * 
+     * @param projectCodes 项目编号列表
+     * @return 删除结果
+     */
+    public int deleteProjectsByProjectCodes(List<String> projectCodes);
 }

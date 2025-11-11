@@ -3,6 +3,9 @@ package com.ruoyi.framework.web.exception;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -18,6 +21,8 @@ import com.ruoyi.common.exception.DemoModeException;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.html.EscapeUtil;
+
+import java.sql.SQLException;
 
 /**
  * 全局异常处理器
@@ -61,6 +66,50 @@ public class GlobalExceptionHandler
         log.error(e.getMessage(), e);
         Integer code = e.getCode();
         return StringUtils.isNotNull(code) ? AjaxResult.error(code, e.getMessage()) : AjaxResult.error(e.getMessage());
+    }
+
+    /**
+     * 数据库异常
+     */
+    @ExceptionHandler(SQLException.class)
+    public AjaxResult handleSQLException(SQLException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生数据库异常.", requestURI, e);
+        return AjaxResult.error("数据库操作异常，请联系管理员处理");
+    }
+
+    /**
+     * Spring数据访问异常
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public AjaxResult handleDataAccessException(DataAccessException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生数据访问异常.", requestURI, e);
+        return AjaxResult.error("数据访问异常，请联系管理员处理");
+    }
+
+    /**
+     * 主键或唯一约束冲突异常
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public AjaxResult handleDuplicateKeyException(DuplicateKeyException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',发生唯一约束冲突异常.", requestURI, e);
+        return AjaxResult.error("数据已存在，请检查后重试");
+    }
+
+    /**
+     * 查询结果为空异常
+     */
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public AjaxResult handleEmptyResultDataAccessException(EmptyResultDataAccessException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}',查询结果为空.", requestURI, e);
+        return AjaxResult.error("未找到相关数据");
     }
 
     /**

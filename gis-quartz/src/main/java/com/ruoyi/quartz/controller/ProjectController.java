@@ -60,6 +60,7 @@ public class ProjectController extends BaseController {
     public AjaxResult importShpData(@ApiParam("SHP文件") @RequestParam("file") MultipartFile file,
                                     @ApiParam("项目编号")@RequestParam String projectCode) {
         try {
+            // todo:公共逻辑，可以进行封装
             // 检查文件是否为空
             if (file == null || file.isEmpty()) {
                 return AjaxResult.error("上传文件为空");
@@ -77,7 +78,9 @@ public class ProjectController extends BaseController {
 
             // 使用GisUtil解析SHP文件获取WKT数据
             String wktData = GisUtil.shpToWKT(tempFile);
-
+            if (!wktData.startsWith("POLYGON")) {
+                return AjaxResult.error("请上传正确的SHP文件，文件类型必须是POLYGON");
+            }
             // 更新项目坐标信息
             Project project = new Project();
             project.setProjectCode(projectCode);
@@ -163,5 +166,20 @@ public class ProjectController extends BaseController {
             logger.error("查询企业名称失败", e);
             return AjaxResult.error("查询企业名称失败: " + e.getMessage());
         }
+    }
+    
+    /**
+     * 根据项目编号列表批量删除项目
+     * 
+     * @param projectCodes 项目编号列表
+     * @return 结果
+     */
+    @DeleteMapping
+    @ApiOperation("批量删除项目")
+    public AjaxResult deleteProjects(@ApiParam("项目编号列表") @RequestBody List<String> projectCodes) {
+        if (projectCodes == null || projectCodes.isEmpty()) {
+            return AjaxResult.error("项目编号列表不能为空");
+        }
+        return toAjax(projectService.deleteProjectsByProjectCodes(projectCodes));
     }
 }

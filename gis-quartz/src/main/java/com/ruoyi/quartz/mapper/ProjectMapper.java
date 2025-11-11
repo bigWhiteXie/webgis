@@ -6,10 +6,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 项目Mapper接口
+ * 项目信息Mapper接口
  * 
  * @author ruoyi
- * @date 2025-10-03
  */
 public interface ProjectMapper 
 {
@@ -70,4 +69,12 @@ public interface ProjectMapper
      * @return 项目信息
      */
     public Project selectProjectById(Long id);
+    
+    /**
+     * 根据项目编号列表删除项目
+     * 
+     * @param projectCodes 项目编号列表
+     * @return 删除结果
+     */
+    public int deleteProjectsByProjectCodes(List<String> projectCodes);
 }

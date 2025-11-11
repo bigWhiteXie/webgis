@@ -98,7 +98,8 @@ public class MonitorWellController extends BaseController {
             if (metricName.equals("summary")){
                 metricNames = null;
             } else {
-                metricNames = Arrays.asList(metricName);
+                // 将metricName按照逗号分割成list
+                metricNames = Arrays.asList(metricName.split(","));
             }
             
             // 使用大小为10的线程池并发计算水质等级

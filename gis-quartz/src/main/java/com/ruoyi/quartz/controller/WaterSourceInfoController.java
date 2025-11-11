@@ -58,7 +58,10 @@ public class WaterSourceInfoController extends BaseController {
 
             // 使用GisUtil解析SHP文件获取WKT数据
             String wktData = GisUtil.shpToWKT(tempFile);
-
+            // 检查wtkdata的类型必须是POLYGON,否则返回异常告诉用户shp的类型
+            if (!wktData.startsWith("POLYGON")) {
+                return AjaxResult.error("请上传正确的SHP文件，文件类型必须是POLYGON");
+            }
             // 更新水源坐标信息
             WaterSourceInfo waterSourceInfo = new WaterSourceInfo();
             waterSourceInfo.setSourceCode(sourceCode);

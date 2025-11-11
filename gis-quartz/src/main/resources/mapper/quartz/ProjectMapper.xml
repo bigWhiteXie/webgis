@@ -71,7 +71,7 @@
                 and company_code = #{project.companyCode}
             </if>
             <if test="project.companyName != null and project.companyName != ''">
-                and company_name = #{project.companyName}
+                and company_name like CONCAT('%', #{project.companyName}, '%')
             </if>
         </where>
         order by storage_time desc
@@ -94,7 +94,7 @@
                 and company_code = #{project.companyCode}
             </if>
             <if test="project.companyName != null and project.companyName != ''">
-                and company_name = #{project.companyName}
+                and company_name like CONCAT('%', #{project.companyName}, '%')
             </if>
         </where>
     </select>
@@ -152,5 +152,12 @@
     <select id="selectAllCompanyNames" resultType="String">
         SELECT DISTINCT company_name FROM project WHERE company_name IS NOT NULL AND company_name != ''
     </select>
+    
+    <delete id="deleteProjectsByProjectCodes" parameterType="java.util.List">
+        DELETE FROM project WHERE project_code IN
+        <foreach collection="list" item="projectCode" open="(" separator="," close=")">
+            #{projectCode}
+        </foreach>
+    </delete>
 
 </mapper>

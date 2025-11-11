@@ -1,19 +1,20 @@
 package com.ruoyi.quartz.service.impl;
 
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.quartz.domain.Project;
 import com.ruoyi.quartz.mapper.ProjectMapper;
 import com.ruoyi.quartz.service.IProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * 项目Service业务层处理
+ * 项目信息Service业务层处理
  * 
  * @author ruoyi
- * @date 2025-10-03
  */
 @Service
 public class ProjectServiceImpl implements IProjectService
@@ -79,7 +80,11 @@ public class ProjectServiceImpl implements IProjectService
     @Override
     public int insertProject(Project project)
     {
-        return projectMapper.insertProject(project);
+        try {
+            return projectMapper.insertProject(project);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("项目编号已经存在，不允许重复");
+        }
     }
     
     /**
@@ -103,5 +108,20 @@ public class ProjectServiceImpl implements IProjectService
     public Project selectProjectById(Long id)
     {
         return projectMapper.selectProjectById(id);
+    }
+    
+    /**
+     * 根据项目编号列表删除项目
+     * 
+     * @param projectCodes 项目编号列表
+     * @return 删除结果
+     */
+    @Override
+    public int deleteProjectsByProjectCodes(List<String> projectCodes)
+    {
+        if (projectCodes == null || projectCodes.isEmpty()) {
+            throw new ServiceException("项目编号列表不能为空");
+        }
+        return projectMapper.deleteProjectsByProjectCodes(projectCodes);
     }
 }

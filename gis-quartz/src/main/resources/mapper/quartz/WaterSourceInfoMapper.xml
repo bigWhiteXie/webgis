@@ -122,6 +122,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="waterSourceInfo.isExceedingStandard != null">
                 AND wsi.is_exceeding_standard = #{waterSourceInfo.isExceedingStandard}
             </if>
+            <if test="waterSourceInfo.countyCode != null and waterSourceInfo.countyCode != ''">
+                AND wsi.county_code = #{waterSourceInfo.countyCode}
+            </if>
+            <if test="waterSourceInfo.cityCode != null and waterSourceInfo.cityCode != ''">
+                AND wsi.city_code = #{waterSourceInfo.cityCode}
+            </if>
+            <if test="waterSourceInfo.provinceCode != null and waterSourceInfo.provinceCode != ''">
+                AND wsi.province_code = #{waterSourceInfo.provinceCode}
+            </if>
         </where>
         ORDER BY wsi.source_id DESC
         LIMIT #{limit} OFFSET #{offset}
@@ -141,6 +150,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="waterSourceInfo.isExceedingStandard != null">
                 AND wsi.is_exceeding_standard = #{waterSourceInfo.isExceedingStandard}
+            </if>
+            <if test="waterSourceInfo.countyCode != null and waterSourceInfo.countyCode != ''">
+                AND wsi.county_code = #{waterSourceInfo.countyCode}
+            </if>
+            <if test="waterSourceInfo.cityCode != null and waterSourceInfo.cityCode != ''">
+                AND wsi.city_code = #{waterSourceInfo.cityCode}
+            </if>
+            <if test="waterSourceInfo.provinceCode != null and waterSourceInfo.provinceCode != ''">
+                AND wsi.province_code = #{waterSourceInfo.provinceCode}
             </if>
         </where>
     </select>

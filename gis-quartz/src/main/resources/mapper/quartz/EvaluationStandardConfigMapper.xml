@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.EvaluationStandardConfigMapper">
+
+    <resultMap type="EvaluationStandardConfig" id="EvaluationStandardConfigResult">
+        <result property="id" column="id"/>
+        <result property="referenceStandardId" column="reference_standard_id"/>
+        <result property="metricCode" column="metric_code"/>
+        <result property="metricName" column="metric_name"/>
+        <result property="classIRange" column="class_i_range"/>
+        <result property="classIiRange" column="class_ii_range"/>
+        <result property="classIiiRange" column="class_iii_range"/>
+        <result property="classIvRange" column="class_iv_range"/>
+        <result property="classVRange" column="class_v_range"/>
+        <result property="classInferiorVRange" column="class_inferior_v_range"/>
+        <result property="status" column="status" jdbcType="INTEGER" javaType="java.lang.Integer"/>
+    </resultMap>
+    
+    <resultMap type="EvaluationStandardConfDTO" id="EvaluationStandardConfDTOResult" extends="EvaluationStandardConfigResult">
+        <result property="referenceStandard" column="reference_standard"/>
+    </resultMap>
+
+    <sql id="selectEvaluationStandardConfigVo">
+        select id, reference_standard_id, metric_code, metric_name, class_i_range, class_ii_range, class_iii_range, class_iv_range, class_v_range, class_inferior_v_range, status
+        from evaluation_standard_config
+    </sql>
+
+    <select id="selectEvaluationStandardConfigByIds" parameterType="java.util.List" resultMap="EvaluationStandardConfigResult">
+        <include refid="selectEvaluationStandardConfigVo"/>
+        where id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    
+    <!-- 查询评价标准配置记录列表，包含参考标准名称 -->
+    <select id="selectEvaluationStandardConfDTOListByPage" parameterType="map" resultMap="EvaluationStandardConfDTOResult">
+        SELECT 
+            esc.id,
+            esc.reference_standard_id,
+            esc.metric_code,
+            esc.metric_name,
+            esc.class_i_range,
+            esc.class_ii_range,
+            esc.class_iii_range,
+            esc.class_iv_range,
+            esc.class_v_range,
+            esc.class_inferior_v_range,
+            esc.status,
+            esv.standard_name as reference_standard
+        FROM evaluation_standard_config esc
+        LEFT JOIN evaluation_standard_view esv ON esc.reference_standard_id = esv.id
+        <where>
+            <if test="evaluationStandardConfig != null">
+                <if test="evaluationStandardConfig.referenceStandardId != null"> and esc.reference_standard_id = #{evaluationStandardConfig.referenceStandardId}</if>
+                <if test="evaluationStandardConfig.metricCode != null and evaluationStandardConfig.metricCode != ''"> and esc.metric_code = #{evaluationStandardConfig.metricCode}</if>
+                <if test="evaluationStandardConfig.metricName != null and evaluationStandardConfig.metricName != ''"> and esc.metric_name = #{evaluationStandardConfig.metricName}</if>
+                <if test="evaluationStandardConfig.classIRange != null and evaluationStandardConfig.classIRange != ''"> and esc.class_i_range = #{evaluationStandardConfig.classIRange}</if>
+                <if test="evaluationStandardConfig.classIiRange != null and evaluationStandardConfig.classIiRange != ''"> and esc.class_ii_range = #{evaluationStandardConfig.classIiRange}</if>
+                <if test="evaluationStandardConfig.classIiiRange != null and evaluationStandardConfig.classIiiRange != ''"> and esc.class_iii_range = #{evaluationStandardConfig.classIiiRange}</if>
+                <if test="evaluationStandardConfig.classIvRange != null and evaluationStandardConfig.classIvRange != ''"> and esc.class_iv_range = #{evaluationStandardConfig.classIvRange}</if>
+                <if test="evaluationStandardConfig.classVRange != null and evaluationStandardConfig.classVRange != ''"> and esc.class_v_range = #{evaluationStandardConfig.classVRange}</if>
+                <if test="evaluationStandardConfig.classInferiorVRange != null and evaluationStandardConfig.classInferiorVRange != ''"> and esc.class_inferior_v_range = #{evaluationStandardConfig.classInferiorVRange}</if>
+                <if test="evaluationStandardConfig.status != null"> and esc.status = #{evaluationStandardConfig.status}</if>
+            </if>
+        </where>
+        ORDER BY esc.id
+        <if test="offset != null and limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    
+    <select id="selectEvaluationStandardConfDTOCount" parameterType="EvaluationStandardConfig" resultType="Integer">
+        SELECT COUNT(*) 
+        FROM evaluation_standard_config esc
+        LEFT JOIN evaluation_standard_view esv ON esc.reference_standard_id = esv.id
+        <where>
+            <if test="referenceStandardId != null"> and esc.reference_standard_id = #{referenceStandardId}</if>
+            <if test="metricCode != null and metricCode != ''"> and esc.metric_code = #{metricCode}</if>
+            <if test="metricName != null and metricName != ''"> and esc.metric_name = #{metricName}</if>
+            <if test="classIRange != null and classIRange != ''"> and esc.class_i_range = #{classIRange}</if>
+            <if test="classIiRange != null and classIiRange != ''"> and esc.class_ii_range = #{classIiRange}</if>
+            <if test="classIiiRange != null and classIiiRange != ''"> and esc.class_iii_range = #{classIiiRange}</if>
+            <if test="classIvRange != null and classIvRange != ''"> and esc.class_iv_range = #{classIvRange}</if>
+            <if test="classVRange != null and classVRange != ''"> and esc.class_v_range = #{classVRange}</if>
+            <if test="classInferiorVRange != null and classInferiorVRange != ''"> and esc.class_inferior_v_range = #{classInferiorVRange}</if>
+            <if test="status != null"> and esc.status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectEvaluationStandardConfigList" parameterType="EvaluationStandardConfig" resultMap="EvaluationStandardConfigResult">
+        <include refid="selectEvaluationStandardConfigVo"/>
+        <where>
+            <if test="referenceStandardId != null"> and reference_standard_id = #{referenceStandardId}</if>
+            <if test="metricCode != null  and metricCode != ''"> and metric_code = #{metricCode}</if>
+            <if test="metricName != null  and metricName != ''"> and metric_name = #{metricName}</if>
+            <if test="classIRange != null  and classIRange != ''"> and class_i_range = #{classIRange}</if>
+            <if test="classIiRange != null  and classIiRange != ''"> and class_ii_range = #{classIiRange}</if>
+            <if test="classIiiRange != null  and classIiiRange != ''"> and class_iii_range = #{classIiiRange}</if>
+            <if test="classIvRange != null  and classIvRange != ''"> and class_iv_range = #{classIvRange}</if>
+            <if test="classVRange != null  and classVRange != ''"> and class_v_range = #{classVRange}</if>
+            <if test="classInferiorVRange != null  and classInferiorVRange != ''"> and class_inferior_v_range = #{classInferiorVRange}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        ORDER BY id
+    </select>
+    
+    <!-- 分页查询评价标准配置记录列表 -->
+    <select id="selectEvaluationStandardConfigListByPage" parameterType="map" resultMap="EvaluationStandardConfigResult">
+        <include refid="selectEvaluationStandardConfigVo"/>
+        <where>
+            <if test="evaluationStandardConfig != null">
+                <if test="evaluationStandardConfig.referenceStandardId != null"> and reference_standard_id = #{evaluationStandardConfig.referenceStandardId}</if>
+                <if test="evaluationStandardConfig.metricCode != null  and evaluationStandardConfig.metricCode != ''"> and metric_code = #{evaluationStandardConfig.metricCode}</if>
+                <if test="evaluationStandardConfig.metricName != null  and evaluationStandardConfig.metricName != ''"> and metric_name = #{evaluationStandardConfig.metricName}</if>
+                <if test="evaluationStandardConfig.classIRange != null  and evaluationStandardConfig.classIRange != ''"> and class_i_range = #{evaluationStandardConfig.classIRange}</if>
+                <if test="evaluationStandardConfig.classIiRange != null  and evaluationStandardConfig.classIiRange != ''"> and class_ii_range = #{evaluationStandardConfig.classIiRange}</if>
+                <if test="evaluationStandardConfig.classIiiRange != null  and evaluationStandardConfig.classIiiRange != ''"> and class_iii_range = #{evaluationStandardConfig.classIiiRange}</if>
+                <if test="evaluationStandardConfig.classIvRange != null  and evaluationStandardConfig.classIvRange != ''"> and class_iv_range = #{evaluationStandardConfig.classIvRange}</if>
+                <if test="evaluationStandardConfig.classVRange != null  and evaluationStandardConfig.classVRange != ''"> and class_v_range = #{evaluationStandardConfig.classVRange}</if>
+                <if test="evaluationStandardConfig.classInferiorVRange != null  and evaluationStandardConfig.classInferiorVRange != ''"> and class_inferior_v_range = #{evaluationStandardConfig.classInferiorVRange}</if>
+                <if test="evaluationStandardConfig.status != null "> and status = #{evaluationStandardConfig.status}</if>
+            </if>
+        </where>
+        ORDER BY id
+        <if test="offset != null and limit != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="selectEvaluationStandardConfigCount" parameterType="EvaluationStandardConfig" resultType="Integer">
+        select count(*) from evaluation_standard_config
+        <where>
+            <if test="referenceStandardId != null"> and reference_standard_id = #{referenceStandardId}</if>
+            <if test="metricCode != null  and metricCode != ''"> and metric_code = #{metricCode}</if>
+            <if test="metricName != null  and metricName != ''"> and metric_name = #{metricName}</if>
+            <if test="classIRange != null  and classIRange != ''"> and class_i_range = #{classIRange}</if>
+            <if test="classIiRange != null  and classIiRange != ''"> and class_ii_range = #{classIiRange}</if>
+            <if test="classIiiRange != null  and classIiiRange != ''"> and class_iii_range = #{classIiiRange}</if>
+            <if test="classIvRange != null  and classIvRange != ''"> and class_iv_range = #{classIvRange}</if>
+            <if test="classVRange != null  and classVRange != ''"> and class_v_range = #{classVRange}</if>
+            <if test="classInferiorVRange != null  and classInferiorVRange != ''"> and class_inferior_v_range = #{classInferiorVRange}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <insert id="insertEvaluationStandardConfig" parameterType="EvaluationStandardConfig">
+        insert into evaluation_standard_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="referenceStandardId != null">reference_standard_id,</if>
+            <if test="metricCode != null and metricCode != ''">metric_code,</if>
+            <if test="metricName != null and metricName != ''">metric_name,</if>
+            <if test="classIRange != null">class_i_range,</if>
+            <if test="classIiRange != null">class_ii_range,</if>
+            <if test="classIiiRange != null">class_iii_range,</if>
+            <if test="classIvRange != null">class_iv_range,</if>
+            <if test="classVRange != null">class_v_range,</if>
+            <if test="classInferiorVRange != null">class_inferior_v_range,</if>
+            status
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="referenceStandardId != null">#{referenceStandardId},</if>
+            <if test="metricCode != null and metricCode != ''">#{metricCode},</if>
+            <if test="metricName != null and metricName != ''">#{metricName},</if>
+            <if test="classIRange != null">#{classIRange},</if>
+            <if test="classIiRange != null">#{classIiRange},</if>
+            <if test="classIiiRange != null">#{classIiiRange},</if>
+            <if test="classIvRange != null">#{classIvRange},</if>
+            <if test="classVRange != null">#{classVRange},</if>
+            <if test="classInferiorVRange != null">#{classInferiorVRange},</if>
+            #{status}
+        </trim>
+    </insert>
+    
+    <insert id="insertEvaluationStandardConfigBatch" parameterType="java.util.List">
+        insert into evaluation_standard_config (
+            reference_standard_id,
+            metric_code,
+            metric_name,
+            class_i_range,
+            class_ii_range,
+            class_iii_range,
+            class_iv_range,
+            class_v_range,
+            class_inferior_v_range,
+            status
+        ) values
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.referenceStandardId},
+            #{item.metricCode},
+            #{item.metricName},
+            #{item.classIRange},
+            #{item.classIiRange},
+            #{item.classIiiRange},
+            #{item.classIvRange},
+            #{item.classVRange},
+            #{item.classInferiorVRange},
+            #{item.status}
+        )
+        </foreach>
+        ON CONFLICT (reference_standard_id, metric_code) DO UPDATE SET
+            metric_name = EXCLUDED.metric_name,
+            class_i_range = EXCLUDED.class_i_range,
+            class_ii_range = EXCLUDED.class_ii_range,
+            class_iii_range = EXCLUDED.class_iii_range,
+            class_iv_range = EXCLUDED.class_iv_range,
+            class_v_range = EXCLUDED.class_v_range,
+            class_inferior_v_range = EXCLUDED.class_inferior_v_range,
+            status = EXCLUDED.status
+    </insert>
+
+    <select id="selectById" parameterType="Long" resultMap="EvaluationStandardConfigResult">
+        <include refid="selectEvaluationStandardConfigVo"/>
+        where id = #{id}
+    </select>
+    
+    <update id="updateEvaluationStandardConfigStatus" parameterType="EvaluationStandardConfig">
+        UPDATE evaluation_standard_config
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

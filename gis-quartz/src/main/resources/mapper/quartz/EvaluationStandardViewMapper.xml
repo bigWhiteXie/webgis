@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.EvaluationStandardViewMapper">
+
+    <resultMap type="EvaluationStandardView" id="EvaluationStandardViewResult">
+        <result property="id" column="id"/>
+        <result property="standardName" column="standard_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insertEvaluationStandardView" parameterType="EvaluationStandardView" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO evaluation_standard_view (
+            standard_name,
+            file_path,
+            create_time
+        ) VALUES (
+            #{standardName},
+            #{filePath},
+            NOW()
+        )
+    </insert>
+    
+    <select id="selectById" parameterType="Long" resultMap="EvaluationStandardViewResult">
+        SELECT 
+            id,
+            standard_name,
+            file_path,
+            create_time
+        FROM evaluation_standard_view
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectEvaluationStandardViewByIds" parameterType="java.util.List" resultMap="EvaluationStandardViewResult">
+        SELECT 
+            id,
+            standard_name,
+            file_path,
+            create_time
+        FROM evaluation_standard_view
+        WHERE id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    
+    <select id="selectEvaluationStandardViewCount" parameterType="EvaluationStandardView" resultType="int">
+        SELECT COUNT(*) FROM evaluation_standard_view
+        <where>
+            <if test="standardName != null and standardName != ''">
+                AND standard_name LIKE CONCAT('%', #{standardName}, '%')
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectEvaluationStandardViewList" resultMap="EvaluationStandardViewResult">
+        SELECT 
+            id,
+            standard_name,
+            file_path,
+            create_time
+        FROM evaluation_standard_view
+        <where>
+            <if test="arg0.standardName != null and arg0.standardName != ''">
+                AND standard_name LIKE CONCAT('%', #{arg0.standardName}, '%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{arg2} OFFSET #{arg1}
+    </select>
+
+</mapper>

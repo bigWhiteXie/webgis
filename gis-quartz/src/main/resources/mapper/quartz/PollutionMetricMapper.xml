@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.PollutionMetricMapper">
+
+    <resultMap type="PollutionMetric" id="PollutionMetricResult">
+        <result property="id" column="id"/>
+        <result property="metricCode" column="metric_code"/>
+        <result property="metricName" column="metric_name"/>
+        <result property="unit" column="unit"/>
+        <result property="category" column="category"/>
+    </resultMap>
+
+    <sql id="selectPollutionMetricVo">
+        select id, metric_code, metric_name, unit, category
+        from pollution_metric
+    </sql>
+
+    <select id="selectByMetricName" parameterType="String" resultMap="PollutionMetricResult">
+        <include refid="selectPollutionMetricVo"/>
+        WHERE UPPER(metric_name) = UPPER(#{metricName}) 
+        LIMIT 1
+    </select>
+    
+    <select id="selectByMetricCode" parameterType="String" resultMap="PollutionMetricResult">
+        <include refid="selectPollutionMetricVo"/>
+        WHERE metric_code = #{metricCode}
+    </select>
+
+</mapper>

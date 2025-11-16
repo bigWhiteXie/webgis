@@ -42,7 +42,7 @@ public class EvaluationConfigController {
     public TableDataInfo list(EvaluationStandardConfDTO evaluationStandardConfDTO,
                               @RequestParam(defaultValue = "1") Integer pageNum,
                               @RequestParam(defaultValue = "10") Integer pageSize) {
-        return evaluationStandardConfigService.selectEvaluationStandardConfigListByPage(evaluationStandardConfDTO, pageNum, pageSize);
+        return evaluationStandardConfigService.selectEvaluationStandardConfDTOListByPage(evaluationStandardConfDTO, pageNum, pageSize);
     }
     
     /**
@@ -61,33 +61,26 @@ public class EvaluationConfigController {
      * 导入评价标准配置列表
      */
     @PostMapping("/import")
-    @ApiOperation("导入评价标准配置Excel文件")
-    public AjaxResult importExcel(@ApiParam("Excel文件") @RequestParam("file") MultipartFile file, 
-                                  @ApiParam("评价标准视图ID") @RequestParam(value = "evaluationViewId", required = false) Long evaluationViewId) {
+    @ApiOperation("导入评价标准配置")
+    public AjaxResult importData(@ApiParam("Excel文件") @RequestParam("file") MultipartFile file,
+                                 @ApiParam("评价标准视图ID") @RequestParam("evaluationViewId") Long evaluationViewId) {
         try {
-            // 检查文件是否为空
-            if (file == null || file.isEmpty()) {
-                return AjaxResult.error("上传文件为空");
+            if (file.isEmpty()) {
+                return AjaxResult.error("上传文件不能为空");
             }
-
             // 检查文件扩展名
             String fileName = file.getOriginalFilename();
-            if (fileName == null || (!fileName.endsWith(".xls") && !fileName.endsWith(".xlsx"))) {
-                return AjaxResult.error("请上传.xls或.xlsx格式的Excel文件");
+            if (fileName == null || !fileName.endsWith(".xlsx")) {
+                return AjaxResult.error("请上传.xlsx格式的Excel文件");
             }
-
-            // 调用Service层方法解析并导入Excel数据
             return evaluationStandardConfigService.parseAndImportExcelFile(file, evaluationViewId);
         } catch (Exception e) {
-            return AjaxResult.error("导入Excel文件失败: " + e.getMessage());
+            return AjaxResult.error("导入失败：" + e.getMessage());
         }
     }
     
     /**
      * 批量激活评价标准配置
-     * 
-     * @param ids 评价标准配置ID列表
-     * @return 操作结果
      */
     @PostMapping("/batchActivate")
     @ApiOperation("批量激活评价标准配置")

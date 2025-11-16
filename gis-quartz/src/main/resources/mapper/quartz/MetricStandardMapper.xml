@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<resultMap type="MetricStandard" id="MetricStandardResult">
 		<id     property="id"               column="id" />
+		<result property="evaluationId"      column="evaluation_id" />
 		<result property="metricCode"       column="metric_code" />
 		<result property="metricName"       column="metric_name" />
 		<result property="qualityLevel"     column="quality_level" />
@@ -15,7 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectMetricStandardVo">
-        SELECT ms.id, ms.metric_code, pm.metric_name, ms.quality_level, ms.relation, ms.upper_bound, ms.lower_bound
+        SELECT ms.id, ms.evaluation_id, ms.metric_code, pm.metric_name, ms.quality_level, ms.relation, ms.upper_bound, ms.lower_bound
 		FROM metric_standard ms
 		LEFT JOIN pollution_metric pm ON ms.metric_code = pm.metric_code
     </sql>
@@ -28,17 +29,36 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="metricStandard != null and metricStandard.qualityLevel != null and metricStandard.qualityLevel != ''">
                 AND ms.quality_level = #{metricStandard.qualityLevel}
             </if>
+            <if test="metricStandard != null and metricStandard.evaluationId != null">
+                AND ms.evaluation_id = #{metricStandard.evaluationId}
+            </if>
         </where>
     </sql>
 	
 	<insert id="insertMetricStandard" parameterType="MetricStandard">
-		INSERT INTO metric_standard(metric_code, quality_level, relation, upper_bound, lower_bound)
-		VALUES (#{metricCode}, #{qualityLevel}, #{relation}, #{upperBound}, #{lowerBound})
+		INSERT INTO metric_standard(evaluation_id, metric_code, quality_level, relation, upper_bound, lower_bound)
+		VALUES (#{evaluationId}, #{metricCode}, #{qualityLevel}, #{relation}, #{upperBound}, #{lowerBound})
 	</insert>
+	
+	<insert id="insertMetricStandardBatch" parameterType="java.util.List">
+        INSERT INTO metric_standard(evaluation_id, metric_code, quality_level, relation, upper_bound, lower_bound)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.evaluationId},
+            #{item.metricCode},
+            #{item.qualityLevel},
+            #{item.relation},
+            #{item.upperBound},
+            #{item.lowerBound}
+        )
+        </foreach>
+    </insert>
 	
 	<update id="updateMetricStandard" parameterType="MetricStandard">
 		UPDATE metric_standard
 		<set>
+			evaluation_id = #{evaluationId},
 			quality_level = #{qualityLevel},
 			relation = #{relation},
 			upper_bound = #{upperBound},
@@ -90,6 +110,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN pollution_metric pm ON ms.metric_code = pm.metric_code
         <include refid="selectMetricStandardCondition"/>
     </select>
+	
+	<delete id="deleteMetricStandardByEvaluationIds" parameterType="java.util.List">
+		DELETE FROM metric_standard WHERE evaluation_id IN
+		<foreach collection="list" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<delete id="deleteMetricStandardByMetricCodes" parameterType="java.util.List">
+		DELETE FROM metric_standard WHERE metric_code IN
+		<foreach collection="list" item="metricCode" open="(" separator="," close=")">
+			#{metricCode}
+		</foreach>
+	</delete>
 	
 	<delete id="deleteMetricStandardById" parameterType="Long">
 		DELETE FROM metric_standard WHERE id = #{id}

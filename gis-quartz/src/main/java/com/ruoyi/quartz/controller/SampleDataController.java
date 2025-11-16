@@ -113,7 +113,7 @@ public class SampleDataController extends BaseController {
                           HttpServletResponse response) {
         List<SampleData> list = sampleDataService.selectSampleDataList(sampleData, startTime, endTime);
         ExcelUtil<SampleData> util = new ExcelUtil<SampleData>(SampleData.class);
-        util.exportExcel(response, list, "原始地下水样品检测数据");
+        util.exportExcel(response, list, "原始地下水样品检测数据", "", "地下水样品检测数据.xlsx");
     }
     
     /**

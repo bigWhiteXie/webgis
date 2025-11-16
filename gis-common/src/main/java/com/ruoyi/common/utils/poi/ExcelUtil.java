@@ -570,10 +570,32 @@ public class ExcelUtil<T>
      */
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title)
     {
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("utf-8");
-        this.init(list, sheetName, title, Type.EXPORT);
-        exportExcel(response);
+        exportExcel(response, list, sheetName, title, "export.xlsx");
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单
+     * 
+     * @param response 返回数据
+     * @param list 导出数据集合
+     * @param sheetName 工作表的名称
+     * @param title 标题
+     * @param filename 文件名
+     * @return 结果
+     */
+    public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title, String filename)
+    {
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            // 对文件名进行URL编码，解决中文文件名导致的Unicode编码问题
+            response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(filename, "UTF-8"));
+            this.init(list, sheetName, title, Type.EXPORT);
+            exportExcel(response);
+        } catch (Exception e) {
+            log.error("导出Excel异常{}", e.getMessage());
+            throw new UtilException("导出Excel失败，请联系网站管理员！");
+        }
     }
 
     /**

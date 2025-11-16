@@ -3,73 +3,78 @@ package com.ruoyi.quartz.domain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel("污染指标信息")
-public  class PollutionMetric {
+/**
+ * 污染物指标对象 pollution_metric
+ * 
+ * @author ruoyi
+ */
+@ApiModel("污染物指标")
+public class PollutionMetric
+{
+    private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("主键ID")
+    /** 主键ID */
     private Long id;
 
-    @ApiModelProperty("指标编码（唯一标识，如G0013、G0026等标准化编码）")
+    /** 指标编码 */
     private String metricCode;
 
-    @ApiModelProperty("指标简称（如铅、镉、COD等简短名称）")
+    /** 指标名称 */
     private String metricName;
 
-    @ApiModelProperty("指标单位（如mg/L、μg/m³等度量单位）")
+    /** 单位 */
     private String unit;
 
-    // 默认构造函数
-    public PollutionMetric() {
-    }
+    /** 类别 */
+    private String category;
 
-    // 带参数的构造函数
-    public PollutionMetric(Long id, String metricCode, String indicatorName, String unit) {
-        this.id = id;
-        this.metricCode = metricCode;
-        this.metricName = indicatorName;
-        this.unit = unit;
-    }
-
-    // Getter和Setter方法
-    public Long getId() {
+    public Long getId()
+    {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Long id)
+    {
         this.id = id;
     }
 
-    public String getMetricCode() {
+    public String getMetricCode()
+    {
         return metricCode;
     }
 
-    public void setMetricCode(String metricCode) {
+    public void setMetricCode(String metricCode)
+    {
         this.metricCode = metricCode;
     }
 
-    public String getMetricName() {
+    public String getMetricName()
+    {
         return metricName;
     }
 
-    public void setMetricName(String metricName) {
+    public void setMetricName(String metricName)
+    {
         this.metricName = metricName;
     }
 
-    public String getUnit() {
+    public String getUnit()
+    {
         return unit;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(String unit)
+    {
         this.unit = unit;
     }
 
-    @Override
-    public String toString() {
-        return "PollutionMetric{" +
-                "id=" + id +
-                ", indicatorCode='" + metricCode + '\'' +
-                ", indicatorName='" + metricName + '\'' +
-                ", unit='" + unit + '\'' +
-                '}';
+    public String getCategory()
+    {
+        return category;
+    }
+
+    public void setCategory(String category)
+    {
+        this.category = category;
     }
 }

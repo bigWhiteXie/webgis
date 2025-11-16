@@ -1,5 +1,6 @@
 package com.ruoyi.quartz.service.impl;
 
+import com.ruoyi.common.constant.MetricConstant;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.WaterQualityLevel;
 import com.ruoyi.quartz.domain.MetricStandard;
@@ -279,7 +280,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         }
 
         if (!hasValidQualityLevel) {
-            return "无质量等级";
+            return MetricConstant.NO_METRIC_QUANTITY;
         }
 
         return worstQualityLevel;
@@ -328,7 +329,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
                     }
                 }
             } else {
-                return "无质量等级";
+                return MetricConstant.NO_METRIC_QUANTITY;
             }
         } catch (NumberFormatException e) {
             // 如果检测值不是有效数字，则抛出异常

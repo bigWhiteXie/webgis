@@ -2,9 +2,11 @@ package com.ruoyi.quartz.controller;
 
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.HttpStatus;
+import com.ruoyi.common.constant.MetricConstant;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.enums.WaterQualityLevel;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
@@ -108,9 +110,11 @@ public class MonitorWellController extends BaseController {
             
             for (int i = 0; i < list.size(); i++) {
                 final int index = i;
+                list.get(index).setWaterQualityLevel(MetricConstant.NO_METRIC_QUANTITY);
                 CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                     SampleDataResp sampleDataResp = sampleDataService.getSampleDataByMonitoringWellAndMetrics(
                             list.get(index).getWellCode(), new Date(), metricNames);
+
                     if (sampleDataResp != null) {
                         list.get(index).setWaterQualityLevel(sampleDataResp.getQualityLevel());
                     }
@@ -173,7 +177,7 @@ public class MonitorWellController extends BaseController {
     public void export(@ApiParam("监测井信息") MonitorWellVo monitorWellVo, HttpServletResponse response) {
         List<MonitorWell> list =  monitorWellService.selectMonitorWellList(monitorWellVo);
         ExcelUtil<MonitorWell> util = new ExcelUtil<MonitorWell>(MonitorWell.class);
-        util.exportExcel(response, list, "监测井数据");
+        util.exportExcel(response, list, "监测井数据", "", "监测井.xlsx");
     }
 
     /**

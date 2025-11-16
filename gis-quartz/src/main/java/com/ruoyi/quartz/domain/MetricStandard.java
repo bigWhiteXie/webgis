@@ -19,6 +19,9 @@ public class MetricStandard
     /** 主键ID */
     private Long id;
 
+    /** 评价标准配置ID */
+    private Long evaluationId;
+
     /** 指标编码 */
     private String metricCode;
 
@@ -46,6 +49,16 @@ public class MetricStandard
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    public Long getEvaluationId()
+    {
+        return evaluationId;
+    }
+
+    public void setEvaluationId(Long evaluationId)
+    {
+        this.evaluationId = evaluationId;
     }
 
     public String getMetricCode()

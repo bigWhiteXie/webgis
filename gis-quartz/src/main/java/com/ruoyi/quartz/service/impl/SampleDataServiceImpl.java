@@ -11,6 +11,8 @@ import com.ruoyi.quartz.domain.api.SampleDataVo;
 import com.ruoyi.quartz.mapper.SampleDataMapper;
 import com.ruoyi.quartz.service.ISampleDataService;
 import com.ruoyi.quartz.service.IMetricStandardService;
+import com.ruoyi.quartz.service.IQualityControlRuleService;
+import com.ruoyi.quartz.domain.QualityControlRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -32,6 +35,9 @@ public class SampleDataServiceImpl implements ISampleDataService {
     
     @Autowired
     private IMetricStandardService metricStandardService;
+    
+    @Autowired
+    private IQualityControlRuleService qualityControlRuleService;
 
 
     @Override
@@ -58,6 +64,19 @@ public class SampleDataServiceImpl implements ISampleDataService {
                         // 解析当前批次的数据
                         List<SampleData> sampleDataList = SampleData.parseExcelData(batchData);
                         log.info("第{}张sheet解析出{}条数据", sheet.getSheetNo(), sampleDataList.size());
+                        
+                        // 对解析后的数据进行质控规则检查
+                        sampleDataList.removeIf(sampleData -> {
+                            // 获取对应指标的质控规则
+                            QualityControlRule rule = qualityControlRuleService.getRuleByCode(sampleData.getMetricCode());
+                            // 如果存在质控规则，则进行检查
+                            if (rule != null) {
+                                rule.validate(new BigDecimal(sampleData.getActualTestValue()));
+                            }
+                            // 数据符合所有规则
+                            return false;
+                        });
+                        
                         // 批量导入到数据库
                         if (!sampleDataList.isEmpty()) {
                             int imported = sampleDataMapper.batchInsertSampleData(sampleDataList);
@@ -68,12 +87,14 @@ public class SampleDataServiceImpl implements ISampleDataService {
                     }
                 } catch (Exception e) {
                     log.warn("读取第{}个工作表时出错: {}", sheet.getSheetNo() + 1, e.getMessage());
+                    throw e; // 重新抛出异常以便上层处理
                 }
             }
 
             excelReader.finish();
         } catch (Exception e) {
             log.warn("读取Excel文件时出错: {}", e.getMessage());
+            throw e; // 重新抛出异常以便上层处理
         }
 
         log.info("Excel文件解析并导入完成，总共导入{}条记录", totalImported);
@@ -263,5 +284,20 @@ public class SampleDataServiceImpl implements ISampleDataService {
         }
         
         return result;
+    }
+    
+    @Override
+    public int addSampleData(SampleData sampleData) {
+        if (sampleData == null) {
+            return 0;
+        }
+
+        QualityControlRule rule = qualityControlRuleService.getRuleByCode(sampleData.getMetricCode());
+        if (rule != null) {
+            rule.validate(new BigDecimal(sampleData.getActualTestValue()));
+        }
+        List<SampleData> dataList = new ArrayList<>();
+        dataList.add(sampleData);
+        return sampleDataMapper.batchInsertSampleDataOnly(dataList);
     }
 }

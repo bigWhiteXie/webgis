@@ -17,6 +17,59 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         from pollution_metric
     </sql>
 
+    <select id="selectPollutionMetricById" parameterType="Long" resultMap="PollutionMetricResult">
+        <include refid="selectPollutionMetricVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectPollutionMetricList" parameterType="PollutionMetric" resultMap="PollutionMetricResult">
+        <include refid="selectPollutionMetricVo"/>
+        <where>
+            <if test="metricCode != null  and metricCode != ''"> and metric_code = #{metricCode}</if>
+            <if test="metricName != null  and metricName != ''"> and metric_name like concat('%', #{metricName}, '%')</if>
+            <if test="unit != null  and unit != ''"> and unit = #{unit}</if>
+            <if test="category != null  and category != ''"> and category = #{category}</if>
+        </where>
+    </select>
+    
+    <insert id="insertPollutionMetric" parameterType="PollutionMetric" useGeneratedKeys="true" keyProperty="id">
+        insert into pollution_metric
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="metricCode != null and metricCode != ''">metric_code,</if>
+            <if test="metricName != null and metricName != ''">metric_name,</if>
+            <if test="unit != null">unit,</if>
+            <if test="category != null">category,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="metricCode != null and metricCode != ''">#{metricCode},</if>
+            <if test="metricName != null and metricName != ''">#{metricName},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="category != null">#{category},</if>
+        </trim>
+    </insert>
+    
+    <update id="updatePollutionMetric" parameterType="PollutionMetric">
+        update pollution_metric
+        <set>
+            <if test="metricCode != null and metricCode != ''">metric_code = #{metricCode},</if>
+            <if test="metricName != null and metricName != ''">metric_name = #{metricName},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="category != null">category = #{category},</if>
+        </set>
+        where id = #{id}
+    </update>
+    
+    <delete id="deletePollutionMetricById" parameterType="Long">
+        delete from pollution_metric where id = #{id}
+    </delete>
+    
+    <delete id="deletePollutionMetricByIds" parameterType="Long">
+        delete from pollution_metric where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <select id="selectByMetricName" parameterType="String" resultMap="PollutionMetricResult">
         <include refid="selectPollutionMetricVo"/>
         WHERE UPPER(metric_name) = UPPER(#{metricName}) 

@@ -77,6 +77,30 @@ public interface EvaluationStandardConfigMapper
     public int updateEvaluationStandardConfigStatus(EvaluationStandardConfig evaluationStandardConfig);
     
     /**
+     * 更新评价标准配置记录
+     *
+     * @param evaluationStandardConfig 评价标准配置对象
+     * @return 结果
+     */
+    public int updateEvaluationStandardConfig(EvaluationStandardConfig evaluationStandardConfig);
+    
+    /**
+     * 根据ID删除评价标准配置记录
+     *
+     * @param id 评价标准配置ID
+     * @return 结果
+     */
+    public int deleteEvaluationStandardConfigById(Long id);
+    
+    /**
+     * 根据ID列表批量删除评价标准配置记录
+     *
+     * @param ids 评价标准配置ID列表
+     * @return 结果
+     */
+    public int deleteEvaluationStandardConfigByIds(List<Long> ids);
+    
+    /**
      * 分页查询评价标准配置DTO记录列表
      *
      * @param params 查询参数Map，包含evaluationStandardConfig(查询条件), offset(偏移量), limit(限制条数)

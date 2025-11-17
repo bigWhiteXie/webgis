@@ -8,42 +8,48 @@ public enum WaterQualityLevel {
     /**
      * I类水质 - 最好
      */
-    CLASS_I("I类"),
+    CLASS_I("I类", 0),
 
     /**
      * II类水质
      */
-    CLASS_II("II类"),
+    CLASS_II("II类", 1),
 
     /**
      * III类水质
      */
-    CLASS_III("III类"),
+    CLASS_III("III类", 2),
 
     /**
      * IV类水质
      */
-    CLASS_IV( "IV类"),
+    CLASS_IV( "IV类", 3),
 
     /**
      * V类水质
      */
-    CLASS_V( "V类"),
+    CLASS_V( "V类", 4),
 
     /**
      * 劣V类水质 - 最差
      */
-    CLASS_INFERIOR_V("劣V类");
+    CLASS_INFERIOR_V("劣V类", 5);
 
     private final String label;
+    private final int order;
 
-    WaterQualityLevel( String label) {
+    WaterQualityLevel( String label, int order) {
         this.label = label;
+        this.order = order;
     }
 
 
     public String getLabel() {
         return label;
+    }
+    
+    public int getOrder() {
+        return order;
     }
 
     /**
@@ -79,7 +85,7 @@ public enum WaterQualityLevel {
             return -1;
         }
         
-        return level1.ordinal() - level2.ordinal();
+        return level1.order - level2.order;
     }
     
     /**

@@ -75,4 +75,36 @@ public interface IEvaluationStandardConfigService
      * @return 操作结果
      */
     public AjaxResult batchActivate(List<Long> ids);
+    
+    /**
+     * 根据评价标准视图ID和参考标准ID批量激活评价标准配置
+     *
+     * @param referenceStandardId 参考标准ID
+     * @return 操作结果
+     */
+    public AjaxResult batchActivateByViewAndReference(Long referenceStandardId);
+    
+    /**
+     * 更新评价标准配置记录
+     *
+     * @param evaluationStandardConfig 评价标准配置对象
+     * @return 结果
+     */
+    public int updateEvaluationStandardConfig(EvaluationStandardConfig evaluationStandardConfig);
+    
+    /**
+     * 批量删除评价标准配置记录
+     *
+     * @param ids 评价标准配置ID列表
+     * @return 结果
+     */
+    public int deleteEvaluationStandardConfigByIds(List<Long> ids);
+    
+    /**
+     * 插入单条评价标准配置记录
+     *
+     * @param evaluationStandardConfig 评价标准配置对象
+     * @return 结果
+     */
+    public AjaxResult insertEvaluationStandardConfigSingle(EvaluationStandardConfig evaluationStandardConfig);
 }

@@ -2,17 +2,19 @@ package com.ruoyi.quartz.service.impl;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.quartz.domain.EvaluationStandardConfig;
 import com.ruoyi.quartz.domain.MetricStandard;
-import com.ruoyi.quartz.domain.api.EvaluationStandardConfDTO;
-import com.ruoyi.quartz.domain.EvaluationStandardView;
 import com.ruoyi.quartz.domain.PollutionMetric;
+import com.ruoyi.quartz.domain.api.EvaluationStandardConfDTO;
 import com.ruoyi.quartz.mapper.EvaluationStandardConfigMapper;
 import com.ruoyi.quartz.mapper.EvaluationStandardViewMapper;
 import com.ruoyi.quartz.mapper.MetricStandardMapper;
 import com.ruoyi.quartz.mapper.PollutionMetricMapper;
 import com.ruoyi.quartz.service.IEvaluationStandardConfigService;
+import com.ruoyi.quartz.service.IMetricStandardService;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * 评价标准配置Service业务层处理
@@ -55,6 +49,9 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
     
     @Autowired
     private PollutionMetricMapper pollutionMetricMapper;
+    
+    @Autowired
+    private IMetricStandardService metricStandardService;
 
     /**
      * 插入评价标准配置记录
@@ -71,6 +68,7 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
             PollutionMetric pollutionMetric = pollutionMetricMapper.selectByMetricName(evaluationStandardConfig.getMetricName());
             if (pollutionMetric != null) {
                 evaluationStandardConfig.setMetricCode(pollutionMetric.getMetricCode());
+                evaluationStandardConfig.setMetricName(pollutionMetric.getMetricName());
             }
         }
         
@@ -84,10 +82,15 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertEvaluationStandardConfigBatch(List<EvaluationStandardConfig> evaluationStandardConfigs) {
+        if (evaluationStandardConfigs == null || evaluationStandardConfigs.isEmpty()) {
+            return 0;
+        }
+        
         int totalInserted = 0;
         
-        // 分批处理数据，每批最多BATCH_SIZE条
+        // 分批处理，避免一次性插入太多数据
         for (int i = 0; i < evaluationStandardConfigs.size(); i += BATCH_SIZE) {
             int endIndex = Math.min(i + BATCH_SIZE, evaluationStandardConfigs.size());
             List<EvaluationStandardConfig> subList = evaluationStandardConfigs.subList(i, endIndex);
@@ -150,14 +153,14 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
         int total = evaluationStandardConfigMapper.selectEvaluationStandardConfigCount(evaluationStandardConfig);
         
         // 查询分页数据，使用Map传递多个参数以匹配Mapper XML中的定义
-        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("evaluationStandardConfig", evaluationStandardConfig);
         params.put("offset", offset);
         params.put("limit", pageSize);
-        List<EvaluationStandardConfig> list = evaluationStandardConfigMapper.selectEvaluationStandardConfigListByPage(params);
-
-
-        return new TableDataInfo(list, total);
+        
+        List<EvaluationStandardConfig> rows = evaluationStandardConfigMapper.selectEvaluationStandardConfigListByPage(params);
+        
+        return new TableDataInfo(rows, total);
     }
     
     /**
@@ -178,13 +181,14 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
         int total = evaluationStandardConfigMapper.selectEvaluationStandardConfDTOCount(evaluationStandardConfig);
         
         // 查询分页数据，使用Map传递多个参数以匹配Mapper XML中的定义
-        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("evaluationStandardConfig", evaluationStandardConfig);
         params.put("offset", offset);
         params.put("limit", pageSize);
-        List<EvaluationStandardConfDTO> list = evaluationStandardConfigMapper.selectEvaluationStandardConfDTOListByPage(params);
-
-        return new TableDataInfo(list, total);
+        
+        List<EvaluationStandardConfDTO> rows = evaluationStandardConfigMapper.selectEvaluationStandardConfDTOListByPage(params);
+        
+        return new TableDataInfo(rows, total);
     }
     
     /**
@@ -195,6 +199,7 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
      * @return 导入结果
      */
     @Override
+    @Transactional
     public AjaxResult parseAndImportExcelFile(MultipartFile file, Long evaluationViewId) {
         try {
             // 解析Excel数据
@@ -250,7 +255,7 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
                         }
                     }
                 }
-                
+
                 // 3. 如果evaluationId不是自己则将其对应的evaluationConfig记录的status设置成0
                 for (Long evaluationId : evaluationIds) {
                     if (!config.getId().equals(evaluationId)) {
@@ -282,6 +287,99 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
         } catch (Exception e) {
             log.error("批量激活评价标准配置失败", e);
             return AjaxResult.error("批量激活失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据评价标准视图ID和参考标准ID批量激活评价标准配置
+     *
+     * @param referenceStandardId 参考标准ID
+     * @return 操作结果
+     */
+    @Override
+    @Transactional
+    public AjaxResult batchActivateByViewAndReference(Long referenceStandardId) {
+        try {
+            // 构造查询条件
+            EvaluationStandardConfig queryConfig = new EvaluationStandardConfig();
+            queryConfig.setReferenceStandardId(referenceStandardId);
+            
+            // 查询符合条件的记录
+            List<EvaluationStandardConfig> configs = evaluationStandardConfigMapper.selectEvaluationStandardConfigList(queryConfig);
+            
+            // 获取ID列表
+            List<Long> ids = configs.stream().map(EvaluationStandardConfig::getId).collect(Collectors.toList());
+            
+            if (ids.isEmpty()) {
+                return AjaxResult.success("没有找到符合条件的评价标准配置记录");
+            }
+            
+            // 调用原有的批量激活方法
+            return batchActivate(ids);
+        } catch (Exception e) {
+            log.error("根据评价标准视图ID和参考标准ID批量激活评价标准配置失败", e);
+            return AjaxResult.error("批量激活失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 更新评价标准配置记录
+     *
+     * @param evaluationStandardConfig 评价标准配置对象
+     * @return 结果
+     */
+    @Override
+    public int updateEvaluationStandardConfig(EvaluationStandardConfig evaluationStandardConfig) {
+        return evaluationStandardConfigMapper.updateEvaluationStandardConfig(evaluationStandardConfig);
+    }
+    
+    /**
+     * 批量删除评价标准配置记录
+     *
+     * @param ids 评价标准配置ID列表
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int deleteEvaluationStandardConfigByIds(List<Long> ids) {
+        return evaluationStandardConfigMapper.deleteEvaluationStandardConfigByIds(ids);
+    }
+    
+    /**
+     * 插入单条评价标准配置记录
+     *
+     * @param evaluationStandardConfig 评价标准配置对象
+     * @return 结果
+     */
+    @Override
+    public AjaxResult insertEvaluationStandardConfigSingle(EvaluationStandardConfig evaluationStandardConfig) {
+        try {
+            // 检查必填字段
+            if (evaluationStandardConfig.getReferenceStandardId() == null) {
+                return AjaxResult.error("参考标准ID不能为空");
+            }
+            
+            if (StringUtils.isEmpty(evaluationStandardConfig.getMetricCode()) && 
+                StringUtils.isEmpty(evaluationStandardConfig.getMetricName())) {
+                return AjaxResult.error("指标编码和指标名称不能同时为空");
+            }
+            
+            // 设置默认状态为停用
+            if (evaluationStandardConfig.getStatus() == null) {
+                evaluationStandardConfig.setStatus(0);
+            }
+            
+            // 插入记录
+            int result = insertEvaluationStandardConfig(evaluationStandardConfig);
+            
+            if (result > 0) {
+                return AjaxResult.success("新增成功");
+            } else {
+                return AjaxResult.error("新增失败");
+            }
+        } catch (Exception e) {
+            log.error("新增评价标准配置记录失败", e);
+            return AjaxResult.error("新增失败: " + e.getMessage());
         }
     }
 }

@@ -59,6 +59,15 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         for (Map.Entry<String, List<MetricStandard>> entry : groupedStandards.entrySet()) {
             String metricCode = entry.getKey();
             List<MetricStandard> standards = entry.getValue();
+            // 按照水质等级顺序对标准进行排序
+            standards.sort((s1, s2) -> {
+                WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                if (level1 == null && level2 == null) return 0;
+                if (level1 == null) return 1;
+                if (level2 == null) return -1;
+                return Integer.compare(level1.getOrder(), level2.getOrder());
+            });
             metricStandardCache.put(metricCode, standards);
         }
     }
@@ -79,9 +88,27 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         if (cachedList != null) {
             // 如果缓存中已存在该metricCode的列表，则添加新数据到列表中
             cachedList.add(metricStandard);
+            // 重新排序
+            cachedList.sort((s1, s2) -> {
+                WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                if (level1 == null && level2 == null) return 0;
+                if (level1 == null) return 1;
+                if (level2 == null) return -1;
+                return Integer.compare(level1.getOrder(), level2.getOrder());
+            });
         } else {
             // 如果缓存中不存在该metricCode的列表，则从数据库重新加载
             List<MetricStandard> newList = metricStandardMapper.selectMetricStandardListByMetricCode(metricStandard.getMetricCode());
+            // 按照水质等级顺序对标准进行排序
+            newList.sort((s1, s2) -> {
+                WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                if (level1 == null && level2 == null) return 0;
+                if (level1 == null) return 1;
+                if (level2 == null) return -1;
+                return Integer.compare(level1.getOrder(), level2.getOrder());
+            });
             metricStandardCache.put(metricStandard.getMetricCode(), newList);
         }
 
@@ -109,6 +136,15 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
                     break;
                 }
             }
+            // 重新排序
+            cachedList.sort((s1, s2) -> {
+                WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                if (level1 == null && level2 == null) return 0;
+                if (level1 == null) return 1;
+                if (level2 == null) return -1;
+                return Integer.compare(level1.getOrder(), level2.getOrder());
+            });
         }
         
         return result;
@@ -186,6 +222,15 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         
         // 缓存未命中，从数据库查询
         List<MetricStandard> dbList = metricStandardMapper.selectMetricStandardListByMetricCode(metricCode);
+        // 按照水质等级顺序对标准进行排序
+        dbList.sort((s1, s2) -> {
+            WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+            WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+            if (level1 == null && level2 == null) return 0;
+            if (level1 == null) return 1;
+            if (level2 == null) return -1;
+            return Integer.compare(level1.getOrder(), level2.getOrder());
+        });
         metricStandardCache.put(metricCode, dbList);
         return dbList;
     }
@@ -269,6 +314,7 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
                             // 判断是否比当前最差等级还差
                             if (standard.compareLevel(worstQualityLevel) > 0) {
                                 worstQualityLevel = standard.getQualityLevel();
+                                break;
                             }
                         }
                     }

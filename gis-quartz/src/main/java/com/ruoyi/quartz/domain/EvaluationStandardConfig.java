@@ -35,6 +35,7 @@ public class EvaluationStandardConfig
     private Long referenceStandardId;
 
     /** 指标编码 */
+    @Excel(name = "指标编码")
     @ApiModelProperty("指标编码")
     private String metricCode;
 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.quartz.mapper.QualityControlRuleMapper">
+    
+    <resultMap type="QualityControlRule" id="QualityControlRuleResult">
+        <result property="id" column="id"/>
+        <result property="metricCode" column="metric_code"/>
+        <result property="metricName" column="metric_name"/>
+        <result property="upperBound" column="upper_bound"/>
+        <result property="lowerBound" column="lower_bound"/>
+    </resultMap>
+    
+    <sql id="selectQualityControlRuleVo">
+        select id, metric_code, metric_name, upper_bound, lower_bound from quality_control_rule
+    </sql>
+    
+    <select id="selectQualityControlRuleList" parameterType="QualityControlRule" resultMap="QualityControlRuleResult">
+        <include refid="selectQualityControlRuleVo"/>
+        <where>  
+            <if test="metricCode != null  and metricCode != ''"> and metric_code = #{metricCode}</if>
+            <if test="metricName != null  and metricName != ''"> and metric_name like concat('%', #{metricName}, '%')</if>
+            <if test="upperBound != null "> and upper_bound = #{upperBound}</if>
+            <if test="lowerBound != null "> and lower_bound = #{lowerBound}</if>
+        </where>
+    </select>
+    
+    <select id="selectQualityControlRuleById" parameterType="Long" resultMap="QualityControlRuleResult">
+        <include refid="selectQualityControlRuleVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertQualityControlRule" parameterType="QualityControlRule">
+        insert into quality_control_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="metricCode != null and metricCode != ''">metric_code,</if>
+            <if test="metricName != null and metricName != ''">metric_name,</if>
+            <if test="upperBound != null">upper_bound,</if>
+            <if test="lowerBound != null">lower_bound,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="metricCode != null and metricCode != ''">#{metricCode},</if>
+            <if test="metricName != null and metricName != ''">#{metricName},</if>
+            <if test="upperBound != null">#{upperBound},</if>
+            <if test="lowerBound != null">#{lowerBound},</if>
+         </trim>
+    </insert>
+    
+    <update id="updateQualityControlRule" parameterType="QualityControlRule">
+        update quality_control_rule
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="metricCode != null and metricCode != ''">metric_code = #{metricCode},</if>
+            <if test="metricName != null and metricName != ''">metric_name = #{metricName},</if>
+            <if test="upperBound != null">upper_bound = #{upperBound},</if>
+            <if test="lowerBound != null">lower_bound = #{lowerBound},</if>
+        </trim>
+        where id = #{id}
+    </update>
+    
+    <delete id="deleteQualityControlRuleById" parameterType="Long">
+        delete from quality_control_rule where id = #{id}
+    </delete>
+    
+    <delete id="deleteQualityControlRuleByIds" parameterType="Long">
+        delete from quality_control_rule where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

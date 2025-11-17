@@ -84,7 +84,52 @@ public class EvaluationConfigController {
      */
     @PostMapping("/batchActivate")
     @ApiOperation("批量激活评价标准配置")
-    public AjaxResult batchActivate(@ApiParam("评价标准配置ID列表") @RequestBody List<Long> ids) {
-        return evaluationStandardConfigService.batchActivate(ids);
+    public AjaxResult batchActivate(@ApiParam("参考标准ID") @RequestParam Long referenceStandardId) {
+        return evaluationStandardConfigService.batchActivateByViewAndReference(referenceStandardId);
+    }
+    
+    /**
+     * 修改评价标准配置
+     */
+    @PutMapping("/update")
+    @ApiOperation("修改评价标准配置")
+    public AjaxResult update(@RequestBody EvaluationStandardConfig evaluationStandardConfig) {
+        try {
+            int result = evaluationStandardConfigService.updateEvaluationStandardConfig(evaluationStandardConfig);
+            if (result > 0) {
+                return AjaxResult.success("修改成功");
+            } else {
+                return AjaxResult.error("修改失败");
+            }
+        } catch (Exception e) {
+            return AjaxResult.error("修改失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 批量删除评价标准配置
+     */
+    @DeleteMapping("/batchDelete")
+    @ApiOperation("批量删除评价标准配置")
+    public AjaxResult batchDelete(@ApiParam("ID列表") @RequestBody List<Long> ids) {
+        try {
+            if (ids == null || ids.isEmpty()) {
+                return AjaxResult.error("请选择需要删除的数据");
+            }
+            
+            int result = evaluationStandardConfigService.deleteEvaluationStandardConfigByIds(ids);
+            return AjaxResult.success("删除成功，共删除" + result + "条记录");
+        } catch (Exception e) {
+            return AjaxResult.error("删除失败：" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 新增单条评价标准配置
+     */
+    @PostMapping("/add")
+    @ApiOperation("新增单条评价标准配置")
+    public AjaxResult add(@RequestBody EvaluationStandardConfig evaluationStandardConfig) {
+        return evaluationStandardConfigService.insertEvaluationStandardConfigSingle(evaluationStandardConfig);
     }
 }

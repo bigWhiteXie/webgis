@@ -274,4 +274,45 @@ public class SampleDataController extends BaseController {
             return AjaxResult.error("获取数据失败: " + e.getMessage());
         }
     }
+    
+    /**
+     * 添加单条监测记录
+     *
+     * @param sampleData 监测记录数据
+     * @return 操作结果
+     */
+    @PostMapping("/add")
+    @ApiOperation("添加单条监测记录")
+    public AjaxResult addSampleData(@RequestBody SampleData sampleData) {
+        try {
+            // 检查必要参数
+            if (sampleData == null) {
+                return AjaxResult.error("参数不能为空");
+            }
+            
+            if (sampleData.getMonitoringWellCode() == null || sampleData.getMonitoringWellCode().trim().isEmpty()) {
+                return AjaxResult.error("监测井编码不能为空");
+            }
+            
+            if (sampleData.getSamplingTime() == null) {
+                return AjaxResult.error("采样时间不能为空");
+            }
+            
+            if (sampleData.getMetricCode() == null || sampleData.getMetricCode().trim().isEmpty()) {
+                return AjaxResult.error("指标代码不能为空");
+            }
+            
+            if (sampleData.getActualTestValue() == null || sampleData.getActualTestValue().trim().isEmpty()) {
+                return AjaxResult.error("检测值不能为空");
+            }
+
+            // 插入数据
+            sampleDataService.addSampleData(sampleData);
+            
+            return AjaxResult.success("数据添加成功");
+        } catch (Exception e) {
+            logger.error("添加监测记录失败", e);
+            return AjaxResult.error("数据添加失败: " + e.getMessage());
+        }
+    }
 }

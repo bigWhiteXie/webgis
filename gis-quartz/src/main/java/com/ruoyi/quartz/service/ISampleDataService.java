@@ -112,4 +112,12 @@ public interface ISampleDataService {
      * @return 带有质量等级的监测数据列表
      */
     List<SampleDataResp> getSampleDataWithQualityLevels(String monitoringWellCode, Date startTime, Date endTime);
+    
+    /**
+     * 添加单条监测记录
+     * 
+     * @param sampleData 监测记录数据
+     * @return 添加结果
+     */
+    int addSampleData(SampleData sampleData);
 }

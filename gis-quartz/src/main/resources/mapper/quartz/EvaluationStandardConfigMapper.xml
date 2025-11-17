@@ -224,5 +224,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </set>
         WHERE id = #{id}
     </update>
+    
+    <update id="updateEvaluationStandardConfig" parameterType="EvaluationStandardConfig">
+        UPDATE evaluation_standard_config
+        <set>
+            <if test="referenceStandardId != null">reference_standard_id = #{referenceStandardId},</if>
+            <if test="metricCode != null and metricCode != ''">metric_code = #{metricCode},</if>
+            <if test="metricName != null and metricName != ''">metric_name = #{metricName},</if>
+            <if test="classIRange != null">class_i_range = #{classIRange},</if>
+            <if test="classIiRange != null">class_ii_range = #{classIiRange},</if>
+            <if test="classIiiRange != null">class_iii_range = #{classIiiRange},</if>
+            <if test="classIvRange != null">class_iv_range = #{classIvRange},</if>
+            <if test="classVRange != null">class_v_range = #{classVRange},</if>
+            <if test="classInferiorVRange != null">class_inferior_v_range = #{classInferiorVRange},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteEvaluationStandardConfigById" parameterType="Long">
+        DELETE FROM evaluation_standard_config WHERE id = #{id}
+    </delete>
+    
+    <delete id="deleteEvaluationStandardConfigByIds" parameterType="java.util.List">
+        DELETE FROM evaluation_standard_config WHERE id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 </mapper>

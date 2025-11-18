@@ -1,6 +1,8 @@
 package com.ruoyi.quartz.mapper;
 
 import com.ruoyi.quartz.domain.PollutionMetric;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -34,7 +36,7 @@ public interface PollutionMetricMapper
      * @param limit 限制数量
      * @return 污染物指标集合
      */
-    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, int offset, int limit);
+    public List<PollutionMetric> selectPollutionMetricList(@Param("pollutionMetric") PollutionMetric pollutionMetric, @Param("offset") int offset, @Param("limit") int limit);
 
     /**
      * 新增污染物指标

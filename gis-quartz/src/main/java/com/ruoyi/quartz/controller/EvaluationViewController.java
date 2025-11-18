@@ -13,6 +13,8 @@ import com.ruoyi.quartz.service.IEvaluationStandardViewService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +31,7 @@ import java.io.IOException;
 @RequestMapping("/evaluation/view")
 @Api(tags = "评价标准文件管理")
 public class EvaluationViewController {
-    
+    private static final Logger log = LoggerFactory.getLogger(EvaluationViewController.class);
     @Autowired
     private IEvaluationStandardViewService evaluationStandardViewService;
     
@@ -181,7 +183,6 @@ public class EvaluationViewController {
             
             // 使用DocumentToHtmlConverter将文件转换为HTML
             String htmlContent = DocumentToHtmlConverter.convertToHtml(realPath, extension);
-            
             // 设置响应内容类型为HTML
             response.setContentType("text/html;charset=UTF-8");
             

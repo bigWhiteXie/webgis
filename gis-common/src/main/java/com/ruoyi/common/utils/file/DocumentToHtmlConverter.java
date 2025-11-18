@@ -3,6 +3,8 @@ package com.ruoyi.common.utils.file;
 import java.io.*;
 
 import com.aspose.words.Document;
+import com.aspose.words.HtmlSaveOptions;
+import com.aspose.words.SaveFormat;
 import com.ruoyi.common.utils.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.fit.pdfdom.PDFDomTree;
@@ -49,8 +51,13 @@ public class DocumentToHtmlConverter {
      */
     private static String convertDocxToHtml(String filePath) throws IOException {
         try {
-            Document doc = new Document(filePath); // Address是将要被转化的word文档
-            String htmlStr = doc.toString();
+            Document doc = new Document(filePath);
+            HtmlSaveOptions options = new HtmlSaveOptions();
+            options.setExportImagesAsBase64(true);
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            doc.save(baos, options);
+            String htmlStr = new String(baos.toByteArray(), "UTF-8");
             return htmlStr;
         } catch (Exception e) {
             e.printStackTrace();

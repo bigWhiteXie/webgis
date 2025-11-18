@@ -6,6 +6,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
+import com.ruoyi.common.utils.file.DocumentToHtmlConverter;
 import com.ruoyi.quartz.domain.EvaluationStandardView;
 import com.ruoyi.quartz.mapper.EvaluationStandardViewMapper;
 import com.ruoyi.quartz.service.IEvaluationStandardViewService;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/evaluation/view")
@@ -78,9 +81,9 @@ public class EvaluationViewController {
      * @param id 评价标准ID
      * @param response 响应对象
      */
-    @GetMapping("/download")
+    @GetMapping("/download/{id}")
     @ApiOperation("下载评价标准文件")
-    public void downloadEvaluationStandard(@ApiParam("评价标准ID") @RequestParam Long id, HttpServletResponse response) {
+    public void downloadEvaluationStandard(@ApiParam("评价标准ID") @PathVariable Long id, HttpServletResponse response) {
         try {
             // 根据ID查找记录
             EvaluationStandardView evaluationStandardView = evaluationStandardViewMapper.selectById(id);
@@ -137,5 +140,59 @@ public class EvaluationViewController {
                               @ApiParam("页码") @RequestParam(defaultValue = "1") int pageNum,
                               @ApiParam("每页记录数") @RequestParam(defaultValue = "10") int pageSize) {
         return evaluationStandardViewService.selectEvaluationStandardViewList(evaluationStandardView, pageNum, pageSize);
+    }
+    
+    /**
+     * 预览评价标准文件
+     *
+     * @param id 评价标准ID
+     * @param response 响应对象
+     */
+    @GetMapping("/preview/{id}")
+    @ApiOperation("预览评价标准文件")
+    public void previewEvaluationStandard(@ApiParam("评价标准ID") @PathVariable Long id, HttpServletResponse response) {
+        try {
+            // 根据ID查找记录
+            EvaluationStandardView evaluationStandardView = evaluationStandardViewMapper.selectById(id);
+            if (evaluationStandardView == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "未找到指定的评价标准文件");
+                return;
+            }
+            
+            // 获取文件路径
+            String filePath = evaluationStandardView.getFilePath();
+            if (filePath == null || filePath.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "文件路径不存在");
+                return;
+            }
+            
+            // 获取文件在服务器上的真实路径
+            String realPath = RuoYiConfig.getProfile() + filePath.substring(filePath.indexOf("/upload"));
+            
+            // 检查文件是否允许预览
+            if (!FileUtils.checkAllowDownload(realPath)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "文件非法，不允许预览");
+                return;
+            }
+            
+            // 获取文件扩展名
+            String fileName = evaluationStandardView.getStandardName();
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+            
+            // 使用DocumentToHtmlConverter将文件转换为HTML
+            String htmlContent = DocumentToHtmlConverter.convertToHtml(realPath, extension);
+            
+            // 设置响应内容类型为HTML
+            response.setContentType("text/html;charset=UTF-8");
+            
+            // 输出HTML内容到响应
+            response.getWriter().write(htmlContent);
+        } catch (Exception e) {
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "文件预览失败: " + e.getMessage());
+            } catch (IOException ex) {
+                // 忽略异常
+            }
+        }
     }
 }

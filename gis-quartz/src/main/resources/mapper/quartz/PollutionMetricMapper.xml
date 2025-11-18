@@ -25,13 +25,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectPollutionMetricList" parameterType="map" resultMap="PollutionMetricResult">
         <include refid="selectPollutionMetricVo"/>
         <where>
-            <if test="pollutionMetric.metricCode != null  and pollutionMetric.metricCode != ''"> and metric_code = #{pollutionMetric.metricCode}</if>
-            <if test="pollutionMetric.metricName != null  and pollutionMetric.metricName != ''"> and metric_name like concat('%', #{pollutionMetric.metricName}, '%')</if>
-            <if test="pollutionMetric.unit != null  and pollutionMetric.unit != ''"> and unit = #{pollutionMetric.unit}</if>
-            <if test="pollutionMetric.category != null  and pollutionMetric.category != ''"> and category = #{pollutionMetric.category}</if>
+            <if test="arg0.metricCode != null  and arg0.metricCode != ''"> and metric_code = #{arg0.metricCode}</if>
+            <if test="arg0.metricName != null  and arg0.metricName != ''"> and metric_name like concat('%', #{arg0.metricName}, '%')</if>
+            <if test="arg0.unit != null  and arg0.unit != ''"> and unit = #{arg0.unit}</if>
+            <if test="arg0.category != null  and arg0.category != ''"> and category = #{arg0.category}</if>
         </where>
-        <if test="offset != null and limit != null">
-            limit #{offset}, #{limit}
+        <if test="arg1 != null and arg2 != null">
+            limit #{arg1}, #{arg2}
         </if>
     </select>
     

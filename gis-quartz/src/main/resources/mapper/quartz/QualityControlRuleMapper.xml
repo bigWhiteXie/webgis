@@ -34,9 +34,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="qualityControlRule.upperBound != null "> and upper_bound = #{qualityControlRule.upperBound}</if>
             <if test="qualityControlRule.lowerBound != null "> and lower_bound = #{qualityControlRule.lowerBound}</if>
         </where>
-        <if test="offset != null and limit != null">
-            limit #{offset}, #{limit}
-        </if>
+        ORDER BY id
+        LIMIT #{limit} OFFSET #{offset}
     </select>
     
     <select id="selectQualityControlRuleById" parameterType="Long" resultMap="QualityControlRuleResult">

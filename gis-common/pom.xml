@@ -77,6 +77,19 @@
             <artifactId>poi-ooxml</artifactId>
         </dependency>
 
+        <!-- POI对Word文档转换HTML的支持 -->
+        <dependency>
+            <groupId>com.luhuiguo</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>23.1</version></dependency>
+        <dependency>
+            <groupId>net.sf.cssbox</groupId>
+            <artifactId>pdf2dom</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+
+
         <!-- yml解析器 -->
         <dependency>
             <groupId>org.yaml</groupId>

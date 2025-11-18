@@ -2,6 +2,7 @@ package com.ruoyi.quartz.mapper;
 
 import java.util.List;
 import com.ruoyi.quartz.domain.QualityControlRule;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 质控规则Mapper接口
@@ -34,7 +35,7 @@ public interface QualityControlRuleMapper
      * @param limit 限制数量
      * @return 质控规则集合
      */
-    public List<QualityControlRule> selectQualityControlRuleListPaged(QualityControlRule qualityControlRule, int offset, int limit);
+    public List<QualityControlRule> selectQualityControlRuleListPaged(@Param("qualityControlRule") QualityControlRule qualityControlRule, @Param("offset") int offset, @Param("limit") int limit);
 
     /**
      * 新增质控规则

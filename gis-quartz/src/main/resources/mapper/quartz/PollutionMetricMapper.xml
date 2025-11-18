@@ -30,9 +30,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="pollutionMetric.unit != null  and pollutionMetric.unit != ''"> and unit = #{pollutionMetric.unit}</if>
             <if test="pollutionMetric.category != null  and pollutionMetric.category != ''"> and category = #{pollutionMetric.category}</if>
         </where>
-        <if test="offset != null and limit != null">
-            limit #{offset}, #{limit}
-        </if>
+        ORDER BY id
+        LIMIT #{limit} OFFSET #{offset}
     </select>
     
     <insert id="insertPollutionMetric" parameterType="PollutionMetric" useGeneratedKeys="true" keyProperty="id">

@@ -90,6 +90,21 @@ public class QualityControlRuleServiceImpl implements IQualityControlRuleService
         
         return qualityControlRuleMapper.selectQualityControlRuleList(qualityControlRule);
     }
+    
+    /**
+     * 查询质控规则列表（分页）
+     *
+     * @param qualityControlRule 质控规则
+     * @param pageNum 当前页码
+     * @param pageSize 每页数量
+     * @return 质控规则集合
+     */
+    @Override
+    public List<QualityControlRule> selectQualityControlRuleList(QualityControlRule qualityControlRule, Integer pageNum, Integer pageSize) 
+    {
+        int offset = (pageNum - 1) * pageSize;
+        return qualityControlRuleMapper.selectQualityControlRuleListPaged(qualityControlRule, offset, pageSize);
+    }
 
     /**
      * 新增质控规则

@@ -40,10 +40,11 @@ public class PollutionMetricController extends BaseController
      */
     @GetMapping("/list")
     @ApiOperation("查询污染物指标列表")
-    public TableDataInfo list(@ApiParam("污染物指标查询条件") PollutionMetric pollutionMetric)
+    public TableDataInfo list(@ApiParam("污染物指标查询条件") PollutionMetric pollutionMetric,
+                              @RequestParam(defaultValue = "1") Integer pageNum,
+                              @RequestParam(defaultValue = "10") Integer pageSize)
     {
-        startPage();
-        List<PollutionMetric> list = pollutionMetricService.selectPollutionMetricList(pollutionMetric);
+        List<PollutionMetric> list = pollutionMetricService.selectPollutionMetricList(pollutionMetric, pageNum, pageSize);
         return getDataTable(list);
     }
 

@@ -2,6 +2,7 @@ package com.ruoyi.quartz.controller;
 
 import java.util.List;
 
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -37,10 +38,11 @@ public class QualityControlRuleController extends BaseController
      */
     @GetMapping("/list")
     @ApiOperation("查询质控规则列表")
-    public TableDataInfo list(@ApiParam("质控规则查询条件") QualityControlRule qualityControlRule)
+    public TableDataInfo list(@ApiParam("质控规则查询条件") QualityControlRule qualityControlRule,
+                              @RequestParam(defaultValue = "1") Integer pageNum,
+                              @RequestParam(defaultValue = "10") Integer pageSize)
     {
-        startPage();
-        List<QualityControlRule> list = qualityControlRuleService.selectQualityControlRuleList(qualityControlRule);
+        List<QualityControlRule> list = qualityControlRuleService.selectQualityControlRuleList(qualityControlRule, pageNum, pageSize);
         return getDataTable(list);
     }
 

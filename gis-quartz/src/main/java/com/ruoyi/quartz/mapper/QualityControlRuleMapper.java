@@ -25,6 +25,16 @@ public interface QualityControlRuleMapper
      * @return 质控规则集合
      */
     public List<QualityControlRule> selectQualityControlRuleList(QualityControlRule qualityControlRule);
+    
+    /**
+     * 查询质控规则列表（分页）
+     *
+     * @param qualityControlRule 质控规则
+     * @param offset 偏移量
+     * @param limit 限制数量
+     * @return 质控规则集合
+     */
+    public List<QualityControlRule> selectQualityControlRuleListPaged(QualityControlRule qualityControlRule, int offset, int limit);
 
     /**
      * 新增质控规则

@@ -22,14 +22,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
     
-    <select id="selectPollutionMetricList" parameterType="PollutionMetric" resultMap="PollutionMetricResult">
+    <select id="selectPollutionMetricList" parameterType="map" resultMap="PollutionMetricResult">
         <include refid="selectPollutionMetricVo"/>
         <where>
-            <if test="metricCode != null  and metricCode != ''"> and metric_code = #{metricCode}</if>
-            <if test="metricName != null  and metricName != ''"> and metric_name like concat('%', #{metricName}, '%')</if>
-            <if test="unit != null  and unit != ''"> and unit = #{unit}</if>
-            <if test="category != null  and category != ''"> and category = #{category}</if>
+            <if test="pollutionMetric.metricCode != null  and pollutionMetric.metricCode != ''"> and metric_code = #{pollutionMetric.metricCode}</if>
+            <if test="pollutionMetric.metricName != null  and pollutionMetric.metricName != ''"> and metric_name like concat('%', #{pollutionMetric.metricName}, '%')</if>
+            <if test="pollutionMetric.unit != null  and pollutionMetric.unit != ''"> and unit = #{pollutionMetric.unit}</if>
+            <if test="pollutionMetric.category != null  and pollutionMetric.category != ''"> and category = #{pollutionMetric.category}</if>
         </where>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
     </select>
     
     <insert id="insertPollutionMetric" parameterType="PollutionMetric" useGeneratedKeys="true" keyProperty="id">

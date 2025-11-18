@@ -25,6 +25,16 @@ public interface IPollutionMetricService
      * @return 污染物指标集合
      */
     public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric);
+    
+    /**
+     * 查询污染物指标列表（分页）
+     *
+     * @param pollutionMetric 污染物指标
+     * @param pageNum 当前页码
+     * @param pageSize 每页数量
+     * @return 污染物指标集合
+     */
+    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize);
 
     /**
      * 新增污染物指标

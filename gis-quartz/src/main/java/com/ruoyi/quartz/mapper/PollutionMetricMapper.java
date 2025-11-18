@@ -25,6 +25,16 @@ public interface PollutionMetricMapper
      * @return 污染物指标集合
      */
     public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric);
+    
+    /**
+     * 查询污染物指标列表（分页）
+     *
+     * @param pollutionMetric 污染物指标
+     * @param offset 偏移量
+     * @param limit 限制数量
+     * @return 污染物指标集合
+     */
+    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, int offset, int limit);
 
     /**
      * 新增污染物指标

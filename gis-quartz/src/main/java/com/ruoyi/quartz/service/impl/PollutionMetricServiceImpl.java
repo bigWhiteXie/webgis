@@ -42,6 +42,21 @@ public class PollutionMetricServiceImpl implements IPollutionMetricService
     {
         return pollutionMetricMapper.selectPollutionMetricList(pollutionMetric);
     }
+    
+    /**
+     * 查询污染物指标列表（分页）
+     *
+     * @param pollutionMetric 污染物指标
+     * @param pageNum 当前页码
+     * @param pageSize 每页数量
+     * @return 污染物指标集合
+     */
+    @Override
+    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize) 
+    {
+        int offset = (pageNum - 1) * pageSize;
+        return pollutionMetricMapper.selectPollutionMetricList(pollutionMetric, offset, pageSize);
+    }
 
     /**
      * 新增污染物指标

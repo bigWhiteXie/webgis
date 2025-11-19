@@ -6,14 +6,17 @@
 
 cd database
 ```
-docker load -i gisdata-image.tar
+docker load -i my-postgis.tar
 ```
 
 启动容器
 ```
-docker run -d  --name my-postgis  -e POSTGRES_PASSWORD=j3391111  -p 54321:5432  my-postgis:latest
+docker run -d  --name my-postgis  -e POSTGRES_PASSWORD=123456  -p 54321:5432  my-postgis:latest
 ```
-
+如果要挂载数据目录在宿主机
+```angular2html
+docker run -d --name my-postgis -e POSTGRES_PASSWORD=123456 -p 54321:5432 -v C:/docker-data/postgis-data:/var/lib/postgresql/data my-postgis:latest
+```
 ## 后端应用部署
 **重要:**
 
@@ -21,15 +24,15 @@ docker run -d  --name my-postgis  -e POSTGRES_PASSWORD=j3391111  -p 54321:5432  
 
 导入镜像:
 ```
-docker load -i webgis-image.tar
+docker load -i webgis.tar
 ```
 运行容器
 ```
 docker run -d \
   -p 8081:8081 \
-  -e SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:postgresql://新的数据库地址:端口/数据库名 \
-  -e SPRING_DATASOURCE_DRUID_MASTER_USERNAME=用户名 \
-  -e SPRING_DATASOURCE_DRUID_MASTER_PASSWORD=密码 \
-  webgis-app
-
+  -e SPRING_DATASOURCE_DRUID_MASTER_URL=jdbc:postgresql://127.0.0.1:54321/HydroVision \
+  -e SPRING_DATASOURCE_DRUID_MASTER_USERNAME=postgres \
+  -e SPRING_DATASOURCE_DRUID_MASTER_PASSWORD=j3391111 \
+  --network=host \
+  webgis
 ```

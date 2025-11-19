@@ -43,20 +43,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
         
-    <insert id="insertQualityControlRule" parameterType="QualityControlRule">
+    <insert id="insertQualityControlRule" parameterType="QualityControlRule" useGeneratedKeys="true" keyProperty="id">
         insert into quality_control_rule
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="metricCode != null and metricCode != ''">metric_code,</if>
-            <if test="metricName != null and metricName != ''">metric_name,</if>
-            <if test="upperBound != null">upper_bound,</if>
-            <if test="lowerBound != null">lower_bound,</if>
-         </trim>
+            metric_code,
+            metric_name,
+            upper_bound,
+            lower_bound,
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="metricCode != null and metricCode != ''">#{metricCode},</if>
-            <if test="metricName != null and metricName != ''">#{metricName},</if>
-            <if test="upperBound != null">#{upperBound},</if>
-            <if test="lowerBound != null">#{lowerBound},</if>
-         </trim>
+            #{metricCode},
+            #{metricName},
+            #{upperBound},
+            #{lowerBound},
+        </trim>
     </insert>
     
     <update id="updateQualityControlRule" parameterType="QualityControlRule">

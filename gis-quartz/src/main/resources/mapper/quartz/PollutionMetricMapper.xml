@@ -34,19 +34,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LIMIT #{limit} OFFSET #{offset}
     </select>
     
-    <insert id="insertPollutionMetric" parameterType="PollutionMetric" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertPollutionMetric" parameterType="PollutionMetric" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into pollution_metric
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="metricCode != null and metricCode != ''">metric_code,</if>
-            <if test="metricName != null and metricName != ''">metric_name,</if>
-            <if test="unit != null">unit,</if>
-            <if test="category != null">category,</if>
+            id,
+            metric_code,
+            metric_name,
+            unit,
+            category,
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="metricCode != null and metricCode != ''">#{metricCode},</if>
-            <if test="metricName != null and metricName != ''">#{metricName},</if>
-            <if test="unit != null">#{unit},</if>
-            <if test="category != null">#{category},</if>
+            COALESCE(#{id}, (SELECT COALESCE(MAX(id), 0) + 1 FROM pollution_metric)),
+            #{metricCode},
+            #{metricName},
+            #{unit},
+            #{category},
         </trim>
     </insert>
     

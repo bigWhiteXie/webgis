@@ -19,11 +19,10 @@
 -- ----------------------------
 -- Table structure for pollution_metric
 -- ----------------------------
-DROP TABLE IF EXISTS "public"."pollution_metric";
-CREATE SEQUENCE IF NOT EXISTS pollution_metric_id_seq;
-CREATE TABLE "public"."pollution_metric" (
-  "id" int4 NOT NULL DEFAULT nextval('pollution_metric_id_seq'::regclass),
-  "metric_code" varchar(50) COLLATE "pg_catalog"."default",
+DROP TABLE IF EXISTS pollution_metric;
+CREATE TABLE pollution_metric (
+  "id" SERIAL PRIMARY KEY,
+  "metric_code" varchar(50) unique ,
   "metric_name" varchar(100) COLLATE "pg_catalog"."default",
   "unit" varchar(50) COLLATE "pg_catalog"."default",
   "category" varchar(50) COLLATE "pg_catalog"."default"
@@ -11177,16 +11176,4 @@ INSERT INTO "public"."pollution_metric" VALUES (11140, 'A3723', '三氯丙烷', 
 -- ----------------------------
 -- Indexes structure for table pollution_metric
 -- ----------------------------
-CREATE INDEX "idx_pollution_metric_category" ON "public"."pollution_metric" USING btree (
-  "category" COLLATE "pg_catalog"."default" "pg_catalog"."text_ops" ASC NULLS LAST
-);
 
--- ----------------------------
--- Uniques structure for table pollution_metric
--- ----------------------------
-ALTER TABLE "public"."pollution_metric" ADD CONSTRAINT "uk_indicator_code" UNIQUE ("metric_code");
-
--- ----------------------------
--- Primary Key structure for table pollution_metric
--- ----------------------------
-ALTER TABLE "public"."pollution_metric" ADD CONSTRAINT "pollution_metric_pkey" PRIMARY KEY ("id");

@@ -279,7 +279,7 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
 
                 // 6. 批量插入这些metricStandard
                 if (!metricStandards.isEmpty()) {
-                    metricStandardMapper.insertMetricStandardBatch(metricStandards);
+                    metricStandardService.insertMetricStandardBatch(metricStandards);
                 }
             }
             

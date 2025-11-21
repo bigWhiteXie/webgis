@@ -73,6 +73,62 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
     }
 
     /**
+     * 批量插入指标标准记录
+     *
+     * @param metricStandards 指标标准对象列表
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int insertMetricStandardBatch(List<MetricStandard> metricStandards) {
+        if (metricStandards == null || metricStandards.isEmpty()) {
+            return 0;
+        }
+        
+        int result = metricStandardMapper.insertMetricStandardBatch(metricStandards);
+        
+        // 按指标编码分组，以便更新缓存
+        Map<String, List<MetricStandard>> groupedStandards = metricStandards.stream()
+                .collect(Collectors.groupingBy(MetricStandard::getMetricCode));
+
+        // 更新缓存
+        for (Map.Entry<String, List<MetricStandard>> entry : groupedStandards.entrySet()) {
+            String metricCode = entry.getKey();
+            List<MetricStandard> newStandards = entry.getValue();
+            
+            List<MetricStandard> cachedList = metricStandardCache.get(metricCode);
+            if (cachedList != null) {
+                // 如果缓存中已存在该metricCode的列表，则添加新数据到列表中
+                cachedList.addAll(newStandards);
+                // 重新排序
+                cachedList.sort((s1, s2) -> {
+                    WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                    WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                    if (level1 == null && level2 == null) return 0;
+                    if (level1 == null) return 1;
+                    if (level2 == null) return -1;
+                    return Integer.compare(level1.getOrder(), level2.getOrder());
+                });
+            } else {
+                // 如果缓存中不存在该metricCode的列表，则从数据库重新加载
+                List<MetricStandard> newList = metricStandardMapper.selectMetricStandardListByMetricCode(metricCode);
+                // 按照水质等级顺序对标准进行排序
+                newList.sort((s1, s2) -> {
+                    WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
+                    WaterQualityLevel level2 = WaterQualityLevel.getByLabel(s2.getQualityLevel());
+                    if (level1 == null && level2 == null) return 0;
+                    if (level1 == null) return 1;
+                    if (level2 == null) return -1;
+                    return Integer.compare(level1.getOrder(), level2.getOrder());
+                });
+                metricStandardCache.put(metricCode, newList);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * 插入指标标准记录
      *
      * @param metricStandard 指标标准对象

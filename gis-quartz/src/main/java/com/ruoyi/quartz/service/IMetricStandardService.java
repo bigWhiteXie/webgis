@@ -18,6 +18,14 @@ public interface IMetricStandardService {
     public int insertMetricStandard(MetricStandard metricStandard);
 
     /**
+     * 批量插入指标标准记录
+     *
+     * @param metricStandards 指标标准对象列表
+     * @return 结果
+     */
+    public int insertMetricStandardBatch(List<MetricStandard> metricStandards);
+
+    /**
      * 修改指标标准记录
      *
      * @param metricStandard 指标标准对象

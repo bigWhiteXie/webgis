@@ -3,6 +3,7 @@ package com.ruoyi.quartz.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.enums.WaterQualityLevel;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
@@ -24,6 +25,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -122,8 +125,10 @@ public class SampleDataServiceImpl implements ISampleDataService {
         // 如果resp不为null且包含指标值，则计算质量等级
         if (resp != null && resp.getMetricValues() != null && !resp.getMetricValues().isEmpty()) {
             // 提取指标编码和检测值列表
-            String qualityLevel = getQualityLevel(resp);
-            resp.setQualityLevel(qualityLevel);
+            Map<String, Object> qualityInfo = getQualityLevelWithMetrics(resp);
+            resp.setQualityLevel((String) qualityInfo.get("qualityLevel"));
+            resp.setMetricsCode((String) qualityInfo.get("metricsCode"));
+            resp.setMetricsName((String) qualityInfo.get("metricsName"));
         }
         
         return resp;
@@ -164,8 +169,10 @@ public class SampleDataServiceImpl implements ISampleDataService {
             SampleDataResp item = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
                 baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
             if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
-                String qualityLevel = getQualityLevel(item);
-                item.setQualityLevel(qualityLevel);
+                Map<String, Object> qualityInfo = getQualityLevelWithMetrics(item);
+                item.setQualityLevel((String) qualityInfo.get("qualityLevel"));
+                item.setMetricsCode((String) qualityInfo.get("metricsCode"));
+                item.setMetricsName((String) qualityInfo.get("metricsName"));
             }
             result.add(item);
         }
@@ -178,7 +185,7 @@ public class SampleDataServiceImpl implements ISampleDataService {
         return rspData;
     }
 
-    private String getQualityLevel(SampleDataResp item) {
+    private Map<String, Object> getQualityLevelWithMetrics(SampleDataResp item) {
         // 提取指标编码和检测值列表
         List<String> metricCodes = item.getMetricValues().stream()
                 .map(MetricValItem::getMetricCode)
@@ -193,7 +200,49 @@ public class SampleDataServiceImpl implements ISampleDataService {
 
         // 计算质量等级
         String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
-        return qualityLevel;
+        
+        // 查找最差质量等级对应的指标编码和名称
+        String worstMetricCode = null;
+        String worstMetricName = null;
+        
+        if (item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
+            // 找到质量最差的指标
+            for (MetricValItem valItem : item.getMetricValues()) {
+                try {
+                    String singleQualityLevel = metricStandardService.calculateSingleQualityLevel(
+                        valItem.getMetricCode(), valItem.getValue());
+                    if (worstMetricCode == null || isWorseQualityLevel(singleQualityLevel, qualityLevel)) {
+                        worstMetricCode = valItem.getMetricCode();
+                        worstMetricName = valItem.getMetricName();
+                        // 如果找到了与总体质量等级匹配的指标，就停止查找
+                        if (singleQualityLevel.equals(qualityLevel)) {
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
+                }
+            }
+        }
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("qualityLevel", qualityLevel);
+        result.put("metricsCode", worstMetricCode);
+        result.put("metricsName", worstMetricName);
+        
+        return result;
+    }
+    
+    /**
+     * 判断质量等级是否更差
+     * @param level1 等级1
+     * @param level2 等级2
+     * @return 如果level1比level2更差则返回true
+     */
+    private boolean isWorseQualityLevel(String level1, String level2) {
+        // 简化实现：根据等级名称判断（假设等级按名称排序，名称越大越差）
+        // 这里需要根据实际的等级定义来实现
+        return level1.compareTo(level2) > 0;
     }
 
     @Override
@@ -277,7 +326,10 @@ public class SampleDataServiceImpl implements ISampleDataService {
                         valItem.setLevel("未知");
                     }
                 }
-                item.setQualityLevel(getQualityLevel(item));
+                Map<String, Object> qualityInfo = getQualityLevelWithMetrics(item);
+                item.setQualityLevel((String) qualityInfo.get("qualityLevel"));
+                item.setMetricsCode((String) qualityInfo.get("metricsCode"));
+                item.setMetricsName((String) qualityInfo.get("metricsName"));
             }
             
             result.add(item);

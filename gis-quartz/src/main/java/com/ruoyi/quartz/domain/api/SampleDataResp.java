@@ -1,7 +1,7 @@
 package com.ruoyi.quartz.domain.api;
 
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 public class SampleDataResp {
     // 监测井编码
@@ -10,11 +10,19 @@ public class SampleDataResp {
     // 采样时间
     private Date samplingTime;
 
+    // 样品编码
+    private String sampleCode;
+
     private String qualityLevel;
+    
+    // 水质等级对应的指标编码
+    private String metricsCode;
+    
+    // 水质等级对应的指标名称
+    private String metricsName;
 
     // 指标值列表
     private List<MetricValItem> metricValues;
-
     
     // 质量等级
 
@@ -46,6 +54,14 @@ public class SampleDataResp {
         this.samplingTime = samplingTime;
     }
     
+    public String getSampleCode() {
+        return sampleCode;
+    }
+    
+    public void setSampleCode(String sampleCode) {
+        this.sampleCode = sampleCode;
+    }
+    
     public List<MetricValItem> getMetricValues() {
         return metricValues;
     }
@@ -61,15 +77,33 @@ public class SampleDataResp {
     public void setQualityLevel(String qualityLevel) {
         this.qualityLevel = qualityLevel;
     }
-
+    
+    public String getMetricsCode() {
+        return metricsCode;
+    }
+    
+    public void setMetricsCode(String metricsCode) {
+        this.metricsCode = metricsCode;
+    }
+    
+    public String getMetricsName() {
+        return metricsName;
+    }
+    
+    public void setMetricsName(String metricsName) {
+        this.metricsName = metricsName;
+    }
     
     @Override
     public String toString() {
         return "SampleDataResp{" +
                 "monitoringWellCode='" + monitoringWellCode + '\'' +
                 ", samplingTime=" + samplingTime +
+                ", sampleCode='" + sampleCode + '\'' +
                 ", metricValues=" + metricValues +
                 ", qualityLevel='" + qualityLevel + '\'' +
+                ", metricsCode='" + metricsCode + '\'' +
+                ", metricsName='" + metricsName + '\'' +
                 '}';
     }
 }

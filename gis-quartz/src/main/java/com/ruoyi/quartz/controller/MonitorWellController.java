@@ -117,6 +117,8 @@ public class MonitorWellController extends BaseController {
 
                     if (sampleDataResp != null) {
                         list.get(index).setWaterQualityLevel(sampleDataResp.getQualityLevel());
+                        list.get(index).setMetricsCode(sampleDataResp.getMetricsCode());
+                        list.get(index).setMetricsName(sampleDataResp.getMetricsName());
                     }
                 }, executorService);
                 futures.add(future);

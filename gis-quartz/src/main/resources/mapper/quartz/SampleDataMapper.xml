@@ -32,12 +32,18 @@
     <resultMap type="SampleDataResp" id="SampleDataRespResult">
         <result property="monitoringWellCode" column="monitoring_well_code"/>
         <result property="samplingTime" column="sampling_time"/>
+        <result property="sampleCode" column="sample_code"/>
+        <result property="metricsCode" column="metrics_code"/>
+        <result property="metricsName" column="metrics_name"/>
         <collection property="metricValues" ofType="MetricValItem" resultMap="MetricValItemResult"/>
     </resultMap>
     
     <resultMap type="SampleDataResp" id="SampleDataRespBaseResult">
         <result property="monitoringWellCode" column="monitoring_well_code"/>
         <result property="samplingTime" column="sampling_time"/>
+        <result property="sampleCode" column="sample_code"/>
+        <result property="metricsCode" column="metrics_code"/>
+        <result property="metricsName" column="metrics_name"/>
     </resultMap>
 
     <insert id="batchInsertSampleData" parameterType="java.util.List">
@@ -125,11 +131,15 @@
         SELECT 
             sd.id,
             sd.monitoring_well_code,
+            sd.sample_code,
             sd.sampling_time,
             sd.metric_code,
             pm.metric_name,
             sd.actual_test_value as value,
-            pm.unit
+            pm.unit,
+            <!-- 添加指标编码和指标名称字段 -->
+            pm.metric_code as metrics_code,
+            pm.metric_name as metrics_name
         FROM sample_data sd
         LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
         WHERE sd.monitoring_well_code = #{monitoringWellCode}
@@ -172,6 +182,7 @@
         SELECT 
             sd.id,
             sd.monitoring_well_code,
+            sd.sample_code,
             sd.sampling_time,
             sd.metric_code,
             pm.metric_name,
@@ -200,8 +211,13 @@
     <select id="selectSampleDataRespByGroup" resultMap="SampleDataRespBaseResult">
         SELECT DISTINCT
             sd.monitoring_well_code,
-            sd.sampling_time
+            sd.sampling_time,
+            sd.sample_code,
+            <!-- 添加指标编码和指标名称字段 -->
+            pm.metric_code as metrics_code,
+            pm.metric_name as metrics_name
         FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
         LEFT JOIN monitoring_well mw ON sd.monitoring_well_code = mw.well_code
         <where>
             <if test="monitoringWellCode != null and monitoringWellCode != ''">
@@ -225,11 +241,15 @@
         SELECT 
             sd.id,
             sd.monitoring_well_code,
+            sd.sample_code,
             sd.sampling_time,
             sd.metric_code,
             pm.metric_name,
             sd.actual_test_value as value,
-            pm.unit
+            pm.unit,
+            <!-- 添加指标编码和指标名称字段 -->
+            pm.metric_code as metrics_code,
+            pm.metric_name as metrics_name
         FROM sample_data sd
         LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
         WHERE sd.monitoring_well_code = #{monitoringWellCode}

@@ -138,7 +138,7 @@ public interface SampleDataMapper {
      * @param samplingTime 采样时间
      * @return SampleDataResp对象
      */
-    SampleDataResp selectSampleDataRespByGroupWithMetrics(
+    List<SampleDataResp> selectSampleDataRespByGroupWithMetrics(
         @Param("monitoringWellCode") String monitoringWellCode,
         @Param("samplingTime") Date samplingTime);
     

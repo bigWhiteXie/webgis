@@ -167,8 +167,9 @@ public class SampleDataServiceImpl implements ISampleDataService {
         // 为每个基本项查询详细的指标数据
         List<SampleDataResp> result = new ArrayList<>();
         for (SampleDataResp baseItem : baseList) {
-            SampleDataResp item = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
+            List<SampleDataResp> items = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
                 baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
+            SampleDataResp item = items.isEmpty() ? null : items.get(0);
             if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
                 Map<String, Object> qualityInfo = getQualityLevelWithMetrics(item);
                 item.setQualityLevel((String) qualityInfo.get("qualityLevel"));
@@ -311,8 +312,9 @@ public class SampleDataServiceImpl implements ISampleDataService {
         // 为每个基本项查询详细的指标数据，并添加质量等级
         List<SampleDataResp> result = new ArrayList<>();
         for (SampleDataResp baseItem : baseList) {
-            SampleDataResp item = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
+            List<SampleDataResp> items = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
                 baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
+            SampleDataResp item = items.isEmpty() ? null : items.get(0);
             
             if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
                 // 为每个指标计算质量等级

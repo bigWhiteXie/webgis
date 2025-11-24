@@ -119,8 +119,9 @@ public class SampleDataServiceImpl implements ISampleDataService {
         }
         
         // 调用selectSampleDataWithMetrics得到SampleDataResp
-        SampleDataResp resp = sampleDataMapper.selectSampleDataWithMetrics(
+        List<SampleDataResp> resps = sampleDataMapper.selectSampleDataWithMetrics(
             monitoringWellCode, metricNames, latestSamplingTime);
+        SampleDataResp resp = resps.isEmpty() ? null : resps.get(0);
             
         // 如果resp不为null且包含指标值，则计算质量等级
         if (resp != null && resp.getMetricValues() != null && !resp.getMetricValues().isEmpty()) {

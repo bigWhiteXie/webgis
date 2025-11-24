@@ -55,7 +55,7 @@ public interface SampleDataMapper {
      * @param samplingTime 采样时间
      * @return SampleDataResp对象
      */
-    SampleDataResp selectSampleDataWithMetrics(
+    List<SampleDataResp> selectSampleDataWithMetrics(
         @Param("monitoringWellCode") String monitoringWellCode,
         @Param("metricNames") List<String> metricNames,
         @Param("samplingTime") Date samplingTime);

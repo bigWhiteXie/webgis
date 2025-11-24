@@ -33,6 +33,14 @@ public class SimpleWellResp {
     @ApiModelProperty("水质等级")
     private String waterQualityLevel;
     
+    /** 水质等级对应的指标编码 */
+    @ApiModelProperty("水质等级对应的指标编码")
+    private String metricsCode;
+    
+    /** 水质等级对应的指标名称 */
+    @ApiModelProperty("水质等级对应的指标名称")
+    private String metricsName;
+    
     public String getWellCode() {
         return wellCode;
     }
@@ -71,5 +79,21 @@ public class SimpleWellResp {
     
     public void setWaterQualityLevel(String waterQualityLevel) {
         this.waterQualityLevel = waterQualityLevel;
+    }
+    
+    public String getMetricsCode() {
+        return metricsCode;
+    }
+    
+    public void setMetricsCode(String metricsCode) {
+        this.metricsCode = metricsCode;
+    }
+    
+    public String getMetricsName() {
+        return metricsName;
+    }
+    
+    public void setMetricsName(String metricsName) {
+        this.metricsName = metricsName;
     }
 }

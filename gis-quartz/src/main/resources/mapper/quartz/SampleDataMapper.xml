@@ -14,7 +14,7 @@
         <result property="detectionLimit" column="detection_limit"/>
         <result property="actualTestValue" column="actual_test_value"/>
     </resultMap>
-    
+
     <resultMap type="MetricValItem" id="MetricValItemResult">
         <result property="id" column="id"/>
         <result property="metricCode" column="metric_code"/>
@@ -23,12 +23,12 @@
         <result property="SamplingTime" column="sampling_time"/>
         <result property="unit" column="unit"/>
     </resultMap>
-    
+
     <resultMap type="MetricPair" id="MetricPairResult">
         <result property="metricCode" column="metric_code"/>
         <result property="metricName" column="metric_name"/>
     </resultMap>
-    
+
     <resultMap type="SampleDataResp" id="SampleDataRespResult">
         <result property="monitoringWellCode" column="monitoring_well_code"/>
         <result property="samplingTime" column="sampling_time"/>
@@ -37,7 +37,7 @@
         <result property="metricsName" column="metrics_name"/>
         <collection property="metricValues" ofType="MetricValItem" resultMap="MetricValItemResult"/>
     </resultMap>
-    
+
     <resultMap type="SampleDataResp" id="SampleDataRespBaseResult">
         <result property="monitoringWellCode" column="monitoring_well_code"/>
         <result property="samplingTime" column="sampling_time"/>
@@ -74,7 +74,7 @@
             detection_limit = EXCLUDED.detection_limit,
             actual_test_value = EXCLUDED.actual_test_value
     </insert>
-    
+
     <insert id="batchInsertSampleDataOnly" parameterType="java.util.List">
         INSERT INTO sample_data (
             monitoring_well_code,
@@ -99,11 +99,11 @@
         ON CONFLICT (sampling_time,monitoring_well_code, metric_code)
         DO NOTHING
     </insert>
-    
+
     <update id="batchUpdateSampleData" parameterType="java.util.List">
         <foreach collection="list" item="item" separator=";">
             UPDATE sample_data
-            SET 
+            SET
                 sample_code = #{item.sampleCode},
                 testing_laboratory = #{item.testingLaboratory},
                 detection_limit = #{item.detectionLimit},
@@ -111,7 +111,7 @@
             WHERE id = #{item.id}
         </foreach>
     </update>
-    
+
     <delete id="deleteByMonitoringWellCodeAndSamplingTime">
         DELETE FROM sample_data
         WHERE monitoring_well_code = #{monitoringWellCode}
@@ -126,9 +126,9 @@
         ORDER BY sampling_time DESC
         LIMIT 1
     </select>
-    
+
     <select id="selectSampleDataWithMetrics" resultMap="SampleDataRespResult">
-        SELECT 
+        SELECT
             sd.id,
             sd.monitoring_well_code,
             sd.sample_code,
@@ -152,9 +152,9 @@
         </if>
         ORDER BY sd.metric_code
     </select>
-    
+
     <select id="selectSampleDataByTimeRange" resultMap="MetricValItemResult">
-        SELECT 
+        SELECT
             sd.id,
             sd.metric_code,
             pm.metric_name,
@@ -168,18 +168,18 @@
           AND sd.sampling_time BETWEEN #{startTime} AND #{endTime}
         ORDER BY sd.sampling_time ASC
     </select>
-    
+
     <select id="selectAllWaterQualityMetrics" resultMap="MetricPairResult">
-        SELECT 
+        SELECT
             metric_code,
             metric_name
         FROM pollution_metric
         WHERE category = 'groundwater_pollution'
         ORDER BY metric_code
     </select>
-    
+
     <select id="selectSampleDataRespList" resultMap="SampleDataRespResult">
-        SELECT 
+        SELECT
             sd.id,
             sd.monitoring_well_code,
             sd.sample_code,
@@ -207,7 +207,7 @@
         </where>
         ORDER BY sd.sampling_time DESC, sd.monitoring_well_code
     </select>
-    
+
     <select id="selectSampleDataRespByGroup" resultMap="SampleDataRespBaseResult">
         SELECT DISTINCT
             sd.monitoring_well_code,
@@ -236,9 +236,42 @@
         ORDER BY sd.sampling_time DESC, sd.monitoring_well_code
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
-    
+
+    <select id="selectCompleteSampleDataWithMetrics" resultMap="SampleDataRespResult">
+        SELECT
+            sd.id,
+            sd.monitoring_well_code,
+            sd.sample_code,
+            sd.sampling_time,
+            sd.metric_code,
+            pm.metric_name,
+            sd.actual_test_value as value,
+            pm.unit,
+            <!-- 添加指标编码和指标名称字段 -->
+            pm.metric_code as metrics_code,
+            pm.metric_name as metrics_name
+        FROM sample_data sd
+        LEFT JOIN pollution_metric pm ON sd.metric_code = pm.metric_code
+        LEFT JOIN monitoring_well mw ON sd.monitoring_well_code = mw.well_code
+        <where>
+            <if test="monitoringWellCode != null and monitoringWellCode != ''">
+                AND sd.monitoring_well_code = #{monitoringWellCode}
+            </if>
+            <if test="startTime != null">
+                AND sd.sampling_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND sd.sampling_time &lt;= #{endTime}
+            </if>
+            <if test="projectId != null and projectId != ''">
+                AND mw.project_id = #{projectId}
+            </if>
+        </where>
+        ORDER BY sd.sampling_time DESC, sd.monitoring_well_code, sd.metric_code
+    </select>
+
     <select id="selectSampleDataRespByGroupWithMetrics" resultMap="SampleDataRespResult">
-        SELECT 
+        SELECT
             sd.id,
             sd.monitoring_well_code,
             sd.sample_code,
@@ -256,7 +289,7 @@
           AND sd.sampling_time = #{samplingTime}
         ORDER BY sd.metric_code
     </select>
-    
+
     <select id="selectSampleDataRespCount" resultType="int">
         SELECT COUNT(*) FROM (
             SELECT DISTINCT
@@ -282,7 +315,7 @@
     </select>
 
     <select id="selectSampleDataList" parameterType="com.ruoyi.quartz.domain.SampleData" resultMap="SampleDataResult">
-        SELECT 
+        SELECT
             id,
             monitoring_well_code,
             sample_code,
@@ -319,7 +352,7 @@
             </if>
         </where>
     </select>
-    
+
     <delete id="deleteSampleDataByIds">
         DELETE FROM sample_data WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">

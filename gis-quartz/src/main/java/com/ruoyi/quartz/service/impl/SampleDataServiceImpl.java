@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.WaterQualityLevel;
+import com.ruoyi.quartz.domain.MetricStandard;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
@@ -22,11 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -121,15 +118,54 @@ public class SampleDataServiceImpl implements ISampleDataService {
         // 调用selectSampleDataWithMetrics得到SampleDataResp
         List<SampleDataResp> resps = sampleDataMapper.selectSampleDataWithMetrics(
             monitoringWellCode, metricNames, latestSamplingTime);
-        SampleDataResp resp = resps.isEmpty() ? null : resps.get(0);
+        
+        if (resps.isEmpty()) {
+            return null;
+        }
+        
+        // 创建一个统一的SampleDataResp对象来包含所有指标
+        SampleDataResp resp = new SampleDataResp();
+        resp.setMonitoringWellCode(monitoringWellCode);
+        resp.setSamplingTime(latestSamplingTime);
+        
+        // 合并所有的指标数据
+        List<MetricValItem> allMetricValues = new ArrayList<>();
+        for (SampleDataResp r : resps) {
+            if (r.getMetricValues() != null) {
+                allMetricValues.addAll(r.getMetricValues());
+            }
+        }
+        resp.setMetricValues(allMetricValues);
             
         // 如果resp不为null且包含指标值，则计算质量等级
         if (resp != null && resp.getMetricValues() != null && !resp.getMetricValues().isEmpty()) {
-            // 提取指标编码和检测值列表
-            Map<String, Object> qualityInfo = getQualityLevelWithMetrics(resp);
-            resp.setQualityLevel((String) qualityInfo.get("qualityLevel"));
-            resp.setMetricsCode((String) qualityInfo.get("metricsCode"));
-            resp.setMetricsName((String) qualityInfo.get("metricsName"));
+            // 计算每个指标的质量等级并找出最差的等级
+            String worstQualityLevel = null;
+            String worstMetricCode = null;
+            String worstMetricName = null;
+            
+            for (MetricValItem valItem : resp.getMetricValues()) {
+                try {
+                    String singleQualityLevel = metricStandardService.calculateSingleQualityLevel(
+                        valItem.getMetricCode(), valItem.getValue());
+                    valItem.setLevel(singleQualityLevel);
+                    
+                    // 查找最差质量等级
+                    if (worstQualityLevel == null || 
+                        WaterQualityLevel.compareLevel(singleQualityLevel, worstQualityLevel) > 0) {
+                        worstQualityLevel = singleQualityLevel;
+                        worstMetricCode = valItem.getMetricCode();
+                        worstMetricName = valItem.getMetricName();
+                    }
+                } catch (Exception e) {
+                    log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
+                }
+            }
+            
+            // 设置最差质量等级和相关指标信息
+            resp.setQualityLevel(worstQualityLevel);
+            resp.setMetricsCode(worstMetricCode);
+            resp.setMetricsName(worstMetricName);
         }
         
         return resp;
@@ -253,6 +289,11 @@ public class SampleDataServiceImpl implements ISampleDataService {
     }
     
     @Override
+    public int addSampleData(SampleData sampleData) {
+        return sampleDataMapper.batchInsertSampleData(Arrays.asList(sampleData));
+    }
+    
+    @Override
     public int updateSampleData(SampleDataVo sampleDataVo) {
         String monitoringWellCode = sampleDataVo.getMonitoringWellCode();
         Date samplingTime = sampleDataVo.getSamplingTime();
@@ -305,54 +346,83 @@ public class SampleDataServiceImpl implements ISampleDataService {
     
     @Override
     public List<SampleDataResp> getSampleDataWithQualityLevels(String monitoringWellCode, Date startTime, Date endTime) {
-        // 查询基本的监测井和采样时间信息
-        List<SampleDataResp> baseList = sampleDataMapper.selectSampleDataRespByGroup(
-            monitoringWellCode, startTime, endTime, null, 0, Integer.MAX_VALUE);
-        
-        // 为每个基本项查询详细的指标数据，并添加质量等级
+        // 1. 查询startTime到endTime中指定monitoringWellCode的所有采集指标，
+        // 相同的sample_code视作同一次采集，聚合该次采集的所有指标的信息(包括指标值、指标编码、指标名称、指标单位)
+        List<SampleDataResp> rawData = sampleDataMapper.selectCompleteSampleDataWithMetrics(
+            monitoringWellCode, startTime, endTime, null);
+
+        // Group the raw data by sampling event (same sample code means same sampling event)
+        Map<String, List<SampleDataResp>> groupedData = rawData.stream()
+            .collect(Collectors.groupingBy(
+                SampleDataResp::getSampleCode,
+                LinkedHashMap::new,
+                Collectors.toList()
+            ));
+
+        // Process each group to create a single SampleDataResp per sampling event
         List<SampleDataResp> result = new ArrayList<>();
-        for (SampleDataResp baseItem : baseList) {
-            List<SampleDataResp> items = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
-                baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
-            SampleDataResp item = items.isEmpty() ? null : items.get(0);
+        for (Map.Entry<String, List<SampleDataResp>> entry : groupedData.entrySet()) {
+            List<SampleDataResp> group = entry.getValue();
+            if (!group.isEmpty()) {
+                // Take the first item as base since they all share the same sampling event info
+                SampleDataResp consolidated = group.get(0);
             
-            if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
-                // 为每个指标计算质量等级
-                for (MetricValItem valItem : item.getMetricValues()) {
-                    // 计算单个指标的质量等级
-                    try {
-                        String qualityLevel = metricStandardService.calculateSingleQualityLevel(
-                            valItem.getMetricCode(), valItem.getValue());
-                        valItem.setLevel(qualityLevel);
-                    } catch (Exception e) {
-                        log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
-                        valItem.setLevel("未知");
+                // Consolidate all metrics from the group
+                List<MetricValItem> allMetrics = group.stream()
+                    .flatMap(item -> item.getMetricValues().stream())
+                    .collect(Collectors.toList());
+                
+                consolidated.setMetricValues(allMetrics);
+                
+                // 2. 使用MetricStandardServiceImpl的calculateQualityLevel方法计算每个SampleDataResp的每个指标的质量等级
+                if (!consolidated.getMetricValues().isEmpty()) {
+                    // Extract metric codes and values for quality calculation
+                    List<String> metricCodes = allMetrics.stream()
+                            .map(MetricValItem::getMetricCode)
+                            .collect(Collectors.toList());
+                    
+                    List<String> values = allMetrics.stream()
+                            .map(MetricValItem::getValue)
+                            .collect(Collectors.toList());
+                    
+                    // Get metric standard map
+                    Map<String, List<com.ruoyi.quartz.domain.MetricStandard>> metricStandardMap = metricStandardService.getMetricStandardMap(metricCodes);
+                    
+                    // Calculate overall quality level for this sampling event
+                    String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
+                    consolidated.setQualityLevel(qualityLevel);
+                    
+                    // 3. 拿到每个指标的质量等级后通过for循环找到最差的那个指标信息，设置到SampleDataResp中
+                    String worstMetricCode = null;
+                    String worstMetricName = null;
+                    String worstQualityLevel = null;
+                    
+                    for (MetricValItem valItem : allMetrics) {
+                        try {
+                            String singleQualityLevel = metricStandardService.calculateSingleQualityLevel(
+                                valItem.getMetricCode(), valItem.getValue());
+                            valItem.setLevel(singleQualityLevel); // Set individual metric quality level
+                            
+                            // Find the worst quality metric
+                            if (worstQualityLevel == null || 
+                                WaterQualityLevel.compareLevel(singleQualityLevel, worstQualityLevel) > 0) {
+                                worstQualityLevel = singleQualityLevel;
+                                worstMetricCode = valItem.getMetricCode();
+                                worstMetricName = valItem.getMetricName();
+                            }
+                        } catch (Exception e) {
+                            log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
+                        }
                     }
+                    
+                    consolidated.setMetricsCode(worstMetricCode);
+                    consolidated.setMetricsName(worstMetricName);
                 }
-                Map<String, Object> qualityInfo = getQualityLevelWithMetrics(item);
-                item.setQualityLevel((String) qualityInfo.get("qualityLevel"));
-                item.setMetricsCode((String) qualityInfo.get("metricsCode"));
-                item.setMetricsName((String) qualityInfo.get("metricsName"));
+                
+                result.add(consolidated);
             }
-            
-            result.add(item);
         }
         
         return result;
-    }
-    
-    @Override
-    public int addSampleData(SampleData sampleData) {
-        if (sampleData == null) {
-            return 0;
-        }
-
-        QualityControlRule rule = qualityControlRuleService.getRuleByCode(sampleData.getMetricCode());
-        if (rule != null) {
-            rule.validate(new BigDecimal(sampleData.getActualTestValue()));
-        }
-        List<SampleData> dataList = new ArrayList<>();
-        dataList.add(sampleData);
-        return sampleDataMapper.batchInsertSampleDataOnly(dataList);
     }
 }

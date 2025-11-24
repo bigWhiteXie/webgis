@@ -98,8 +98,23 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
             
             List<MetricStandard> cachedList = metricStandardCache.get(metricCode);
             if (cachedList != null) {
-                // 如果缓存中已存在该metricCode的列表，则添加新数据到列表中
+                // 如果缓存中已存在该metricCode的列表，则先根据newStandards中的质量等级移除cachedList中的旧数据
+                Set<String> newQualityLevels = newStandards.stream()
+                        .map(MetricStandard::getQualityLevel)
+                        .collect(Collectors.toSet());
+                
+                // 移除cachedList中与newStandards质量等级冲突的数据
+                Iterator<MetricStandard> iterator = cachedList.iterator();
+                while (iterator.hasNext()) {
+                    MetricStandard standard = iterator.next();
+                    if (newQualityLevels.contains(standard.getQualityLevel())) {
+                        iterator.remove();
+                    }
+                }
+                
+                // 将新的数据添加到列表中
                 cachedList.addAll(newStandards);
+                
                 // 重新排序
                 cachedList.sort((s1, s2) -> {
                     WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
@@ -144,6 +159,15 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         if (cachedList != null) {
             // 如果缓存中已存在该metricCode的列表，则添加新数据到列表中
             cachedList.add(metricStandard);
+            
+            // 去重：确保同一质量等级只保留一份数据
+            Map<String, MetricStandard> uniqueStandards = new LinkedHashMap<>();
+            for (MetricStandard standard : cachedList) {
+                uniqueStandards.put(standard.getQualityLevel(), standard);
+            }
+            cachedList.clear();
+            cachedList.addAll(uniqueStandards.values());
+            
             // 重新排序
             cachedList.sort((s1, s2) -> {
                 WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());
@@ -185,13 +209,21 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
         // 更新缓存
         List<MetricStandard> cachedList = metricStandardCache.get(metricStandard.getMetricCode());
         if (cachedList != null) {
-            // 如果缓存中存在该metricCode的列表，则更新列表中的数据
-            for (int i = 0; i < cachedList.size(); i++) {
-                if (cachedList.get(i).getId().equals(metricStandard.getId())) {
-                    cachedList.set(i, metricStandard);
-                    break;
+            // 如果缓存中存在该metricCode的列表，检查是否已存在相同质量等级的数据
+            String newQualityLevel = metricStandard.getQualityLevel();
+            
+            // 移除cachedList中与新数据质量等级冲突的旧数据
+            Iterator<MetricStandard> iterator = cachedList.iterator();
+            while (iterator.hasNext()) {
+                MetricStandard standard = iterator.next();
+                if (standard.getQualityLevel().equals(newQualityLevel)) {
+                    iterator.remove();
                 }
             }
+            
+            // 添加新数据到列表中
+            cachedList.add(metricStandard);
+            
             // 重新排序
             cachedList.sort((s1, s2) -> {
                 WaterQualityLevel level1 = WaterQualityLevel.getByLabel(s1.getQualityLevel());

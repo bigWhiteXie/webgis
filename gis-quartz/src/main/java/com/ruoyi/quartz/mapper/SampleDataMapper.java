@@ -130,14 +130,13 @@ public interface SampleDataMapper {
         @Param("projectId") String projectId,
         @Param("offset") int offset,
         @Param("pageSize") int pageSize);
-    
-    /**
-     * 查询指定监测井和采样时间的SampleDataResp（包含详细指标数据）
-     * 
-     * @param monitoringWellCode 监测井编码
-     * @param samplingTime 采样时间
-     * @return SampleDataResp对象
-     */
+        
+    List<SampleDataResp> selectCompleteSampleDataWithMetrics(
+        @Param("monitoringWellCode") String monitoringWellCode,
+        @Param("startTime") Date startTime,
+        @Param("endTime") Date endTime,
+        @Param("projectId") String projectId);
+
     List<SampleDataResp> selectSampleDataRespByGroupWithMetrics(
         @Param("monitoringWellCode") String monitoringWellCode,
         @Param("samplingTime") Date samplingTime);

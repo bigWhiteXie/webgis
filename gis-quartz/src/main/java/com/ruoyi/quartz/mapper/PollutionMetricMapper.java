@@ -21,7 +21,7 @@ public interface PollutionMetricMapper
     public PollutionMetric selectPollutionMetricById(Long id);
     
     /**
-     * 查询污染物指标列表
+     * 查询污染物指标列表（无分页）
      * 
      * @param pollutionMetric 污染物指标
      * @return 污染物指标集合
@@ -36,7 +36,15 @@ public interface PollutionMetricMapper
      * @param limit 限制数量
      * @return 污染物指标集合
      */
-    public List<PollutionMetric> selectPollutionMetricList(@Param("pollutionMetric") PollutionMetric pollutionMetric, @Param("offset") int offset, @Param("limit") int limit);
+    public List<PollutionMetric> selectPollutionMetricListByPage(@Param("pollutionMetric") PollutionMetric pollutionMetric, @Param("offset") int offset, @Param("limit") int limit);
+    
+    /**
+     * 查询污染物指标总数
+     *
+     * @param pollutionMetric 污染物指标
+     * @return 污染物指标总数
+     */
+    public int selectPollutionMetricCount(@Param("pollutionMetric") PollutionMetric pollutionMetric);
 
     /**
      * 新增污染物指标

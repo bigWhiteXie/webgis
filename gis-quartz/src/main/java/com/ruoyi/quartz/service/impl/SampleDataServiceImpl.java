@@ -142,7 +142,7 @@ public class SampleDataServiceImpl implements ISampleDataService {
             // 计算每个指标的质量等级并找出最差的等级
             String worstQualityLevel = null;
             String worstMetricCode = null;
-            String worstMetricName = null;
+            StringBuilder worstMetricNames = new StringBuilder();
             
             for (MetricValItem valItem : resp.getMetricValues()) {
                 try {
@@ -153,9 +153,16 @@ public class SampleDataServiceImpl implements ISampleDataService {
                     // 查找最差质量等级
                     if (worstQualityLevel == null || 
                         WaterQualityLevel.compareLevel(singleQualityLevel, worstQualityLevel) > 0) {
+                        // 发现更差的等级，重置worstMetricCode和worstMetricNames
                         worstQualityLevel = singleQualityLevel;
                         worstMetricCode = valItem.getMetricCode();
-                        worstMetricName = valItem.getMetricName();
+                        worstMetricNames = new StringBuilder(valItem.getMetricName());
+                    } else if (WaterQualityLevel.compareLevel(singleQualityLevel, worstQualityLevel) == 0) {
+                        // 发现相同等级的指标，添加到worstMetricNames中
+                        if (worstMetricNames.length() > 0) {
+                            worstMetricNames.append(",");
+                        }
+                        worstMetricNames.append(valItem.getMetricName());
                     }
                 } catch (Exception e) {
                     log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
@@ -165,7 +172,7 @@ public class SampleDataServiceImpl implements ISampleDataService {
             // 设置最差质量等级和相关指标信息
             resp.setQualityLevel(worstQualityLevel);
             resp.setMetricsCode(worstMetricCode);
-            resp.setMetricsName(worstMetricName);
+            resp.setMetricsName(worstMetricNames.toString());
         }
         
         return resp;

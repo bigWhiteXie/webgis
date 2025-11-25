@@ -233,16 +233,13 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
     /**
      * 批量激活评价标准配置
      *
-     * @param ids 评价标准配置ID列表
+     * @param configs 评价标准配置列表
      * @return 操作结果
      */
     @Override
     @Transactional
-    public AjaxResult batchActivate(List<Long> ids) {
+    public AjaxResult batchActivate(List<EvaluationStandardConfig> configs) {
         try {
-            // 1. 根据ids找到对应的evaluationConfig记录进行遍历处理
-            List<EvaluationStandardConfig> configs = evaluationStandardConfigMapper.selectEvaluationStandardConfigByIds(ids);
-            
             // 单独处理每个config
             for (EvaluationStandardConfig config : configs) {
                 // 2. 取出metricCode的所有evaluationId(空值则不取)
@@ -315,7 +312,7 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
             }
             
             // 调用原有的批量激活方法
-            return batchActivate(ids);
+            return batchActivate(configs);
         } catch (Exception e) {
             log.error("根据评价标准视图ID和参考标准ID批量激活评价标准配置失败", e);
             return AjaxResult.error("批量激活失败: " + e.getMessage());
@@ -330,6 +327,12 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
      */
     @Override
     public int updateEvaluationStandardConfig(EvaluationStandardConfig evaluationStandardConfig) {
+        metricStandardMapper.deleteMetricStandardByMetricCodes(Arrays.asList(evaluationStandardConfig.getMetricCode()));
+        if (evaluationStandardConfig.getStatus() == 1) {
+            List<MetricStandard> metricStandards = evaluationStandardConfig.toMetricStandards();
+            metricStandardService.insertMetricStandardBatch(metricStandards);
+        }
+
         return evaluationStandardConfigMapper.updateEvaluationStandardConfig(evaluationStandardConfig);
     }
     
@@ -342,6 +345,9 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
     @Override
     @Transactional
     public int deleteEvaluationStandardConfigByIds(List<Long> ids) {
+        // ids转成Long[]
+        Long[] idsArray = ids.stream().map(Long::valueOf).toArray(Long[]::new);
+        metricStandardService.deleteMetricStandardByIds(idsArray);
         return evaluationStandardConfigMapper.deleteEvaluationStandardConfigByIds(ids);
     }
     

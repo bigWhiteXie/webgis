@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.quartz.mapper.PollutionMetricMapper;
 import com.ruoyi.quartz.domain.PollutionMetric;
 import com.ruoyi.quartz.service.IPollutionMetricService;
+import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.constant.HttpStatus;
 
 /**
  * 污染物指标Service业务层处理
@@ -49,13 +51,17 @@ public class PollutionMetricServiceImpl implements IPollutionMetricService
      * @param pollutionMetric 污染物指标
      * @param pageNum 当前页码
      * @param pageSize 每页数量
-     * @return 污染物指标集合
+     * @return 污染物指标分页数据
      */
     @Override
-    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize) 
+    public TableDataInfo selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize) 
     {
         int offset = (pageNum - 1) * pageSize;
-        return pollutionMetricMapper.selectPollutionMetricList(pollutionMetric, offset, pageSize);
+        List<PollutionMetric> list = pollutionMetricMapper.selectPollutionMetricListByPage(pollutionMetric, offset, pageSize);
+        int total = pollutionMetricMapper.selectPollutionMetricCount(pollutionMetric);
+        TableDataInfo tableDataInfo = new TableDataInfo(list, total);
+        tableDataInfo.setCode(HttpStatus.SUCCESS);
+        return tableDataInfo;
     }
 
     /**

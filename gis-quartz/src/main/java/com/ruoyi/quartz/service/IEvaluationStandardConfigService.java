@@ -71,10 +71,10 @@ public interface IEvaluationStandardConfigService
     /**
      * 批量激活评价标准配置
      *
-     * @param ids 评价标准配置ID列表
+     * @param configs 评价标准配置列表
      * @return 操作结果
      */
-    public AjaxResult batchActivate(List<Long> ids);
+    public AjaxResult batchActivate(List<EvaluationStandardConfig> configs);
     
     /**
      * 根据评价标准视图ID和参考标准ID批量激活评价标准配置

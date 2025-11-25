@@ -44,8 +44,8 @@ public class PollutionMetricController extends BaseController
                               @RequestParam(defaultValue = "1") Integer pageNum,
                               @RequestParam(defaultValue = "10") Integer pageSize)
     {
-        List<PollutionMetric> list = pollutionMetricService.selectPollutionMetricList(pollutionMetric, pageNum, pageSize);
-        return getDataTable(list);
+        TableDataInfo info = pollutionMetricService.selectPollutionMetricList(pollutionMetric, pageNum, pageSize);
+        return info;
     }
 
     /**

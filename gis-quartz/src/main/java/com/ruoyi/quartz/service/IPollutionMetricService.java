@@ -1,5 +1,6 @@
 package com.ruoyi.quartz.service;
 
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.PollutionMetric;
 import java.util.List;
 
@@ -32,9 +33,9 @@ public interface IPollutionMetricService
      * @param pollutionMetric 污染物指标
      * @param pageNum 当前页码
      * @param pageSize 每页数量
-     * @return 污染物指标集合
+     * @return 污染物指标分页数据
      */
-    public List<PollutionMetric> selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize);
+    public TableDataInfo selectPollutionMetricList(PollutionMetric pollutionMetric, Integer pageNum, Integer pageSize);
 
     /**
      * 新增污染物指标

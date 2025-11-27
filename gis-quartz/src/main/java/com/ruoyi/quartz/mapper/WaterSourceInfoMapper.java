@@ -90,4 +90,12 @@ public interface WaterSourceInfoMapper {
      * @return 结果
      */
     int batchInsert(@Param("waterSourceInfos") List<WaterSourceInfo> waterSourceInfos);
+    
+    /**
+     * 根据ID列表批量删除水源地信息
+     *
+     * @param sourceIds 水源ID列表
+     * @return 删除记录数
+     */
+    int deleteWaterSourceInfoByIds(@Param("sourceIds") List<Long> sourceIds);
 }

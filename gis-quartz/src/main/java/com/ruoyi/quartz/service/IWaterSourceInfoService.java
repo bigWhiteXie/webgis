@@ -75,4 +75,12 @@ public interface IWaterSourceInfoService {
      * @return 导入结果
      */
     AjaxResult parseAndImportExcelFile(MultipartFile file);
+
+    /**
+     * 根据水源ID列表批量删除水源信息
+     *
+     * @param sourceIds 水源ID列表
+     * @return 删除记录数
+     */
+    int deleteWaterSourceInfoByIds(List<Long> sourceIds);
 }

@@ -4,6 +4,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
+import com.ruoyi.quartz.domain.api.SampleDataDeleteVo;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
 import com.ruoyi.quartz.domain.api.SampleDataVo;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,4 +121,12 @@ public interface ISampleDataService {
      * @return 添加结果
      */
     int addSampleData(SampleData sampleData);
+    
+    /**
+     * 根据监测井编码和样品编码批量删除地下水样品检测信息
+     * 
+     * @param deleteVos 需要删除的数据列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByCodes(List<SampleDataDeleteVo> deleteVos);
 }

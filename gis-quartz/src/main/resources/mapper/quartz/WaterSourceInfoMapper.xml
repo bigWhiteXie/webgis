@@ -553,5 +553,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectWaterSourceInfoVo"/>
         WHERE wsi.source_id = #{sourceId}
     </select>
+    
+    <delete id="deleteWaterSourceInfoByIds" parameterType="java.util.List">
+        DELETE FROM groundwater_source_info WHERE source_id IN
+        <foreach collection="sourceIds" item="sourceId" open="(" separator="," close=")">
+            #{sourceId}
+        </foreach>
+    </delete>
 
 </mapper>

@@ -6,10 +6,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.WaterQualityLevel;
 import com.ruoyi.quartz.domain.MetricStandard;
 import com.ruoyi.quartz.domain.SampleData;
-import com.ruoyi.quartz.domain.api.MetricPair;
-import com.ruoyi.quartz.domain.api.MetricValItem;
-import com.ruoyi.quartz.domain.api.SampleDataResp;
-import com.ruoyi.quartz.domain.api.SampleDataVo;
+import com.ruoyi.quartz.domain.api.*;
 import com.ruoyi.quartz.mapper.SampleDataMapper;
 import com.ruoyi.quartz.service.ISampleDataService;
 import com.ruoyi.quartz.service.IMetricStandardService;
@@ -212,14 +209,59 @@ public class SampleDataServiceImpl implements ISampleDataService {
         for (SampleDataResp baseItem : baseList) {
             List<SampleDataResp> items = sampleDataMapper.selectSampleDataRespByGroupWithMetrics(
                 baseItem.getMonitoringWellCode(), baseItem.getSamplingTime());
-            SampleDataResp item = items.isEmpty() ? null : items.get(0);
-            if (item != null && item.getMetricValues() != null && !item.getMetricValues().isEmpty()) {
-                Map<String, Object> qualityInfo = getQualityLevelWithMetrics(item);
-                item.setQualityLevel((String) qualityInfo.get("qualityLevel"));
-                item.setMetricsCode((String) qualityInfo.get("metricsCode"));
-                item.setMetricsName((String) qualityInfo.get("metricsName"));
+            baseItem.setMetricValues(new ArrayList<MetricValItem>());
+            for (SampleDataResp item : items) {
+                baseItem.getMetricValues().addAll(item.getMetricValues());
             }
-            result.add(item);
+            
+            // 计算总体水质等级
+            if (baseItem.getMetricValues() != null && !baseItem.getMetricValues().isEmpty()) {
+                // 提取指标编码和检测值列表
+                List<String> metricCodes = baseItem.getMetricValues().stream()
+                        .map(MetricValItem::getMetricCode)
+                        .collect(Collectors.toList());
+
+                List<String> values = baseItem.getMetricValues().stream()
+                        .map(MetricValItem::getValue)
+                        .collect(Collectors.toList());
+
+                // 获取指标标准映射
+                var metricStandardMap = metricStandardService.getMetricStandardMap(metricCodes);
+
+                // 计算质量等级
+                String qualityLevel = metricStandardService.calculateQualityLevel(metricCodes, values, metricStandardMap);
+                baseItem.setQualityLevel(qualityLevel);
+                
+                // 查找最差质量等级对应的指标编码和名称
+                String worstMetricCode = null;
+                String worstMetricName = null;
+                
+                // 找到质量最差的指标
+                for (MetricValItem valItem : baseItem.getMetricValues()) {
+                    try {
+                        String singleQualityLevel = metricStandardService.calculateSingleQualityLevel(
+                            valItem.getMetricCode(), valItem.getValue());
+                        valItem.setLevel(singleQualityLevel);
+                        
+                        if (worstMetricCode == null || 
+                            WaterQualityLevel.compareLevel(singleQualityLevel, qualityLevel) == 0) {
+                            if (worstMetricCode != null) {
+                                worstMetricName += "," + valItem.getMetricName();
+                            } else {
+                                worstMetricCode = valItem.getMetricCode();
+                                worstMetricName = valItem.getMetricName();
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("计算指标 {} 的质量等级时出错: {}", valItem.getMetricCode(), e.getMessage());
+                    }
+                }
+                
+                baseItem.setMetricsCode(worstMetricCode);
+                baseItem.setMetricsName(worstMetricName);
+            }
+            
+            result.add(baseItem);
         }
 
         // 返回分页结果
@@ -431,5 +473,13 @@ public class SampleDataServiceImpl implements ISampleDataService {
         }
         
         return result;
+    }
+    
+    @Override
+    public int deleteSampleDataByCodes(List<SampleDataDeleteVo> deleteVos) {
+        if (deleteVos == null || deleteVos.isEmpty()) {
+            return 0;
+        }
+        return sampleDataMapper.deleteSampleDataByCodes(deleteVos);
     }
 }

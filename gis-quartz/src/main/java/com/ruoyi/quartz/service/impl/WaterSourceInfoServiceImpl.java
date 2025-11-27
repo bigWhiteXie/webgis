@@ -167,4 +167,12 @@ public class WaterSourceInfoServiceImpl implements IWaterSourceInfoService {
             return AjaxResult.error("导入Excel数据失败: " + e.getMessage());
         }
     }
+    
+    @Override
+    public int deleteWaterSourceInfoByIds(List<Long> sourceIds) {
+        if (sourceIds == null || sourceIds.isEmpty()) {
+            return 0;
+        }
+        return waterSourceInfoMapper.deleteWaterSourceInfoByIds(sourceIds);
+    }
 }

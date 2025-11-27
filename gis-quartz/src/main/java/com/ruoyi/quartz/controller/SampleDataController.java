@@ -7,6 +7,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
+import com.ruoyi.quartz.domain.api.SampleDataDeleteVo;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
 import com.ruoyi.quartz.domain.api.SampleDataVo;
 import com.ruoyi.quartz.service.ISampleDataService;
@@ -241,6 +242,30 @@ public class SampleDataController extends BaseController {
             }
             
             int result = sampleDataService.deleteSampleDataByIds(ids);
+            return AjaxResult.success("删除成功，共删除" + result + "条记录");
+        } catch (Exception e) {
+            logger.error("删除地下水样品检测信息失败", e);
+            return AjaxResult.error("删除失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 根据监测井编码和样品编码批量删除地下水样品检测信息
+     * 
+     * @param deleteVos 需要删除的数据列表
+     * @return 操作结果
+     */
+    @ApiOperation("根据监测井编码和样品编码批量删除地下水样品检测信息")
+    @DeleteMapping("/deleteByCodes")
+    public AjaxResult deleteSampleDataByCodes(
+            @ApiParam("删除数据列表")
+            @RequestBody List<SampleDataDeleteVo> deleteVos) {
+        try {
+            if (deleteVos == null || deleteVos.isEmpty()) {
+                return AjaxResult.error("请选择需要删除的数据");
+            }
+            
+            int result = sampleDataService.deleteSampleDataByCodes(deleteVos);
             return AjaxResult.success("删除成功，共删除" + result + "条记录");
         } catch (Exception e) {
             logger.error("删除地下水样品检测信息失败", e);

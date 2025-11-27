@@ -209,7 +209,7 @@
     </select>
 
     <select id="selectSampleDataRespByGroup" resultMap="SampleDataRespBaseResult">
-        SELECT DISTINCT
+        SELECT DISTINCT ON (sd.monitoring_well_code,sd.sampling_time)
             sd.monitoring_well_code,
             sd.sampling_time,
             sd.sample_code,
@@ -233,7 +233,7 @@
                 AND mw.project_id = #{projectId}
             </if>
         </where>
-        ORDER BY sd.sampling_time DESC, sd.monitoring_well_code
+        ORDER BY sd.monitoring_well_code, sd.sampling_time DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
@@ -357,6 +357,13 @@
         DELETE FROM sample_data WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteSampleDataByCodes">
+        DELETE FROM sample_data WHERE 
+        <foreach collection="deleteVos" item="item" separator=" OR ">
+            (monitoring_well_code = #{item.monitoringWellCode} AND sample_code = #{item.sampleCode})
         </foreach>
     </delete>
 </mapper>

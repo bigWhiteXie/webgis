@@ -3,6 +3,7 @@ package com.ruoyi.quartz.mapper;
 import com.ruoyi.quartz.domain.SampleData;
 import com.ruoyi.quartz.domain.api.MetricPair;
 import com.ruoyi.quartz.domain.api.MetricValItem;
+import com.ruoyi.quartz.domain.api.SampleDataDeleteVo;
 import com.ruoyi.quartz.domain.api.SampleDataResp;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -178,4 +179,12 @@ public interface SampleDataMapper {
      * @return 删除的记录数
      */
     int deleteSampleDataByIds(@Param("ids") List<Long> ids);
+    
+    /**
+     * 根据监测井编码和样品编码批量删除地下水样品检测信息
+     * 
+     * @param deleteVos 需要删除的数据列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByCodes(@Param("deleteVos") List<SampleDataDeleteVo> deleteVos);
 }

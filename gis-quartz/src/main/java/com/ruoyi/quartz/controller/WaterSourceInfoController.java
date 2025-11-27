@@ -29,7 +29,29 @@ public class WaterSourceInfoController extends BaseController {
 
     @Autowired
     private IWaterSourceInfoService waterSourceInfoService;
-
+    
+    /**
+     * 批量删除水源信息
+     *
+     * @param sourceIds 水源ID列表
+     * @return 结果
+     */
+    @DeleteMapping("/batch")
+    @ApiOperation("批量删除水源信息")
+    public AjaxResult batchDeleteWaterSourceInfo(@ApiParam("水源ID列表") @RequestBody List<Long> sourceIds) {
+        try {
+            if (sourceIds == null || sourceIds.isEmpty()) {
+                return AjaxResult.error("水源ID列表不能为空");
+            }
+            
+            int result = waterSourceInfoService.deleteWaterSourceInfoByIds(sourceIds);
+            return toAjax(result);
+        } catch (Exception e) {
+            logger.error("批量删除水源信息失败", e);
+            return AjaxResult.error("批量删除水源信息失败: " + e.getMessage());
+        }
+    }
+    
     /**
      * 上传水源边界信息
      *

@@ -252,5 +252,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+    
+    <delete id="deleteEvaluationStandardConfigByMetricCodes" parameterType="java.util.List">
+        DELETE FROM evaluation_standard_config WHERE metric_code IN
+        <foreach collection="list" item="metricCode" open="(" separator="," close=")">
+            #{metricCode}
+        </foreach>
+    </delete>
 
 </mapper>

@@ -482,4 +482,20 @@ public class SampleDataServiceImpl implements ISampleDataService {
         }
         return sampleDataMapper.deleteSampleDataByCodes(deleteVos);
     }
+    
+    @Override
+    public int deleteSampleDataByWellCodes(List<String> wellCodes) {
+        if (wellCodes == null || wellCodes.isEmpty()) {
+            return 0;
+        }
+        return sampleDataMapper.deleteSampleDataByWellCodes(wellCodes);
+    }
+    
+    @Override
+    public int deleteSampleDataByMetricCodes(List<String> metricCodes) {
+        if (metricCodes == null || metricCodes.isEmpty()) {
+            return 0;
+        }
+        return sampleDataMapper.deleteSampleDataByMetricCodes(metricCodes);
+    }
 }

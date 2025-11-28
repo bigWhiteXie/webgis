@@ -129,4 +129,20 @@ public interface ISampleDataService {
      * @return 删除的记录数
      */
     int deleteSampleDataByCodes(List<SampleDataDeleteVo> deleteVos);
+    
+    /**
+     * 根据监测井编码列表批量删除地下水样品检测信息
+     * 
+     * @param wellCodes 监测井编码列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByWellCodes(List<String> wellCodes);
+    
+    /**
+     * 根据指标编码列表批量删除地下水样品检测信息
+     * 
+     * @param metricCodes 指标编码列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByMetricCodes(List<String> metricCodes);
 }

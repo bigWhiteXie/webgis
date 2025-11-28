@@ -50,6 +50,14 @@ public interface IMetricStandardService {
     public int deleteMetricStandardByIds(Long[] ids);
 
     /**
+     * 根据指标编码列表批量删除指标标准记录
+     *
+     * @param metricCodes 指标编码列表
+     * @return 结果
+     */
+    public int deleteMetricStandardByMetricCodes(List<String> metricCodes);
+    
+    /**
      * 查询所有指标标准记录
      *
      * @return 指标标准列表

@@ -366,4 +366,18 @@
             (monitoring_well_code = #{item.monitoringWellCode} AND sample_code = #{item.sampleCode})
         </foreach>
     </delete>
+    
+    <delete id="deleteSampleDataByWellCodes">
+        DELETE FROM sample_data WHERE monitoring_well_code IN
+        <foreach collection="wellCodes" item="wellCode" open="(" separator="," close=")">
+            #{wellCode}
+        </foreach>
+    </delete>
+    
+    <delete id="deleteSampleDataByMetricCodes">
+        DELETE FROM sample_data WHERE metric_code IN
+        <foreach collection="metricCodes" item="metricCode" open="(" separator="," close=")">
+            #{metricCode}
+        </foreach>
+    </delete>
 </mapper>

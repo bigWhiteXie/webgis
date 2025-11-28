@@ -101,6 +101,14 @@ public interface EvaluationStandardConfigMapper
     public int deleteEvaluationStandardConfigByIds(List<Long> ids);
     
     /**
+     * 根据指标编码列表批量删除评价标准配置记录
+     *
+     * @param metricCodes 指标编码列表
+     * @return 结果
+     */
+    public int deleteEvaluationStandardConfigByMetricCodes(List<String> metricCodes);
+    
+    /**
      * 分页查询评价标准配置DTO记录列表
      *
      * @param params 查询参数Map，包含evaluationStandardConfig(查询条件), offset(偏移量), limit(限制条数)

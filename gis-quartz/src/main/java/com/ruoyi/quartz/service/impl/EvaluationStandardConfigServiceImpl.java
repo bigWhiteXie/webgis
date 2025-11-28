@@ -345,18 +345,14 @@ public class EvaluationStandardConfigServiceImpl implements IEvaluationStandardC
     @Override
     @Transactional
     public int deleteEvaluationStandardConfigByIds(List<Long> ids) {
-        // ids转成Long[]
-        Long[] idsArray = ids.stream().map(Long::valueOf).toArray(Long[]::new);
-        metricStandardService.deleteMetricStandardByIds(idsArray);
         return evaluationStandardConfigMapper.deleteEvaluationStandardConfigByIds(ids);
     }
     
-    /**
-     * 插入单条评价标准配置记录
-     *
-     * @param evaluationStandardConfig 评价标准配置对象
-     * @return 结果
-     */
+    @Override
+    public int deleteEvaluationStandardConfigByMetricCodes(List<String> metricCodes) {
+        return evaluationStandardConfigMapper.deleteEvaluationStandardConfigByMetricCodes(metricCodes);
+    }
+    
     @Override
     public AjaxResult insertEvaluationStandardConfigSingle(EvaluationStandardConfig evaluationStandardConfig) {
         try {

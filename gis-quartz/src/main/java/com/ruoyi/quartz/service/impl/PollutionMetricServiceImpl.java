@@ -1,12 +1,17 @@
 package com.ruoyi.quartz.service.impl;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.quartz.mapper.PollutionMetricMapper;
 import com.ruoyi.quartz.domain.PollutionMetric;
 import com.ruoyi.quartz.service.IPollutionMetricService;
+import com.ruoyi.quartz.service.ISampleDataService;
+import com.ruoyi.quartz.service.IEvaluationStandardConfigService;
+import com.ruoyi.quartz.service.IMetricStandardService;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.constant.HttpStatus;
 
@@ -20,6 +25,15 @@ public class PollutionMetricServiceImpl implements IPollutionMetricService
 {
     @Autowired
     private PollutionMetricMapper pollutionMetricMapper;
+    
+    @Autowired
+    private ISampleDataService sampleDataService;
+    
+    @Autowired
+    private IEvaluationStandardConfigService evaluationStandardConfigService;
+    
+    @Autowired
+    private IMetricStandardService metricStandardService;
 
     /**
      * 查询污染物指标
@@ -97,6 +111,31 @@ public class PollutionMetricServiceImpl implements IPollutionMetricService
     @Override
     public int deletePollutionMetricByIds(Long[] ids) 
     {
+        // First get the metric codes for the given IDs
+        List<String> metricCodes = new ArrayList<>();
+        for (Long id : ids) {
+            PollutionMetric metric = pollutionMetricMapper.selectPollutionMetricById(id);
+            if (metric != null) {
+                metricCodes.add(metric.getMetricCode());
+            }
+        }
+        
+        // Delete related data in sample_data table
+        if (!metricCodes.isEmpty()) {
+            sampleDataService.deleteSampleDataByMetricCodes(metricCodes);
+        }
+        
+        // Delete related data in evaluation_standard_config table
+        if (!metricCodes.isEmpty()) {
+            evaluationStandardConfigService.deleteEvaluationStandardConfigByMetricCodes(metricCodes);
+        }
+        
+        // Delete related data in metric_standard table
+        if (!metricCodes.isEmpty()) {
+            metricStandardService.deleteMetricStandardByMetricCodes(metricCodes);
+        }
+        
+        // Finally delete the pollution metrics themselves
         return pollutionMetricMapper.deletePollutionMetricByIds(ids);
     }
     
@@ -109,6 +148,6 @@ public class PollutionMetricServiceImpl implements IPollutionMetricService
     @Override
     public int deletePollutionMetricById(Long id)
     {
-        return pollutionMetricMapper.deletePollutionMetricById(id);
+        return deletePollutionMetricByIds(new Long[]{id});
     }
 }

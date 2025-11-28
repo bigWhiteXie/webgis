@@ -101,6 +101,14 @@ public interface IEvaluationStandardConfigService
     public int deleteEvaluationStandardConfigByIds(List<Long> ids);
     
     /**
+     * 根据指标编码列表批量删除评价标准配置记录
+     *
+     * @param metricCodes 指标编码列表
+     * @return 结果
+     */
+    public int deleteEvaluationStandardConfigByMetricCodes(List<String> metricCodes);
+    
+    /**
      * 插入单条评价标准配置记录
      *
      * @param evaluationStandardConfig 评价标准配置对象

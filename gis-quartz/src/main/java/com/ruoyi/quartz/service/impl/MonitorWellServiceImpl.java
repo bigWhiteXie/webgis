@@ -8,6 +8,7 @@ import com.ruoyi.quartz.domain.api.SimpleWellResp;
 import com.ruoyi.quartz.mapper.MonitorWellMapper;
 import com.ruoyi.quartz.service.IMonitorWellService;
 import com.ruoyi.quartz.service.IProjectService;
+import com.ruoyi.quartz.service.ISampleDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,9 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
     
     @Autowired
     private IProjectService projectService;
+    
+    @Autowired
+    private ISampleDataService sampleDataService;
 
     @Override
     public List<SimpleWellResp> selectMonitorWellListBySpatialBounds(Double minX, Double minY, Double maxX, Double maxY, String metricName) {
@@ -163,6 +168,10 @@ public class MonitorWellServiceImpl implements IMonitorWellService {
         if (wellCodes == null || wellCodes.isEmpty()) {
             return 0;
         }
+        // First delete associated sample data
+        sampleDataService.deleteSampleDataByWellCodes(wellCodes);
+        
+        // Then delete the monitor wells themselves
         return monitorWellMapper.deleteMonitorWellByWellCodes(wellCodes);
     }
 }

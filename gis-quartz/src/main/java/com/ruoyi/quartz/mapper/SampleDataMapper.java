@@ -187,4 +187,20 @@ public interface SampleDataMapper {
      * @return 删除的记录数
      */
     int deleteSampleDataByCodes(@Param("deleteVos") List<SampleDataDeleteVo> deleteVos);
+    
+    /**
+     * 根据监测井编码列表批量删除地下水样品检测信息
+     * 
+     * @param wellCodes 监测井编码列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByWellCodes(@Param("wellCodes") List<String> wellCodes);
+    
+    /**
+     * 根据指标编码列表批量删除地下水样品检测信息
+     * 
+     * @param metricCodes 指标编码列表
+     * @return 删除的记录数
+     */
+    int deleteSampleDataByMetricCodes(@Param("metricCodes") List<String> metricCodes);
 }

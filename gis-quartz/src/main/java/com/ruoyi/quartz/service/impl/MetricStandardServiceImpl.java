@@ -282,6 +282,30 @@ public class MetricStandardServiceImpl implements IMetricStandardService, Comman
 
         return count;
     }
+    
+    /**
+     * 根据指标编码列表批量删除指标标准记录
+     *
+     * @param metricCodes 指标编码列表
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int deleteMetricStandardByMetricCodes(List<String> metricCodes) {
+        if (metricCodes == null || metricCodes.isEmpty()) {
+            return 0;
+        }
+        
+        // 从数据库删除
+        int result = metricStandardMapper.deleteMetricStandardByMetricCodes(metricCodes);
+        
+        // 更新缓存
+        for (String metricCode : metricCodes) {
+            metricStandardCache.remove(metricCode);
+        }
+        
+        return result;
+    }
 
     /**
      * 查询所有指标标准记录
